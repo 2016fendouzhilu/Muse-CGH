@@ -4,7 +4,7 @@ import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.{BoxLayout, JComponent, JFrame, JPanel}
 
 import main.{InkCurve, Letter}
-import mymath.{CubicCurve, Vec2}
+import utilities.{CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.

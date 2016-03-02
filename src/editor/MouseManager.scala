@@ -4,7 +4,7 @@ import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.JComponent
 
 import editor.MouseManager._
-import mymath.Vec2
+import utilities.Vec2
 
 /**
   * Created by weijiayi on 2/29/16.

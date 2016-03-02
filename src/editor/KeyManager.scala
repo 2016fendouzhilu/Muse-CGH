@@ -3,7 +3,7 @@ package editor
 import java.awt.event.{KeyAdapter, KeyEvent}
 import javax.swing.JPanel
 
-import mymath.Vec2
+import utilities.Vec2
 
 /**
   * Created by weijiayi on 2/29/16.

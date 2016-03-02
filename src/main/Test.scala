@@ -3,7 +3,7 @@ package main
 import java.awt.{Color, Dimension, Graphics, Graphics2D}
 import javax.swing.{JFrame, JPanel}
 
-import mymath.Vec2
+import utilities.Vec2
 
 /**
  * Created by weijiayi on 2/28/16.

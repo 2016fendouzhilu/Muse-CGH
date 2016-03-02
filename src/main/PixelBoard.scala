@@ -3,7 +3,7 @@ package main
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-import mymath.Vec2
+import utilities.Vec2
 
 
 /**

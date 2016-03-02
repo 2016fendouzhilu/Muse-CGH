@@ -3,7 +3,7 @@ package main
 import java.awt.geom.{Ellipse2D, Line2D}
 import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
-import mymath.Vec2
+import utilities.Vec2
 
 /**
   * Created by weijiayi on 2/29/16.

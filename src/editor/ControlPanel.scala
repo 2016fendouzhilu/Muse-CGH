@@ -5,7 +5,7 @@ import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 
 import main.InkCurve
-import mymath.{CubicCurve, MyMath, Vec2}
+import utilities.{CubicCurve, MyMath, Vec2}
 
 import scala.collection.mutable
 
@@ -41,8 +41,8 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
     this.doClick()
   }
 
-  val insertSegButton = new JButton("Insert Seg"){setFocusable(false)}
-  MyButton.addAction(insertSegButton, ()=>insertSegment())
+  val cutSegmentButton = new JButton("Cut Seg"){setFocusable(false)}
+  MyButton.addAction(cutSegmentButton, ()=>cutSegment())
 
   val deleteButton = new JButton("Delete Seg"){setFocusable(false)}
   //  MyButton.addAction(deleteButton, ()=>segmentsPanel.deleteButton())
@@ -76,7 +76,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
 
     addRow(alignTangentsCheckbox, connectNearbyCheckbox)
 
-    addRow(insertSegButton, deleteButton, undoButton)
+    addRow(cutSegmentButton, deleteButton, undoButton)
 
     contentPanel.add(segmentsPanel)
   }
@@ -92,9 +92,10 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
     }
   }
 
-  def insertSegment(): Unit ={
-    val nextIndex = segmentsPanel.currentSelected.getOrElse(-1) + 1
-    editor.insertSegment(nextIndex)
+  def cutSegment(): Unit ={
+    segmentsPanel.currentSelected.foreach{ i =>
+      editor.cutSegment(i)
+    }
   }
 
   def changeMode(mode: EditMode): Unit = {
@@ -188,63 +189,6 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
         buttons(index).doClick()
     }
   }
-
-}
-
-class SegButtonsPanel2(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAction: Option[Int]=>Unit) extends JPanel{
-  private val buttons: mutable.ArrayBuffer[JRadioButton] = mutable.ArrayBuffer()
-  var selected: Option[Int] = None
-
-  setLayout(new FlowLayout())
-  setPreferredSize(new Dimension(400,120))
-  val group = new ButtonGroup()
-
-  insertButton()
-
-  def makeButton(index: Int): JRadioButton ={
-    val b = new JRadioButton(s"$index")
-    group.add(b)
-    MyButton.addAction(b, ()=>onSegSelected(index))
-    buttons += b
-    b
-  }
-
-  def insertButton(): Unit ={
-    val b = makeButton(buttons.length)
-
-    insertAction(selected)
-
-    this.add(b)
-    this.revalidate()
-
-    val nextButtonIndex = selected.getOrElse(-1)+1
-    buttons(nextButtonIndex).doClick()
-  }
-
-  def onSegSelected(index: Int): Unit ={
-    selected = Some(index)
-
-    selectAction(index)
-  }
-
-  def deleteButton(): Unit = {
-    selected.foreach(s =>{
-      val index = buttons.length-1
-      val b = buttons.remove(index)
-      group.remove(b)
-      deleteAction(s)
-
-      this.remove(b)
-      this.revalidate()
-      this.repaint()
-
-      buttons.headOption match{
-        case Some(h) => h.doClick()
-        case None => selected = None
-      }
-    })
-  }
-
 
 }
 

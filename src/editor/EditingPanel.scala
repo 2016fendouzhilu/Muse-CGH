@@ -4,7 +4,7 @@ import java.awt._
 import javax.swing.JPanel
 
 import main.CurveDrawer
-import mymath.{CubicCurve, MyMath, Vec2}
+import utilities.{CubicCurve, MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.

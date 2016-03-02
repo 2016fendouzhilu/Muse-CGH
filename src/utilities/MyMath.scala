@@ -1,4 +1,4 @@
-package mymath
+package utilities
 
 /**
   * Created by weijiayi on 2/29/16.

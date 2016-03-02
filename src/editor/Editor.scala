@@ -1,7 +1,7 @@
 package editor
 
 import main.{InkCurve, Letter}
-import mymath.{MyMath, Vec2}
+import utilities.{MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
@@ -74,6 +74,11 @@ class Editor(private var buffer: Editing) {
   def insertSegment(index: Int): Unit = index match{
     case 0 =>
 //      assert(currentEditing.letter)
+  }
+
+  def cutSegment(sIndex: Int): Unit ={
+    val letter = buffer.letter
+
   }
 
   def dragControlPoint(pid: Int, drag: Vec2): Unit ={

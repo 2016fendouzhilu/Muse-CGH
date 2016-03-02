@@ -1,4 +1,4 @@
-package mymath
+package utilities
 
 import java.awt.geom.Point2D
 
