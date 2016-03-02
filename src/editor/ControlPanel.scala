@@ -114,7 +114,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
         case _ => ()
       }
       val keyId = e.getKeyCode - VK_1 + 1
-      if(keyId>=1 && keyId<=4)
+      if(keyId>=1 && keyId<=6)
         modeButtonPairs(keyId)._2.doClick()
     }
   }

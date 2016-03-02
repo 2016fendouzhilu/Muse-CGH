@@ -1,7 +1,7 @@
 package editor
 
-import main.Letter
-import mymath.Vec2
+import main.{InkCurve, Letter}
+import mymath.{MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
@@ -63,7 +63,7 @@ class Editor(private var buffer: Editing) {
   }
 
   def selectSegment(indexOp: Option[Int]): Unit = {
-    editAndRecord(buffer.newSelected(indexOp.toList))
+    editAndRecord(buffer.copy(selects = indexOp.toList))
   }
 
   def changeMode(m: EditMode): Unit ={
@@ -149,6 +149,29 @@ class Editor(private var buffer: Editing) {
     buffer = history.undo()
     notifyListeners()
   }
+
+  def scaleThickness(isHead: Boolean, ratio: Double): Unit = {
+    val letter = currentEditing().letter
+    val segArray = letter.segs.toArray
+    currentEditing().selects.foreach{ segIndex =>
+      val seg = segArray(segIndex)
+      if(isHead){
+        val t = math.max(seg.startWidth*ratio, InkCurve.minimalWidth)
+        segArray(segIndex) = seg.copy(startWidth = t)
+        val nearIndex = segIndex - 1
+        if(connectNearby && nearIndex>=0)
+          segArray(nearIndex) = segArray(nearIndex).copy(endWidth = t)
+      }
+      else{
+        val t = math.max(seg.endWidth*ratio, InkCurve.minimalWidth)
+        segArray(segIndex) = seg.copy(endWidth = t)
+        val nearIndex = segIndex + 1
+        if(connectNearby && nearIndex<segArray.length)
+          segArray(nearIndex) = segArray(nearIndex).copy(startWidth = t)
+      }
+    }
+    editWithoutRecord(buffer.copy(letter = letter.copy(segs = segArray.toIndexedSeq)))
+  }
 }
 
 trait EditorListener {
@@ -156,9 +179,7 @@ trait EditorListener {
 }
 
 case class Editing(letter: Letter, selects: Seq[Int]){
-  def newSelected(i: Seq[Int]) = Editing(letter, i)
-
-  def newLetter(l: Letter) = Editing(l, selects)
+  def selectedInkCurves = letter.getCurves(selects)
 }
 
 class EditingHistory(init: Editing) {

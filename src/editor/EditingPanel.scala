@@ -21,21 +21,22 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
   val endpointColor = CurveDrawer.colorWithAlpha(Color.red, 0.75)
   val controlPointColor = CurveDrawer.colorWithAlpha(Color.orange, 0.75)
   val curveHighlightColor = Color.cyan.darker()
+  val editThicknessColor = Color.red
 
   setPreferredSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setMinimumSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setBackground(backgroundColor)
+
+  def pointTrans(p: Vec2): Vec2 = {
+    val s = pixelPerUnit*displayPixelScale
+    Vec2(p.x*s, (p.y + editor.currentEditing().letter.tall)*s) + imageOffset
+  }
 
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
 
     val g2d = g.asInstanceOf[Graphics2D]
 
-    val s = pixelPerUnit*displayPixelScale
-
-    def pointTrans(p: Vec2): Vec2 = {
-      Vec2(p.x*s, (p.y + editor.currentEditing().letter.tall)*s) + imageOffset
-    }
     val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit)
 
     drawBoardLines(drawer,2,2)
@@ -47,7 +48,9 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
 
         editor.mode match{
           case EditControlPoint(pid) =>
-            drawEditingLines(drawer)(selectedCurves.map(_.curve), pid)
+            drawEditingLines(drawer)(selectedCurves.map(_.curve), pid, controlPointColor)
+          case edt@EditThickness(_) =>
+            drawEditingLines(drawer)(selectedCurves.map(_.curve), edt.pid, editThicknessColor)
           case _ => ()
         }
 
@@ -86,20 +89,27 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
   }
 
   val moveSpeed = 1.0
-  def dragAction(drag: Vec2) = {
+  def dragAction(drag: Vec2, init: Vec2, current: Vec2) = {
     editor.mode match {
       case MoveCamera =>
         dragImage(drag)
       case EditControlPoint(id) =>
         editor.dragControlPoint(id, drag/(pixelPerUnit*displayPixelScale))
+      case edt@ EditThickness(isHead) =>
+        editor.currentEditing().selectedInkCurves.headOption.foreach{ ink =>
+          val targetPoint = pointTrans(ink.curve.getPoint(edt.pid))
+          val relative = init - targetPoint
+          val dis = math.max(relative.length,0.1)
+          val ratio = (drag dot relative.normalized)/dis + 1
+          editor.scaleThickness(isHead, ratio)
+        }
     }
   }
 
   def dragFinishAction(): Unit = {
     editor.mode match{
-      case EditControlPoint(_) =>
-        editor.recordNow()
-      case _ => ()
+      case MoveCamera => ()
+      case _ => editor.recordNow()
     }
   }
 
@@ -111,9 +121,9 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
   }
 
 
-  def drawEditingLines(drawer: CurveDrawer)(curves: Seq[CubicCurve], pid: Int): Unit ={
+  def drawEditingLines(drawer: CurveDrawer)(curves: Seq[CubicCurve], pid: Int, color: Color): Unit ={
     val width = 0.05
-    drawer.setColor(controlPointColor)
+    drawer.setColor(color)
     curves.foreach{ c=>
       val Vec2(x,y) = c.getPoint(pid)
       drawer.drawLine(Vec2(-1,y), Vec2(3,y), width)

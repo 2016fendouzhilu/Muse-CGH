@@ -15,3 +15,7 @@ case class InkCurve(curve: CubicCurve, dots: Int, startWidth: Double, endWidth: 
     this.copy(curve = nc)
   }
 }
+
+object InkCurve{
+  val minimalWidth = 0.001
+}
