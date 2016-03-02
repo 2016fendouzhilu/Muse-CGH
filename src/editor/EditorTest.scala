@@ -36,7 +36,7 @@ object EditorTest {
     )
     val editor = new Editor(editing)
 
-    val editingPanel = new EditingPanel(editor, displayPixelScale = 2){
+    val editingPanel = new EditingPanel(editor, displayPixelScale = 3){
       editor.addListener(this)
     }
 

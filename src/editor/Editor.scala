@@ -103,6 +103,8 @@ class Editor(private var buffer: Editing) {
         movePoint(segIndex, tid, drag)
       }
 
+      val endIndex: Int = segArray.length // stroke end
+
       if(connectNearby){
         pid match {
           case 0 =>
@@ -112,10 +114,29 @@ class Editor(private var buffer: Editing) {
             }
           case 3 =>
             val nearby = segIndex + 1
-            if(nearby<segArray.length){
+            if(nearby<endIndex){
               setPoint(nearby, 0, newEndpoint)
             }
           case _ => ()
+        }
+      }
+
+      if(alignTangents){
+        val c = segArray(segIndex).curve
+        if(pid<2){
+          val nearby = segIndex-1
+          if(nearby>=0){
+            val nearbyC = segArray(nearby).curve
+            val relative = c.p0 - c.p1
+            setPoint(nearby, 2, nearbyC.p3+relative)
+          }
+        }else{
+          val nearby = segIndex+1
+          if(nearby<endIndex){
+            val nearbyC = segArray(nearby).curve
+            val relative = c.p3 - c.p2
+            setPoint(nearby, 1, nearbyC.p0+relative)
+          }
         }
       }
 
