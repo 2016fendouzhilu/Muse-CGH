@@ -5,7 +5,7 @@ import java.awt.event.{KeyEvent, KeyAdapter, ActionEvent, ActionListener}
 import javax.swing._
 
 import main.InkCurve
-import mymath.{Vec2, CubicCurve}
+import mymath.{MyMath, Vec2, CubicCurve}
 
 import scala.collection.mutable
 
@@ -16,11 +16,12 @@ import scala.collection.mutable
 class ControlPanel(editor: Editor) extends JPanel with EditorListener{
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)),i=>(),i=>())
 
-  val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint)
-  val modeButtons = modes.map{ m =>
+  val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++ IndexedSeq(EditThickness(true), EditThickness(false))
+  val modeButtonPairs = modes.map{ m =>
     val text = m match {
       case MoveCamera => "MoveCamera"
       case EditControlPoint(i) => s"Edit P$i"
+      case EditThickness(isHead) => s"Edit ${if(isHead) "Head" else "Tail"}"
     }
     val b = new JRadioButton(text){
       setFocusable(false)
@@ -54,23 +55,30 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
   setupLayout()
 
   def setupLayout(): Unit ={
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+    val contentPanel = new JPanel{
+      setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+    }
+//    val scrollPane = new JScrollPane(contentPanel){
+//      setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS)
+//    }
+    this.add(contentPanel)
 
     def addRow(components: JComponent*): Unit ={
-      add(new JPanel(){
+      contentPanel.add(new JPanel(){
         setLayout(new FlowLayout())
+        setPreferredSize(new Dimension(400,50))
+        setMinimumSize(new Dimension(0,0))
         components.foreach(this.add)
       })
     }
 
-    addRow(modeButtons.map(_._2) :_*)
+    addRow(modeButtonPairs.map(_._2) :_*)
 
     addRow(alignTangentsCheckbox, connectNearbyCheckbox)
 
     addRow(insertSegButton, deleteButton, undoButton)
 
-    add(segmentsPanel)
-    add(new JPanel())
+    contentPanel.add(segmentsPanel)
   }
 
   override def editingUpdated(): Unit = {
@@ -79,7 +87,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
         segmentsPanel.setButtonCount(letter.segs.length)
         segmentsPanel.setSelected(selects)
     }
-    modeButtons.foreach{
+    modeButtonPairs.foreach{
       case (m, b) => b.setSelected(m==editor.mode)
     }
   }
@@ -98,7 +106,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
       import KeyEvent._
       e.getKeyCode match {
         case VK_BACK_QUOTE =>
-          modeButtons.head._2.doClick()
+          modeButtonPairs.head._2.doClick()
         case VK_RIGHT =>
           segmentsPanel.moveSelection(1)
         case VK_LEFT =>
@@ -107,7 +115,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
       }
       val keyId = e.getKeyCode - VK_1 + 1
       if(keyId>=1 && keyId<=4)
-        modeButtons(keyId)._2.doClick()
+        modeButtonPairs(keyId)._2.doClick()
     }
   }
 }
@@ -176,7 +184,7 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
     currentSelected match {
       case None => buttons.headOption.foreach{_.doClick()}
       case Some(s) =>
-        val index = (s + delta) % buttonCount
+        val index = MyMath.wrap(s + delta, buttonCount)
         buttons(index).doClick()
     }
   }

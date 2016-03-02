@@ -23,6 +23,7 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
   val curveHighlightColor = Color.cyan.darker()
 
   setPreferredSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
+  setMinimumSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setBackground(backgroundColor)
 
   override def paintComponent(g: Graphics): Unit = {
