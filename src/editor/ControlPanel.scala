@@ -41,11 +41,14 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
     this.doClick()
   }
 
+  val appendButton = new JButton("Append Seg"){setFocusable(false)}
+  MyButton.addAction(appendButton, ()=>editor.appendSegment())
+
   val cutSegmentButton = new JButton("Cut Seg"){setFocusable(false)}
   MyButton.addAction(cutSegmentButton, ()=>cutSegment())
 
   val deleteButton = new JButton("Delete Seg"){setFocusable(false)}
-  //  MyButton.addAction(deleteButton, ()=>segmentsPanel.deleteButton())
+    MyButton.addAction(deleteButton, ()=>deleteSegment())
 
   val undoButton = new JButton("Undo"){setFocusable(false)}
   MyButton.addAction(undoButton, () => editor.undo())
@@ -58,15 +61,13 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
     val contentPanel = new JPanel{
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
     }
-//    val scrollPane = new JScrollPane(contentPanel){
-//      setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS)
-//    }
+
     this.add(contentPanel)
 
     def addRow(components: JComponent*): Unit ={
       contentPanel.add(new JPanel(){
         setLayout(new FlowLayout())
-        setPreferredSize(new Dimension(400,50))
+        setPreferredSize(new Dimension(400,80))
         setMinimumSize(new Dimension(0,0))
         components.foreach(this.add)
       })
@@ -76,7 +77,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
 
     addRow(alignTangentsCheckbox, connectNearbyCheckbox)
 
-    addRow(cutSegmentButton, deleteButton, undoButton)
+    addRow(appendButton, cutSegmentButton, deleteButton, undoButton)
 
     contentPanel.add(segmentsPanel)
   }
@@ -96,6 +97,12 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
     segmentsPanel.currentSelected.foreach{ i =>
       editor.cutSegment(i)
     }
+  }
+
+  def deleteSegment(): Unit ={
+    segmentsPanel.currentSelected.foreach( i =>
+      editor.deleteSegment(i)
+    )
   }
 
   def changeMode(mode: EditMode): Unit = {
@@ -121,81 +128,5 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
   }
 }
 
-object ControlPanel{
-
-}
 
 
-
-class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAction: Option[Int]=>Unit) extends JPanel {
-  private var buttonCount = 0
-  private val buttons: mutable.ArrayBuffer[JToggleButton] = mutable.ArrayBuffer()
-  private var selected: Option[Int] = None
-
-  setLayout(new FlowLayout())
-  setPreferredSize(new Dimension(400,120))
-
-  def currentSelected = selected
-
-  def makeButton(index: Int): JToggleButton ={
-    val b = new JToggleButton(s"$index"){setFocusable(false)}
-    MyButton.addAction(b, ()=>onSegSelected(index))
-    buttons += b
-    b
-  }
-
-
-  def onSegSelected(index: Int): Unit ={
-    selected.foreach(i=>buttons(i).setSelected(false))
-    selected = Some(index)
-
-    selectAction(index)
-  }
-
-  def deleteButton(i: Int): Unit ={
-    val b = buttons(i)
-    this.remove(b)
-    buttons.remove(i)
-  }
-
-  def setButtonCount(n: Int): Unit ={
-    if(n>buttonCount){
-      (buttonCount until n).foreach{i =>
-        val b = makeButton(i)
-        this.add(b)
-      }
-    }else if (n<buttonCount){
-      (n until buttonCount).foreach{i => deleteButton(i)}
-    }
-
-    buttonCount = n
-    this.revalidate()
-    this.repaint()
-  }
-
-  def setSelected(ss: Seq[Int]): Unit ={
-    selected = ss.headOption
-    selected.foreach{i =>
-      val b = buttons(i)
-      buttons.foreach(x => x.setSelected(x == b))
-    }
-  }
-
-  def moveSelection(delta: Int): Unit ={
-    currentSelected match {
-      case None => buttons.headOption.foreach{_.doClick()}
-      case Some(s) =>
-        val index = MyMath.wrap(s + delta, buttonCount)
-        buttons(index).doClick()
-    }
-  }
-
-}
-
-object SegButtonsPanel{
-  def initSeg() =
-    InkCurve(
-      CubicCurve(Vec2.zero, Vec2.right/2, Vec2.right/2, Vec2.right),
-      50, 0.1, 0.1
-    )
-}

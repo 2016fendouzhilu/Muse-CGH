@@ -1,7 +1,7 @@
 package editor
 
 import main.{InkCurve, Letter}
-import utilities.{MyMath, Vec2}
+import utilities.{CubicCurve, CollectionOp, MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
@@ -78,7 +78,39 @@ class Editor(private var buffer: Editing) {
 
   def cutSegment(sIndex: Int): Unit ={
     val letter = buffer.letter
+    val segs = letter.segs
+    val segsToInsert = {
+      val old = segs(sIndex)
+      val oldCurve = old.curve
+      val mid = oldCurve.eval(0.5)
+      val l = oldCurve.copy(p3 = mid, p2 = oldCurve.p1)
+      val r = oldCurve.copy(p0 = mid, p1 = oldCurve.p2)
+      val midWidth = (old.startWidth + old.endWidth)/2
+      IndexedSeq(
+        old.copy(curve = l, endWidth = midWidth),
+        old.copy(curve = r, startWidth = midWidth)
+      )
+    }
+    val newSegs = CollectionOp.modifyInsert(segs, sIndex)(segsToInsert)
+    editAndRecord(buffer.copy(letter = letter.copy(segs = newSegs)))
+  }
 
+  def deleteSegment(sIndex: Int): Unit = {
+    val newSegs = CollectionOp.modifyInsert(buffer.letter.segs, sIndex)(IndexedSeq())
+    editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = newSegs), selects = Seq()))
+  }
+
+  def appendSegment(): Unit = {
+    val segs = buffer.letter.segs
+    val newSeg = segs.lastOption match {
+      case Some(last) =>
+        val curve: CubicCurve = last.curve
+        val offset = curve.p3 - curve.p0
+        val newCurve = curve.translate(offset)
+        last.copy(curve = newCurve, startWidth = last.endWidth, endWidth = last.startWidth)
+      case None => InkCurve.initCurve
+    }
+    editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = segs :+ newSeg), selects = Seq(segs.length)))
   }
 
   def dragControlPoint(pid: Int, drag: Vec2): Unit ={
