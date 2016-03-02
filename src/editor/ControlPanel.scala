@@ -99,6 +99,10 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
       e.getKeyCode match {
         case VK_BACK_QUOTE =>
           modeButtons.head._2.doClick()
+        case VK_RIGHT =>
+          segmentsPanel.moveSelection(1)
+        case VK_LEFT =>
+          segmentsPanel.moveSelection(-1)
         case _ => ()
       }
       val keyId = e.getKeyCode - VK_1 + 1
@@ -165,6 +169,15 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
     selected.foreach{i =>
       val b = buttons(i)
       buttons.foreach(x => x.setSelected(x == b))
+    }
+  }
+
+  def moveSelection(delta: Int): Unit ={
+    currentSelected match {
+      case None => buttons.headOption.foreach{_.doClick()}
+      case Some(s) =>
+        val index = (s + delta) % buttonCount
+        buttons(index).doClick()
     }
   }
 
