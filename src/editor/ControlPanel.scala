@@ -1,7 +1,7 @@
 package editor
 
 import java.awt.{Dimension, FlowLayout}
-import java.awt.event.{ActionEvent, ActionListener}
+import java.awt.event.{KeyEvent, KeyAdapter, ActionEvent, ActionListener}
 import javax.swing._
 
 import main.InkCurve
@@ -22,28 +22,34 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
       case MoveCamera => "MoveCamera"
       case EditControlPoint(i) => s"Edit P$i"
     }
-    val b = new JRadioButton(text)
-    MyButton.addAction(b, ()=>changeMode(m))
+    val b = new JRadioButton(text){
+      setFocusable(false)
+      MyButton.addAction(this, ()=>changeMode(m))
+    }
     (m,b)
   }
 
   val alignTangentsCheckbox = new JCheckBox("Align Tangents"){
     MyButton.addAction(this, () => editor.alignTangents = this.isSelected)
+    setFocusable(false)
     this.doClick()
   }
   val connectNearbyCheckbox = new JCheckBox("Connect Nearby"){
     MyButton.addAction(this, () => editor.connectNearby = this.isSelected)
+    setFocusable(false)
     this.doClick()
   }
 
-  val insertSegButton = new JButton("Insert Seg")
+  val insertSegButton = new JButton("Insert Seg"){setFocusable(false)}
   MyButton.addAction(insertSegButton, ()=>insertSegment())
 
-  val deleteButton = new JButton("Delete Seg")
+  val deleteButton = new JButton("Delete Seg"){setFocusable(false)}
   //  MyButton.addAction(deleteButton, ()=>segmentsPanel.deleteButton())
 
-  val undoButton = new JButton("Undo")
+  val undoButton = new JButton("Undo"){setFocusable(false)}
   MyButton.addAction(undoButton, () => editor.undo())
+
+
 
   setupLayout()
 
@@ -69,14 +75,13 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
 
   override def editingUpdated(): Unit = {
     editor.currentEditing() match{
-      case Editing(letter, darkness, selects) =>
+      case Editing(letter, selects) =>
         segmentsPanel.setButtonCount(letter.segs.length)
         segmentsPanel.setSelected(selects)
     }
     modeButtons.foreach{
       case (m, b) => b.setSelected(m==editor.mode)
     }
-
   }
 
   def insertSegment(): Unit ={
@@ -86,6 +91,20 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
 
   def changeMode(mode: EditMode): Unit = {
     editor.changeMode(mode)
+  }
+
+  def makeKeyListener() = new KeyAdapter {
+    override def keyReleased(e: KeyEvent): Unit = {
+      import KeyEvent._
+      e.getKeyCode match {
+        case VK_BACK_QUOTE =>
+          modeButtons.head._2.doClick()
+        case _ => ()
+      }
+      val keyId = e.getKeyCode - VK_1 + 1
+      if(keyId>=1 && keyId<=4)
+        modeButtons(keyId)._2.doClick()
+    }
   }
 }
 
@@ -106,7 +125,7 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
   def currentSelected = selected
 
   def makeButton(index: Int): JToggleButton ={
-    val b = new JToggleButton(s"$index")
+    val b = new JToggleButton(s"$index"){setFocusable(false)}
     MyButton.addAction(b, ()=>onSegSelected(index))
     buttons += b
     b

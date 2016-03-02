@@ -25,8 +25,6 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
   setPreferredSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setBackground(backgroundColor)
 
-  private def getEditing() = editor.currentEditing()
-
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
 
@@ -35,14 +33,14 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
     val s = pixelPerUnit*displayPixelScale
 
     def pointTrans(p: Vec2): Vec2 = {
-      Vec2(p.x*s, (p.y+getEditing().letter.tall)*s) + imageOffset
+      Vec2(p.x*s, (p.y + editor.currentEditing().letter.tall)*s) + imageOffset
     }
     val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit)
 
     drawBoardLines(drawer,2,2)
 
-    getEditing() match {
-      case Editing(letter, darkness, selects) =>
+    editor.currentEditing() match {
+      case Editing(letter, selects) =>
         val selectedCurves = selects.map(letter.segs)
         selectedCurves.foreach(c => drawer.drawCurveControlPoints(c, endpointColor, controlPointColor, 0.03))
 
@@ -57,11 +55,11 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
 
   }
 
-  def boardHeight = MyMath.ceil(getEditing().letter.height * pixelPerUnit)
+  def boardHeight = MyMath.ceil(editor.currentEditing().letter.height * pixelPerUnit)
 
-  def boardWidth = MyMath.ceil(getEditing().letter.width * pixelPerUnit)
+  def boardWidth = MyMath.ceil(editor.currentEditing().letter.width * pixelPerUnit)
 
-  def boardBaseLine = MyMath.ceil(getEditing().letter.tall * pixelPerUnit)
+  def boardBaseLine = MyMath.ceil(editor.currentEditing().letter.tall * pixelPerUnit)
 
   def windowWidthFromBoard = boardWidth * displayPixelScale
 
