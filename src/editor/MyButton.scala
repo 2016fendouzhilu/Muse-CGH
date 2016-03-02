@@ -1,7 +1,7 @@
 package editor
 
 import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.{AbstractButton, JComponent, JButton}
+import javax.swing.AbstractButton
 
 /**
   * Created by weijiayi on 2/29/16.

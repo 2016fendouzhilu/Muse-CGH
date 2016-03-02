@@ -1,7 +1,7 @@
 package main
 
 import java.awt.geom.{Ellipse2D, Line2D}
-import java.awt.{RenderingHints, Color, BasicStroke, Graphics2D}
+import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
 import mymath.Vec2
 

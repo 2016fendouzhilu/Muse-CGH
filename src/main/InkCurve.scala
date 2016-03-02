@@ -1,6 +1,6 @@
 package main
 
-import mymath.{Vec2, CubicCurve}
+import mymath.{CubicCurve, Vec2}
 
 /**
   * An extension to CubicCurve with Drawing information

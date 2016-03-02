@@ -1,7 +1,5 @@
 package main
 
-import mymath.{CubicCurve, Vec2}
-
 case class Letter(segs: IndexedSeq[InkCurve], cutIndices: IndexedSeq[Int], width: Double, tall: Double, deep: Double){
   def height = tall + deep
 

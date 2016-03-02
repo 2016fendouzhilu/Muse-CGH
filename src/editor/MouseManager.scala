@@ -1,7 +1,6 @@
 package editor
 
-import java.awt.Point
-import java.awt.event.{MouseEvent, MouseAdapter}
+import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.JComponent
 
 import mymath.Vec2

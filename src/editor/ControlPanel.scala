@@ -1,11 +1,11 @@
 package editor
 
+import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
-import java.awt.event.{KeyEvent, KeyAdapter, ActionEvent, ActionListener}
 import javax.swing._
 
 import main.InkCurve
-import mymath.{MyMath, Vec2, CubicCurve}
+import mymath.{CubicCurve, MyMath, Vec2}
 
 import scala.collection.mutable
 

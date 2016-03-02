@@ -1,7 +1,7 @@
 package main
 
-import java.awt.{Graphics2D, Graphics, Dimension, Color}
-import javax.swing.{JPanel, JFrame}
+import java.awt.{Color, Dimension, Graphics, Graphics2D}
+import javax.swing.{JFrame, JPanel}
 
 import mymath.Vec2
 

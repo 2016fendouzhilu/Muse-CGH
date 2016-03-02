@@ -3,7 +3,7 @@ package main
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-import mymath.{CubicCurve, Vec2}
+import mymath.Vec2
 
 
 /**

@@ -1,7 +1,7 @@
 package editor
 
-import java.awt.event.{KeyEvent, KeyAdapter}
-import javax.swing.{JPanel, JComponent}
+import java.awt.event.{KeyAdapter, KeyEvent}
+import javax.swing.JPanel
 
 import mymath.Vec2
 

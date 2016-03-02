@@ -3,8 +3,8 @@ package editor
 import java.awt._
 import javax.swing.JPanel
 
-import main.{InkCurve, CurveDrawer}
-import mymath.{CubicCurve, Vec2, MyMath}
+import main.CurveDrawer
+import mymath.{CubicCurve, MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
