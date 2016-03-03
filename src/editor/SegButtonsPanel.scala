@@ -20,18 +20,11 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
 
   def makeButton(index: Int): JToggleButton ={
     val b = new JToggleButton(s"$index"){setFocusable(false)}
-    MyButton.addAction(b, ()=>onSegSelected(index))
+    MyButton.addAction(b, ()=>selectAction(index))
     buttons += b
     b
   }
 
-
-  def onSegSelected(index: Int): Unit ={
-    selected.foreach(i=>buttons(i).setSelected(false))
-    selected = Some(index)
-
-    selectAction(index)
-  }
 
   def deleteButton(i: Int): Unit ={
     val b = buttons(i)
@@ -73,8 +66,5 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
 
 object SegButtonsPanel{
   def initSeg() =
-    InkCurve(
-      CubicCurve(Vec2.zero, Vec2.right/2, Vec2.right/2, Vec2.right),
-      50, 0.1, 0.1
-    )
+    InkCurve(CubicCurve(Vec2.zero, Vec2.right/2, Vec2.right/2, Vec2.right), 50, 0.1, 0.1)
 }

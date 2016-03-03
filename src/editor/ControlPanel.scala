@@ -31,14 +31,12 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
   }
 
   val alignTangentsCheckbox = new JCheckBox("Align Tangents"){
-    MyButton.addAction(this, () => editor.alignTangents = this.isSelected)
+    MyButton.addAction(this, () => editor.setAlignTangent(this.isSelected))
     setFocusable(false)
-    this.doClick()
   }
-  val connectNearbyCheckbox = new JCheckBox("Connect Nearby"){
-    MyButton.addAction(this, () => editor.connectNearby = this.isSelected)
+  val strokeBreakCheckbox = new JCheckBox("Stroke Break"){
+    MyButton.addAction(this, () => editor.setStrokeBreak(this.isSelected))
     setFocusable(false)
-    this.doClick()
   }
 
   val appendButton = new JButton("Append Seg"){setFocusable(false)}
@@ -75,7 +73,7 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
 
     addRow(modeButtonPairs.map(_._2) :_*)
 
-    addRow(alignTangentsCheckbox, connectNearbyCheckbox)
+    addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 
     addRow(appendButton, cutSegmentButton, deleteButton, undoButton)
 
@@ -84,9 +82,18 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
 
   override def editingUpdated(): Unit = {
     editor.currentEditing() match{
-      case Editing(letter, selects) =>
+      case editing@Editing(letter, selects) =>
         segmentsPanel.setButtonCount(letter.segs.length)
         segmentsPanel.setSelected(selects)
+        val selectBoxes = Seq(alignTangentsCheckbox,strokeBreakCheckbox)
+        editing.selectedInkCurves.headOption match {
+          case Some(seg) =>
+            selectBoxes.foreach(_.setEnabled(true))
+            alignTangentsCheckbox.setSelected(seg.alignTangent)
+            strokeBreakCheckbox.setSelected(seg.isStrokeBreak)
+          case None =>
+            selectBoxes.foreach(_.setEnabled(false))
+        }
     }
     modeButtonPairs.foreach{
       case (m, b) => b.setSelected(m==editor.mode)

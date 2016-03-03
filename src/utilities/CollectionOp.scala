@@ -14,4 +14,12 @@ object CollectionOp {
     val (l, r) = collection.splitAt(index)
     l ++ xs ++ r.tail
   }
+
+  def transformSelected[A](collection: IndexedSeq[A], indices: Set[Int])(transform: A => A): IndexedSeq[A] = {
+    collection.indices.map{ i =>
+      if(indices.contains(i))
+        transform(collection(i))
+      else collection(i)
+    }
+  }
 }

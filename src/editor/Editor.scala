@@ -16,21 +16,30 @@ class Editor(private var buffer: Editing) {
   private var _mode: EditMode = MoveCamera
   def mode = _mode
 
-  var _alignTangents: Boolean = false
-  def alignTangents: Boolean = _alignTangents
-
-  def alignTangents_=(value: Boolean): Unit = {
-    _alignTangents = value
-    dragZero()
+  def isTangentAligned: Option[Boolean] = {
+    buffer.selectedInkCurves.headOption.map{_.alignTangent}
   }
 
-  var _connectNearby: Boolean = false
-  def connectNearby: Boolean = _connectNearby
-
-  def connectNearby_=(value: Boolean): Unit = {
-    _connectNearby = value
-    dragZero()
+  def setAlignTangent(a: Boolean) = {
+    setInkCurveAttributes(isAlignTangent = true)(a)
   }
+
+  def isStrokeBreak: Option[Boolean] = {
+    buffer.selectedInkCurves.headOption.map{_.isStrokeBreak}
+  }
+
+  private def setInkCurveAttributes(isAlignTangent: Boolean)(value: Boolean): Unit = {
+    val l = buffer.letter
+    val newSegs = CollectionOp.transformSelected(l.segs, buffer.selects.toSet){ seg =>
+      if(isAlignTangent)
+        seg.copy(alignTangent = value)
+      else
+        seg.copy(isStrokeBreak = value)
+    }
+    editAndRecord(buffer.copy(letter = l.copy(segs = newSegs)))
+  }
+
+  def setStrokeBreak(s: Boolean) = setInkCurveAttributes(isAlignTangent = false)(s)
 
   def dragZero(): Unit = mode match {
     case EditControlPoint(id) =>
@@ -113,9 +122,9 @@ class Editor(private var buffer: Editing) {
     editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = segs :+ newSeg), selects = Seq(segs.length)))
   }
 
-  def dragControlPoint(pid: Int, drag: Vec2): Unit ={
+  def dragControlPoint(pid: Int, drag: Vec2): Unit = {
     val Editing(letter, selects) = currentEditing()
-    selects.headOption.foreach{segIndex =>
+    selects.headOption.foreach { segIndex =>
       val segArray = letter.segs.toArray
 
       def setPoint(segIndex: Int, pid: Int, newP: Vec2) = {
@@ -131,51 +140,54 @@ class Editor(private var buffer: Editing) {
 
       val newEndpoint = movePoint(segIndex, pid, drag)
 
-      val tControlOpt = pid match{
+      val tControlOpt = pid match {
         case 0 => Some(1)
         case 3 => Some(2)
         case _ => None
       }
-      tControlOpt.foreach{tid =>
+      tControlOpt.foreach { tid =>
         movePoint(segIndex, tid, drag)
       }
 
       val endIndex: Int = segArray.length // stroke end
 
-      if(connectNearby){
-        pid match {
-          case 0 =>
-            val nearby = segIndex - 1
-            if(nearby>=0){
-              setPoint(nearby, 3, newEndpoint)
-            }
-          case 3 =>
-            val nearby = segIndex + 1
-            if(nearby<endIndex){
-              setPoint(nearby, 0, newEndpoint)
-            }
-          case _ => ()
-        }
+      pid match {
+        case 0 =>
+          val nearby = segIndex - 1
+          if (nearby >= 0 && segArray(nearby).connectNext) {
+            setPoint(nearby, 3, newEndpoint)
+          }
+        case 3 =>
+          val nearby = segIndex + 1
+          if (nearby < endIndex && segArray(segIndex).connectNext) {
+            setPoint(nearby, 0, newEndpoint)
+          }
+        case _ => ()
       }
 
-      if(alignTangents){
-        val c = segArray(segIndex).curve
-        if(pid<2){
-          val nearby = segIndex-1
-          if(nearby>=0){
-            val nearbyC = segArray(nearby).curve
+    {
+      // Align Tangents
+      val c = segArray(segIndex).curve
+      if (pid < 2) {
+        val nearby = segIndex - 1
+        if (nearby >= 0) {
+          val nearbySeg = segArray(nearby)
+          if (nearbySeg.alignTangent) {
             val relative = c.p0 - c.p1
-            setPoint(nearby, 2, nearbyC.p3+relative)
+            setPoint(nearby, 2, nearbySeg.curve.p3 + relative)
           }
-        }else{
-          val nearby = segIndex+1
-          if(nearby<endIndex){
-            val nearbyC = segArray(nearby).curve
+        }
+      } else {
+        val nearby = segIndex + 1
+        if (nearby < endIndex) {
+          val nearbyC = segArray(nearby).curve
+          if (segArray(segIndex).alignTangent) {
             val relative = c.p3 - c.p2
-            setPoint(nearby, 1, nearbyC.p0+relative)
+            setPoint(nearby, 1, nearbyC.p0 + relative)
           }
         }
       }
+    }
 
       val newLetter = letter.copy(segs = segArray.toIndexedSeq)
       editWithoutRecord(buffer.copy(letter = newLetter))
@@ -196,14 +208,14 @@ class Editor(private var buffer: Editing) {
         val t = math.max(seg.startWidth*ratio, InkCurve.minimalWidth)
         segArray(segIndex) = seg.copy(startWidth = t)
         val nearIndex = segIndex - 1
-        if(connectNearby && nearIndex>=0)
+        if(nearIndex>=0 && segArray(nearIndex).connectNext)
           segArray(nearIndex) = segArray(nearIndex).copy(endWidth = t)
       }
       else{
         val t = math.max(seg.endWidth*ratio, InkCurve.minimalWidth)
         segArray(segIndex) = seg.copy(endWidth = t)
         val nearIndex = segIndex + 1
-        if(connectNearby && nearIndex<segArray.length)
+        if(nearIndex<segArray.length && segArray(segIndex).connectNext)
           segArray(nearIndex) = segArray(nearIndex).copy(startWidth = t)
       }
     }
@@ -215,7 +227,7 @@ trait EditorListener {
   def editingUpdated(): Unit
 }
 
-case class Editing(letter: Letter, selects: Seq[Int]){
+case class Editing(letter: Letter, selects: Seq[Int]) {
   def selectedInkCurves = letter.getCurves(selects)
 }
 

@@ -4,16 +4,15 @@ import utilities.{CubicCurve, Vec2}
 
 /**
   * An extension to CubicCurve with Drawing information
-  * @param curve
-  * @param dots
-  * @param startWidth
-  * @param endWidth
   */
-case class InkCurve(curve: CubicCurve, dots: Int, startWidth: Double, endWidth: Double) {
+case class InkCurve(curve: CubicCurve, dots: Int, startWidth: Double, endWidth: Double,
+                    alignTangent: Boolean = true, isStrokeBreak: Boolean = false) {
   def setPoint(id: Int, p: Vec2) = {
     val nc = curve.setPoint(id, p)
     this.copy(curve = nc)
   }
+
+  def connectNext = !isStrokeBreak
 }
 
 object InkCurve{
