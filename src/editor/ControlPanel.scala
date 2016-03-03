@@ -165,6 +165,10 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
     editor.changeMode(mode)
   }
 
+  def getButtonByMode(editMode: EditMode) = {
+    modeButtonPairs.collect{case (m, b) if m==editMode => b}.head
+  }
+
   def makeKeyListener() = new KeyAdapter {
     override def keyReleased(e: KeyEvent): Unit = {
       import KeyEvent._
@@ -187,10 +191,18 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
           zoomAction(1.25)
         case VK_DOWN =>
           zoomAction(0.8)
+        case VK_G =>
+          getButtonByMode(TranslateLetter).doClick()
+        case VK_S =>
+          getButtonByMode(ScaleLetter).doClick()
+        case VK_H =>
+          getButtonByMode(EditThickness(isHead = true)).doClick()
+        case VK_T =>
+          getButtonByMode(EditThickness(isHead = false)).doClick()
         case _ => ()
       }
       val keyId = e.getKeyCode - VK_1 + 1
-      if(keyId>=1 && keyId<=6)
+      if(keyId>=1 && keyId<=9)
         modeButtonPairs(keyId)._2.doClick()
     }
   }
