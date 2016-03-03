@@ -138,8 +138,7 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
     fc.showSaveDialog(this) match {
       case JFileChooser.APPROVE_OPTION =>
         val select = fc.getSelectedFile.getAbsolutePath
-        val path = if(select.endsWith(".muse")) select else select+".muse"
-        EditingSaver.saveToFile(new File(path), editor.currentEditing())
+        EditingSaver.saveToFile(select, editor.currentEditing())
       case _ => ()
     }
   }

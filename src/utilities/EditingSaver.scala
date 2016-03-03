@@ -9,13 +9,23 @@ import utilities.MapWriter.MapData
   * Created by weijiayi on 3/3/16.
   */
 object EditingSaver {
-  def saveToFile(file: File, editing: Editing): Unit = {
-    val data = MapWriter.write(editing)
+  def saveToFile(select: String, editing: Editing): Unit = {
+    val musePath = if(select.endsWith(".muse")) select else select+".muse"
+    val file = new File(musePath)
     val s = new ObjectOutputStream(new FileOutputStream(file))
-    try{
+    val textWriter = new FileWriter(musePath.replace(".muse",".txt"))
+    try {
+      if (file.exists()) {
+        file.renameTo(new File(musePath + ".old")) // buffer the old file
+      }
+      val data = MapWriter.write(editing)
       s.writeObject(data)
+      textWriter.write(editing.toString)
+    } catch {
+      case e: Throwable => println(s"failed to save file: $e")
     }finally{
       s.close()
+      textWriter.close()
     }
   }
 
