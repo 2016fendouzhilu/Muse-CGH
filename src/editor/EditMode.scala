@@ -1,7 +1,7 @@
 package editor
 
 /**
-  * Created by weijiayi on 3/1/16.
+  * Current Editing Modes
   */
 sealed trait EditMode
 

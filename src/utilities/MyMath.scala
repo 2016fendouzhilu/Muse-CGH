@@ -1,7 +1,7 @@
 package utilities
 
 /**
-  * Created by weijiayi on 2/29/16.
+  * Extra maths
   */
 object MyMath {
   def ceil(x: Double) = x.ceil.toInt

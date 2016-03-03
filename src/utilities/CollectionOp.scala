@@ -1,7 +1,7 @@
 package utilities
 
 /**
-  * Created by weijiayi on 3/2/16.
+  * Some extra operations on IndexedSeq
   */
 object CollectionOp {
   def modify[A](collection: IndexedSeq[A], index: Int)(x: A): IndexedSeq[A] = {
