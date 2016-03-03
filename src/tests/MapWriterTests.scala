@@ -2,7 +2,6 @@ package tests
 
 import editor.Editing
 import main.{Letter, LetterSeg}
-import utilities.Parsing._
 import utilities.{CubicCurve, Vec2}
 import org.scalacheck.Prop._
 import org.scalacheck.Gen
