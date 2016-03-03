@@ -33,7 +33,7 @@ object MapWriterTests {
     end <- Gen.choose(0.01, 1.0)
     b1 <- arbitrary[Boolean]
     b2 <- arbitrary[Boolean]
-  } yield LetterSeg(c, dots, start, end, b1, b2)
+  } yield LetterSeg(c, start, end, b1, b2)
 
   val letterGen = for{
     segs <- Gen.containerOf[IndexedSeq, LetterSeg](letterSegGen)

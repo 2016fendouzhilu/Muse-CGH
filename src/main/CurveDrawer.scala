@@ -8,13 +8,13 @@ import utilities.Vec2
 /**
   * Created by weijiayi on 2/29/16.
   */
-class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double) {
+class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double, dots: Int = 30) {
   g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
   def setColor(color: Color) = g2d.setColor(color)
 
   def drawCurve(inkCurve: LetterSeg): Unit = inkCurve match{
-    case LetterSeg(curve, dots, start, end, _, _) =>
+    case LetterSeg(curve, start, end, _, _) =>
       val dt = 1.0/dots
       val deltaR = (end-start)/dots
 
@@ -32,7 +32,7 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
   }
 
   def drawCurveControlPoints(inkCurve: LetterSeg, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{
-    case LetterSeg(curve, dots, start, end, _, _) =>
+    case LetterSeg(curve, start, end, _, _) =>
       setColor(endpointColor)
       drawDot(curve.p0, start)
       drawDot(curve.p3, end)

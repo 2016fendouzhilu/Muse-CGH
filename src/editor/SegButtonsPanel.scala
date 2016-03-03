@@ -51,19 +51,17 @@ class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
     buttons.indices.foreach(i => buttons(i).setSelected(selected.contains(i)))
   }
 
-  def moveSelection(delta: Int): Unit ={
+  def moveSelection(delta: Int): Unit = {
     currentSelected match {
-      case None => buttons.headOption.foreach{_.doClick()}
+      case None => buttons.headOption.foreach {
+        _.doClick()
+      }
       case Some(s) =>
         val index = MyMath.wrap(s + delta, buttonCount)
         buttons(index).doClick()
     }
   }
-
 }
 
 
-object SegButtonsPanel{
-  def initSeg() =
-    LetterSeg(CubicCurve(Vec2.zero, Vec2.right/2, Vec2.right/2, Vec2.right), 50, 0.1, 0.1)
-}
+

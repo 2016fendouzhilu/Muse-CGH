@@ -51,14 +51,14 @@ object MapWriter {
 
   implicit val LetterSegWriter = new MapWriter[LetterSeg] {
     override def toMapData(v: LetterSeg): MapData = v match{
-      case LetterSeg(curve, dots, start, end, align, isBreak) => Map(
-        (Curve, curve), (Dots, dots), (StartWidth, start), (EndWidth, end),
+      case LetterSeg(curve, start, end, align, isBreak) => Map(
+        (Curve, curve), (StartWidth, start), (EndWidth, end),
         (AlignTangent, align), (IsStrokeBreak, isBreak)
       )
     }
 
     override def fromMapData(data: MapData): LetterSeg = LetterSeg(
-      data(Curve).asInstanceOf[CubicCurve], data(Dots).asInstanceOf[Int],
+      data(Curve).asInstanceOf[CubicCurve],
       data(StartWidth).asInstanceOf[Double], data(EndWidth).asInstanceOf[Double],
       data(AlignTangent).asInstanceOf[Boolean], data(IsStrokeBreak).asInstanceOf[Boolean]
     )

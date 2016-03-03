@@ -238,6 +238,10 @@ case class Editing(letter: Letter, selects: Seq[Int]) {
   def selectedInkCurves = letter.getCurves(selects)
 }
 
+object Editing{
+  def empty = Editing(Letter.empty, Seq())
+}
+
 class EditingHistory(init: Editing) {
   private var history: List[Editing] = List(init)
   private var redoBuffer: List[Editing] = List()
