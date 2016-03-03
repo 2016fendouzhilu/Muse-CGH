@@ -105,7 +105,8 @@ class Editor(private var buffer: Editing) {
 
   def deleteSegment(sIndex: Int): Unit = {
     val newSegs = CollectionOp.modifyInsert(buffer.letter.segs, sIndex)(IndexedSeq())
-    editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = newSegs), selects = Seq()))
+    val selects = if (newSegs.isEmpty) Seq() else Seq(0)
+    editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = newSegs), selects = selects))
   }
 
   def appendSegment(): Unit = {
