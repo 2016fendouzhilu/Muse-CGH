@@ -2,7 +2,11 @@ package editor
 
 import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
+import java.io.{File, FileFilter}
 import javax.swing._
+import javax.swing.filechooser.FileNameExtensionFilter
+
+import utilities.EditingSaver
 
 /**
   * Created by weijiayi on 2/29/16.
@@ -34,19 +38,23 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
     setFocusable(false)
   }
 
-  val appendButton = new JButton("Append Seg"){setFocusable(false)}
-  MyButton.addAction(appendButton, ()=>editor.appendSegment())
+  def makeButton(name: String) (action: => Unit): JButton = {
+    val b = new JButton(name){ setFocusable(false) }
+    MyButton.addAction(b, ()=>action)
+    b
+  }
 
-  val cutSegmentButton = new JButton("Cut Seg"){setFocusable(false)}
-  MyButton.addAction(cutSegmentButton, ()=>cutSegment())
+  val appendButton = makeButton("Append Seg"){ editor.appendSegment() }
 
-  val deleteButton = new JButton("Delete Seg"){setFocusable(false)}
-    MyButton.addAction(deleteButton, ()=>deleteSegment())
+  val cutSegmentButton = makeButton("Cut Seg"){ cutSegment() }
 
-  val undoButton = new JButton("Undo"){setFocusable(false)}
-  MyButton.addAction(undoButton, () => editor.undo())
+  val deleteButton = makeButton("Delete Seg"){ deleteSegment() }
 
+  val undoButton = makeButton("Undo"){ editor.undo() }
 
+  val saveButton = makeButton("Save"){ saveEditing() }
+
+  val loadButton = makeButton("Load"){ loadEditing() }
 
   setupLayout()
 
@@ -70,7 +78,7 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 
-    addRow(appendButton, cutSegmentButton, deleteButton, undoButton)
+    addRow(appendButton, cutSegmentButton, deleteButton, undoButton, saveButton, loadButton)
 
     contentPanel.add(segmentsPanel)
   }
@@ -105,6 +113,39 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
     segmentsPanel.currentSelected.foreach( i =>
       editor.deleteSegment(i)
     )
+  }
+
+  def fontFileFilter = new FileNameExtensionFilter("Muse Editing Files", "muse")
+
+  def saveEditing(): Unit = {
+    import java.nio.file.Paths
+    val fc = new JFileChooser(Paths.get("").toAbsolutePath.toFile){
+      setFileFilter(fontFileFilter)
+    }
+    fc.showSaveDialog(this) match {
+      case JFileChooser.APPROVE_OPTION =>
+        val select = fc.getSelectedFile.getAbsolutePath
+        val path = if(select.endsWith(".muse")) select else select+".muse"
+        EditingSaver.saveToFile(new File(path), editor.currentEditing())
+      case _ => ()
+    }
+  }
+
+  def loadEditing(): Unit = {
+    import java.nio.file.Paths
+    val fc = new JFileChooser(Paths.get("").toAbsolutePath.toFile){
+      setFileFilter(fontFileFilter)
+      setMultiSelectionEnabled(false)
+    }
+    fc.showOpenDialog(this) match {
+      case JFileChooser.APPROVE_OPTION =>
+        val select = fc.getSelectedFile
+        EditingSaver.loadFromFile(select) match {
+          case Some(e) => editor.editAndRecord(e)
+          case None => println("failed to load file!")
+        }
+      case _ => ()
+    }
   }
 
   def changeMode(mode: EditMode): Unit = {
