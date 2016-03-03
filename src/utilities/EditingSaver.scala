@@ -11,20 +11,27 @@ import utilities.MapWriter.MapData
 object EditingSaver {
   def saveToFile(select: String, editing: Editing): Unit = {
     val musePath = if(select.endsWith(".muse")) select else select+".muse"
-    val file = new File(musePath)
-    val s = new ObjectOutputStream(new FileOutputStream(file))
+    try{
+      val file = new File(musePath)
+      if (file.exists()) {
+        val bufferFile = new File(musePath + ".old")
+        if(bufferFile.exists()) bufferFile.delete()
+        file.renameTo(bufferFile) // buffer the old file
+      }
+    }catch {
+      case e: Throwable => println(s"can't buffer .muse file: $e")
+    }
+
+    val outputStream = new ObjectOutputStream(new FileOutputStream(musePath))
     val textWriter = new FileWriter(musePath.replace(".muse",".txt"))
     try {
-      if (file.exists()) {
-        file.renameTo(new File(musePath + ".old")) // buffer the old file
-      }
       val data = MapWriter.write(editing)
-      s.writeObject(data)
+      outputStream.writeObject(data)
       textWriter.write(editing.toString)
     } catch {
-      case e: Throwable => println(s"failed to save file: $e")
+      case e: Throwable => println(s"failed to save .muse file: $e")
     }finally{
-      s.close()
+      outputStream.close()
       textWriter.close()
     }
   }
