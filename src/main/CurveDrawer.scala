@@ -51,9 +51,14 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       drawLine(curve.p2,curve.p3,lineWidth, noWidthScale = true)
   }
 
-  def drawLine(p0: Vec2, p1: Vec2, width: Double, noWidthScale: Boolean = false): Unit ={
+  def drawLine(p0: Vec2, p1: Vec2, width: Double, noWidthScale: Boolean = false, dashed: Option[(Float,Float)] = None): Unit ={
     val w = width * (if(noWidthScale) 1.0 else scaleFactor)
-    g2d.setStroke(new BasicStroke(w.toFloat))
+    val stroke = dashed match{
+      case Some((a,b)) =>
+        new BasicStroke(w.toFloat, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, Array(a,b), 0)
+      case None => new BasicStroke(w.toFloat)
+    }
+    g2d.setStroke(stroke)
     val line = new Line2D.Double(pointTransform(p0), pointTransform(p1))
     g2d.draw(line)
   }

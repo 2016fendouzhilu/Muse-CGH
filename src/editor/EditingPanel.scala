@@ -113,9 +113,19 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
           val dis = math.max(relative.length,0.1)
           val ratio = (drag dot relative.normalized)/dis + 1
           editor.scaleThickness(isHead, ratio)
+//          drawDragHint(targetPoint, current, editThicknessColor)
         }
     }
   }
+
+//  def drawDragHint(target: Vec2, current: Vec2, color: Color): Unit ={
+//    import java.awt.geom._
+//    val g = this.getGraphics.asInstanceOf[Graphics2D]
+//    g.setColor(color)
+//    g.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, Array(8), 0))
+//    val line = new Line2D.Double(target, current)
+//    g.draw(line)
+//  }
 
   def dragFinishAction(): Unit = {
     editor.mode match{
@@ -136,8 +146,8 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
     drawer.setColor(color)
     curves.foreach{ c=>
       val Vec2(x,y) = c.getPoint(pid)
-      drawer.drawLine(Vec2(-1,y), Vec2(3,y), editingLineThickness, noWidthScale = true)
-      drawer.drawLine(Vec2(x, -3), Vec2(x, 3), editingLineThickness, noWidthScale = true)
+      drawer.drawLine(Vec2(-1,y), Vec2(3,y), editingLineThickness, noWidthScale = true, dashed = Some((8f,6f)))
+      drawer.drawLine(Vec2(x, -3), Vec2(x, 3), editingLineThickness, noWidthScale = true, dashed = Some((8f,6f)))
     }
   }
 
