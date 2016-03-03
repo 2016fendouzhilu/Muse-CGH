@@ -9,7 +9,7 @@ import javax.swing._
   */
 
 class ControlPanel(editor: Editor) extends JPanel with EditorListener{
-  val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)),i=>(),i=>())
+  val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++ IndexedSeq(EditThickness(true), EditThickness(false))
   val modeButtonPairs = modes.map{ m =>
@@ -121,6 +121,11 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
           segmentsPanel.moveSelection(1)
         case VK_LEFT =>
           segmentsPanel.moveSelection(-1)
+        case VK_ESCAPE =>
+          editor.selectSegment(None)
+        case VK_Z =>
+          if(e.isControlDown || e.isAltDown)
+            undoButton.doClick()
         case _ => ()
       }
       val keyId = e.getKeyCode - VK_1 + 1
