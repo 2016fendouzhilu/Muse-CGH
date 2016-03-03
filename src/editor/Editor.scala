@@ -209,7 +209,7 @@ class Editor(private var buffer: Editing) {
   }
 
   def scaleThickness(isHead: Boolean, ratio: Double): Unit = {
-    val letter = currentEditing().letter
+    def letter = buffer.letter
     val segArray = letter.segs.toArray
     currentEditing().selects.foreach{ segIndex =>
       val seg = segArray(segIndex)
@@ -230,6 +230,22 @@ class Editor(private var buffer: Editing) {
     }
     editWithoutRecord(buffer.copy(letter = letter.copy(segs = segArray.toIndexedSeq)))
   }
+
+  def editLetterSegs(f: LetterSeg => LetterSeg): Unit = {
+    def letter = buffer.letter
+    val newSegs = letter.segs.map(f)
+    editWithoutRecord(buffer.copy(letter = letter.copy(segs = newSegs)))
+  }
+
+  def scaleLetter(ratio: Double): Unit =
+    editLetterSegs {s => s.copy(curve = s.curve.map(_ * ratio))}
+
+  def scaleTotalThickness(ratio: Double): Unit =
+    editLetterSegs {s => s.copy(startWidth = s.startWidth*ratio, endWidth = s.endWidth*ratio)}
+
+  def translateLetter(offset: Vec2): Unit =
+    editLetterSegs {s => s.copy(curve = s.curve.translate(offset))}
+
 }
 
 trait EditorListener {

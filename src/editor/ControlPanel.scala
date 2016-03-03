@@ -15,12 +15,17 @@ import utilities.EditingSaver
 class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel with EditorListener{
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
-  val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++ IndexedSeq(EditThickness(true), EditThickness(false))
+  val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
+    IndexedSeq(EditThickness(true), EditThickness(false), ScaleLetter, TranslateLetter, ScaleTotalThickness)
+
   val modeButtonPairs = modes.map{ m =>
     val text = m match {
       case MoveCamera => "MoveCamera"
       case EditControlPoint(i) => s"Edit P$i"
       case EditThickness(isHead) => s"Edit ${if(isHead) "Head" else "Tail"}"
+      case ScaleLetter => "Scale"
+      case TranslateLetter => "Translate"
+      case ScaleTotalThickness => "Scale Thickness"
     }
     val b = new JRadioButton(text){
       setFocusable(false)

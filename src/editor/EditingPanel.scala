@@ -101,20 +101,33 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
 
   val moveSpeed = 1.0
   def dragAction(drag: Vec2, init: Vec2, current: Vec2) = {
+    def scaleRatio(p: Vec2) = {
+      val targetPoint = pointTrans(p)
+      val relative = current - targetPoint
+      val dis = math.max((init-targetPoint).length, 0.1)
+      (drag dot relative.normalized) / dis + 1
+    }
+    val factor = pixelPerUnit*displayPixelScale
+
     editor.mode match {
       case MoveCamera =>
         dragImage(drag)
       case EditControlPoint(id) =>
-        editor.dragControlPoint(id, drag/(pixelPerUnit*displayPixelScale))
+        editor.dragControlPoint(id, drag/factor)
       case edt@ EditThickness(isHead) =>
         editor.currentEditing().selectedInkCurves.headOption.foreach{ ink =>
-          val targetPoint = pointTrans(ink.curve.getPoint(edt.pid))
-          val relative = init - targetPoint
-          val dis = math.max(relative.length,0.1)
-          val ratio = (drag dot relative.normalized)/dis + 1
+          val targetPoint = ink.curve.getPoint(edt.pid)
+          val ratio = scaleRatio(targetPoint)
           editor.scaleThickness(isHead, ratio)
 //          drawDragHint(targetPoint, current, editThicknessColor)
         }
+      case ScaleLetter =>
+        val r = scaleRatio(Vec2.zero)
+        editor.scaleLetter(r)
+      case TranslateLetter =>
+        editor.translateLetter(drag/factor)
+      case ScaleTotalThickness =>
+        editor.scaleTotalThickness(scaleRatio(Vec2.zero))
     }
   }
 
