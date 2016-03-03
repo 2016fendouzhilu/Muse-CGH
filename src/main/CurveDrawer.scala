@@ -13,8 +13,8 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
 
   def setColor(color: Color) = g2d.setColor(color)
 
-  def drawCurve(inkCurve: InkCurve): Unit = inkCurve match{
-    case InkCurve(curve, dots, start, end) =>
+  def drawCurve(inkCurve: LetterSeg): Unit = inkCurve match{
+    case LetterSeg(curve, dots, start, end, _, _) =>
       val dt = 1.0/dots
       val deltaR = (end-start)/dots
 
@@ -31,8 +31,8 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       }
   }
 
-  def drawCurveControlPoints(inkCurve: InkCurve, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{
-    case InkCurve(curve, dots, start, end) =>
+  def drawCurveControlPoints(inkCurve: LetterSeg, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{
+    case LetterSeg(curve, dots, start, end, _, _) =>
       setColor(endpointColor)
       drawDot(curve.p0, start)
       drawDot(curve.p3, end)

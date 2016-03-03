@@ -3,7 +3,7 @@ package editor
 import java.awt.{Dimension, FlowLayout}
 import javax.swing.{JToggleButton, JPanel}
 
-import main.InkCurve
+import main.{LetterSeg}
 import utilities.{Vec2, CubicCurve, MyMath}
 
 import scala.collection.mutable
@@ -66,5 +66,5 @@ class SegButtonsPanel(selectAction: Int=>Unit, deleteAction: Int=>Unit, insertAc
 
 object SegButtonsPanel{
   def initSeg() =
-    InkCurve(CubicCurve(Vec2.zero, Vec2.right/2, Vec2.right/2, Vec2.right), 50, 0.1, 0.1)
+    LetterSeg(CubicCurve(Vec2.zero, Vec2.right/2, Vec2.right/2, Vec2.right), 50, 0.1, 0.1)
 }

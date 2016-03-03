@@ -1,6 +1,6 @@
 package editor
 
-import main.{InkCurve, Letter}
+import main.{LetterSeg, Letter}
 import utilities.{CubicCurve, CollectionOp, MyMath, Vec2}
 
 /**
@@ -117,7 +117,7 @@ class Editor(private var buffer: Editing) {
         val offset = curve.p3 - curve.p0
         val newCurve = curve.translate(offset)
         last.copy(curve = newCurve, startWidth = last.endWidth, endWidth = last.startWidth)
-      case None => InkCurve.initCurve
+      case None => LetterSeg.initCurve
     }
     editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = segs :+ newSeg), selects = Seq(segs.length)))
   }
@@ -205,14 +205,14 @@ class Editor(private var buffer: Editing) {
     currentEditing().selects.foreach{ segIndex =>
       val seg = segArray(segIndex)
       if(isHead){
-        val t = math.max(seg.startWidth*ratio, InkCurve.minimalWidth)
+        val t = math.max(seg.startWidth*ratio, LetterSeg.minimalWidth)
         segArray(segIndex) = seg.copy(startWidth = t)
         val nearIndex = segIndex - 1
         if(nearIndex>=0 && segArray(nearIndex).connectNext)
           segArray(nearIndex) = segArray(nearIndex).copy(endWidth = t)
       }
       else{
-        val t = math.max(seg.endWidth*ratio, InkCurve.minimalWidth)
+        val t = math.max(seg.endWidth*ratio, LetterSeg.minimalWidth)
         segArray(segIndex) = seg.copy(endWidth = t)
         val nearIndex = segIndex + 1
         if(nearIndex<segArray.length && segArray(segIndex).connectNext)

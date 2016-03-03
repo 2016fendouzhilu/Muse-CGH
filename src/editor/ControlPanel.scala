@@ -4,7 +4,7 @@ import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 
-import main.InkCurve
+import main.LetterSeg$
 import utilities.{CubicCurve, MyMath, Vec2}
 
 import scala.collection.mutable

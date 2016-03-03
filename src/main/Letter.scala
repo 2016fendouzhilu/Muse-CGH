@@ -1,6 +1,6 @@
 package main
 
-case class Letter(segs: IndexedSeq[InkCurve], width: Double, tall: Double, deep: Double){
+case class Letter(segs: IndexedSeq[LetterSeg], width: Double, tall: Double, deep: Double){
   def height = tall + deep
 
   def getCurves(indices: Seq[Int]) = indices.map(segs)
