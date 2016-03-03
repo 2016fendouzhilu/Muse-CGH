@@ -58,6 +58,8 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
   val loadButton = makeButton("Load"){ loadEditing() }
 
+  val newEditingButton = makeButton("New") { editor.newEditing() }
+
   setupLayout()
 
   def setupLayout(): Unit ={
@@ -67,20 +69,24 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
     this.add(contentPanel)
 
-    def addRow(components: JComponent*): Unit ={
-      contentPanel.add(new JPanel(){
+    def addRow(components: JComponent*): JPanel ={
+      val panel: JPanel = new JPanel() {
         setLayout(new FlowLayout())
-        setPreferredSize(new Dimension(400,80))
-        setMinimumSize(new Dimension(0,0))
         components.foreach(this.add)
-      })
+      }
+      contentPanel.add(panel)
+      panel
     }
 
-    addRow(modeButtonPairs.map(_._2) :_*)
+    addRow(modeButtonPairs.map(_._2) :_*).setPreferredSize(new Dimension(400,100))
 
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 
-    addRow(appendButton, cutSegmentButton, deleteButton, undoButton, redoButton, saveButton, loadButton)
+    addRow(appendButton, cutSegmentButton, deleteButton)
+
+    addRow(undoButton, redoButton)
+
+    addRow(newEditingButton, saveButton, loadButton)
 
     contentPanel.add(segmentsPanel)
   }

@@ -80,9 +80,8 @@ class Editor(private var buffer: Editing) {
     notifyListeners()
   }
 
-  def insertSegment(index: Int): Unit = index match{
-    case 0 =>
-//      assert(currentEditing.letter)
+  def newEditing(): Unit = {
+    editAndRecord(Editing.empty)
   }
 
   def cutSegment(sIndex: Int): Unit ={
@@ -115,7 +114,9 @@ class Editor(private var buffer: Editing) {
       case Some(last) =>
         val curve: CubicCurve = last.curve
         val offset = curve.p3 - curve.p0
-        val newCurve = curve.translate(offset)
+        val delta = curve.p3-curve.p2
+        val tc = curve.translate(offset)
+        val newCurve = tc.copy(p1 = tc.p0 + delta)
         last.copy(curve = newCurve, startWidth = last.endWidth, endWidth = last.startWidth)
       case None => LetterSeg.initCurve
     }
