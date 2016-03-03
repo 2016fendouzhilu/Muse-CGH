@@ -9,9 +9,9 @@ import utilities.{CubicCurve, MyMath, Vec2}
 import scala.collection.mutable
 
 class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
-  private var buttonCount = 0
   private val buttons: mutable.ArrayBuffer[JToggleButton] = mutable.ArrayBuffer()
   private var selected: Option[Int] = None
+  def buttonCount = buttons.length
 
   setLayout(new FlowLayout())
   setPreferredSize(new Dimension(400,200))
@@ -39,10 +39,9 @@ class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
         this.add(b)
       }
     }else if (n<buttonCount){
-      (n until buttonCount).foreach{i => deleteButton(i)}
+      (n until buttonCount).reverse.foreach{i => deleteButton(i)}
     }
 
-    buttonCount = n
     this.revalidate()
     this.repaint()
   }
