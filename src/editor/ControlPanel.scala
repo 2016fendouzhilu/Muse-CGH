@@ -52,6 +52,8 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
   val undoButton = makeButton("Undo"){ editor.undo() }
 
+  val redoButton = makeButton("Redo"){ editor.redo() }
+
   val saveButton = makeButton("Save"){ saveEditing() }
 
   val loadButton = makeButton("Load"){ loadEditing() }
@@ -78,7 +80,7 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 
-    addRow(appendButton, cutSegmentButton, deleteButton, undoButton, saveButton, loadButton)
+    addRow(appendButton, cutSegmentButton, deleteButton, undoButton, redoButton, saveButton, loadButton)
 
     contentPanel.add(segmentsPanel)
   }
@@ -167,6 +169,9 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
         case VK_Z =>
           if(e.isControlDown || e.isAltDown)
             undoButton.doClick()
+        case VK_R =>
+          if(e.isControlDown || e.isAltDown)
+            redoButton.doClick()
         case VK_UP =>
           zoomAction(1.25)
         case VK_DOWN =>

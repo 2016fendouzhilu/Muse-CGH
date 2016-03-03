@@ -199,6 +199,13 @@ class Editor(private var buffer: Editing) {
     notifyListeners()
   }
 
+  def redo(): Unit = {
+    history.redo().foreach{ e =>
+      buffer = e
+      notifyListeners()
+    }
+  }
+
   def scaleThickness(isHead: Boolean, ratio: Double): Unit = {
     val letter = currentEditing().letter
     val segArray = letter.segs.toArray
@@ -233,15 +240,26 @@ case class Editing(letter: Letter, selects: Seq[Int]) {
 
 class EditingHistory(init: Editing) {
   private var history: List[Editing] = List(init)
+  private var redoBuffer: List[Editing] = List()
 
   def addHistory(e: Editing): Unit ={
     history = e :: history
+    redoBuffer = List()
   }
 
   def undo(): Editing = history match{
     case now::last::_ =>
       history = history.tail
+      redoBuffer = now :: redoBuffer
       last
     case _ => history.head
+  }
+
+  def redo(): Option[Editing] = redoBuffer match{
+    case h::t =>
+      history = h :: history
+      redoBuffer = t
+      Some(h)
+    case _ => None
   }
 }
