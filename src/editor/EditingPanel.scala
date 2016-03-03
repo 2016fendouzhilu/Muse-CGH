@@ -9,7 +9,7 @@ import utilities.{CubicCurve, MyMath, Vec2}
 /**
   * Created by weijiayi on 2/29/16.
   */
-class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelScale: Int = 4)
+class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelScale: Double = 4)
   extends JPanel with EditorListener {
 
   var imageOffset = Vec2.zero
@@ -32,19 +32,27 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
     Vec2(p.x*s, (p.y + editor.currentEditing().letter.tall)*s) + imageOffset
   }
 
+  def zoomCamera(scale: Double): Unit ={
+    displayPixelScale *= scale
+    imageOffset *= scale
+    repaint()
+  }
+
+  val controlLineThickness = 3.5
+
   override def paintComponent(g: Graphics): Unit = {
     super.paintComponent(g)
 
     val g2d = g.asInstanceOf[Graphics2D]
 
-    val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit)
+    val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale)
 
     drawBoardLines(drawer,2,2)
 
     editor.currentEditing() match {
       case Editing(letter, selects) =>
         val selectedCurves = selects.map(letter.segs)
-        selectedCurves.foreach(c => drawer.drawCurveControlPoints(c, endpointColor, controlPointColor, 0.03))
+        selectedCurves.foreach(c => drawer.drawCurveControlPoints(c, endpointColor, controlPointColor, controlLineThickness))
 
         editor.mode match{
           case EditControlPoint(pid) =>
@@ -65,27 +73,30 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
 
   def boardBaseLine = MyMath.ceil(editor.currentEditing().letter.tall * pixelPerUnit)
 
-  def windowWidthFromBoard = boardWidth * displayPixelScale
+  def windowWidthFromBoard = (boardWidth * displayPixelScale).toInt
 
-  def windowHeightFromBoard = boardHeight * displayPixelScale
+  def windowHeightFromBoard = (boardHeight * displayPixelScale).toInt
 
   def displayWidth = boardWidth * displayPixelScale
 
   def displayHeight = boardHeight * displayPixelScale
 
+
+  val baseLineThickness = 4
+  val gridLineThickness = 3
   def drawBoardLines(drawer: CurveDrawer, width: Double, height: Double): Unit ={
 
     drawer.setColor(baselineColor)
-    drawer.drawLine(Vec2.zero, Vec2(width,0), 0.05)
-    drawer.drawLine(Vec2(0,-width), Vec2(0,width), 0.05)
+    drawer.drawLine(Vec2.zero, Vec2(width,0), baseLineThickness, noWidthScale = true)
+    drawer.drawLine(Vec2(0,-width), Vec2(0,width), baseLineThickness, noWidthScale = true)
 
     drawer.setColor(gridColor)
     import collection.immutable.List
     List(-2,-1,1,2).foreach(i =>{
-      drawer.drawLine(Vec2(0, i), Vec2(width,i), 0.03)
+      drawer.drawLine(Vec2(0, i), Vec2(width,i), gridLineThickness, noWidthScale = true)
     })
 
-    drawer.drawLine(Vec2(1,-height), Vec2(1,height), 0.03)
+    drawer.drawLine(Vec2(1,-height), Vec2(1,height), gridLineThickness, noWidthScale = true)
   }
 
   val moveSpeed = 1.0
@@ -120,14 +131,13 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
     repaint()
   }
 
-
+  val editingLineThickness = 3
   def drawEditingLines(drawer: CurveDrawer)(curves: Seq[CubicCurve], pid: Int, color: Color): Unit ={
-    val width = 0.05
     drawer.setColor(color)
     curves.foreach{ c=>
       val Vec2(x,y) = c.getPoint(pid)
-      drawer.drawLine(Vec2(-1,y), Vec2(3,y), width)
-      drawer.drawLine(Vec2(x, -3), Vec2(x, 3), width)
+      drawer.drawLine(Vec2(-1,y), Vec2(3,y), editingLineThickness, noWidthScale = true)
+      drawer.drawLine(Vec2(x, -3), Vec2(x, 3), editingLineThickness, noWidthScale = true)
     }
   }
 

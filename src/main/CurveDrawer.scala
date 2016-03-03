@@ -41,12 +41,13 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       setColor(controlColor)
       drawDot(curve.p1, controlR)
       drawDot(curve.p2, controlR)
-      drawLine(curve.p1,curve.p0,lineWidth)
-      drawLine(curve.p2,curve.p3,lineWidth)
+      drawLine(curve.p1,curve.p0,lineWidth, noWidthScale = true)
+      drawLine(curve.p2,curve.p3,lineWidth, noWidthScale = true)
   }
 
-  def drawLine(p0: Vec2, p1: Vec2, width: Double): Unit ={
-    g2d.setStroke(new BasicStroke((width*scaleFactor).toFloat))
+  def drawLine(p0: Vec2, p1: Vec2, width: Double, noWidthScale: Boolean = false): Unit ={
+    val w = width * (if(noWidthScale) 1.0 else scaleFactor)
+    g2d.setStroke(new BasicStroke(w.toFloat))
     val line = new Line2D.Double(pointTransform(p0), pointTransform(p1))
     g2d.draw(line)
   }

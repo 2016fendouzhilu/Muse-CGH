@@ -8,7 +8,7 @@ import javax.swing._
   * Created by weijiayi on 2/29/16.
   */
 
-class ControlPanel(editor: Editor) extends JPanel with EditorListener{
+class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel with EditorListener{
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++ IndexedSeq(EditThickness(true), EditThickness(false))
@@ -126,6 +126,10 @@ class ControlPanel(editor: Editor) extends JPanel with EditorListener{
         case VK_Z =>
           if(e.isControlDown || e.isAltDown)
             undoButton.doClick()
+        case VK_UP =>
+          zoomAction(1.25)
+        case VK_DOWN =>
+          zoomAction(0.8)
         case _ => ()
       }
       val keyId = e.getKeyCode - VK_1 + 1
