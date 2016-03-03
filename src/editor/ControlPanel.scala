@@ -4,11 +4,6 @@ import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 
-import main.LetterSeg$
-import utilities.{CubicCurve, MyMath, Vec2}
-
-import scala.collection.mutable
-
 /**
   * Created by weijiayi on 2/29/16.
   */

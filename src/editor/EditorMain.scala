@@ -3,7 +3,7 @@ package editor
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.{BoxLayout, JComponent, JFrame, JPanel}
 
-import main.{LetterSeg, Letter}
+import main.{Letter, LetterSeg}
 import utilities.{CubicCurve, Vec2}
 
 /**

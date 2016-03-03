@@ -94,6 +94,7 @@ object MapWriter {
 }
 
 object MapKey extends Enumeration{
+  // CAUTION: DO NOT delete these keys, cause this may change their values and break compatibility.
   val Vec2X, Vec2Y = Value
   val P0, P1, P2, P3 = Value
   val Curve, Dots, StartWidth, EndWidth, AlignTangent, IsStrokeBreak = Value

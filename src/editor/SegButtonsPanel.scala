@@ -1,10 +1,10 @@
 package editor
 
 import java.awt.{Dimension, FlowLayout}
-import javax.swing.{JToggleButton, JPanel}
+import javax.swing.{JPanel, JToggleButton}
 
-import main.{LetterSeg}
-import utilities.{Vec2, CubicCurve, MyMath}
+import main.LetterSeg
+import utilities.{CubicCurve, MyMath, Vec2}
 
 import scala.collection.mutable
 

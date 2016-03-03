@@ -2,10 +2,10 @@ package tests
 
 import editor.Editing
 import main.{Letter, LetterSeg}
-import utilities.{CubicCurve, Vec2}
-import org.scalacheck.Prop._
-import org.scalacheck.Gen
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.Gen
+import org.scalacheck.Prop._
+import utilities.{CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 3/3/16.

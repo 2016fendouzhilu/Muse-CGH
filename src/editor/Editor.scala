@@ -1,7 +1,7 @@
 package editor
 
-import main.{LetterSeg, Letter}
-import utilities.{CubicCurve, CollectionOp, MyMath, Vec2}
+import main.{Letter, LetterSeg}
+import utilities.{CollectionOp, CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
