@@ -3,18 +3,24 @@ package main
 import java.awt.geom.{Ellipse2D, Line2D}
 import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
-import utilities.Vec2
+import utilities.{CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
   */
-class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double, dots: Int = 30) {
+
+class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double, dotsPerUnit: Double = 30.0) {
   g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
   def setColor(color: Color) = g2d.setColor(color)
 
+  def dotsForCurve(curve: CubicCurve): Int = {
+    (curve.controlLineLength * dotsPerUnit).toInt + 1
+  }
+
   def drawCurve(inkCurve: LetterSeg): Unit = inkCurve match{
     case LetterSeg(curve, start, end, _, _) =>
+      val dots = dotsForCurve(curve)
       val dt = 1.0/dots
       val deltaR = (end-start)/dots
 
