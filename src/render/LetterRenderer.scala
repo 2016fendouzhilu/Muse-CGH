@@ -10,7 +10,7 @@ class LetterRenderer(letterSpacing: Double) {
 
   def connectionWidth(start: Double, end: Double)(t: Double) = {
     val tMin = 0.6
-    val minWidth = math.min(start, end) * 0.4
+    val minWidth = math.min(start, end) * 0.3
     if(t<tMin) start + t/tMin * (minWidth-start)
     else minWidth + (t-tMin)/(1-tMin) * (end-minWidth)
   }
@@ -38,7 +38,7 @@ class LetterRenderer(letterSpacing: Double) {
         val nextCurve = nextSeg.curve
         val thisCurve = ss.last.curve
         val startTangent = thisCurve.p1 - thisCurve.p0
-        val scale = math.sqrt((nextCurve.p3-thisCurve.p0).length / thisCurve.controlLineLength)
+        val scale = math.sqrt((nextCurve.p3-thisCurve.p0).length / (thisCurve.controlLineLength+nextCurve.controlLineLength))
         val p1 = thisCurve.p0 + startTangent * scale
         val p3 = transform(newX)(nextCurve.p3)
         val endTangent = nextCurve.p2-nextCurve.p3

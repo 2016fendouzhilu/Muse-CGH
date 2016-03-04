@@ -25,7 +25,7 @@ object RenderTest {
     }
 
     val fancy = renderer.renderAWord(Vec2.zero, lean, letters)
-    val plain = renderer.renderAWordPlainly(Vec2(0,2), lean, letters)
+    val plain = renderer.renderAWordPlainly(Vec2(0,4), lean, letters)
 
     val frame = new JFrame(){
       setContentPane(new JPanel(){
