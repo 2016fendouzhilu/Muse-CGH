@@ -16,6 +16,7 @@ class LetterRenderer(letterSpacing: Double) {
   }
 
   def renderAWord(offset: Vec2, lean: Double, letters: IndexedSeq[Letter]): RenderingResult = {
+
     def transform(xOffset: Double)(v: Vec2) = Vec2(v.x-v.y*lean+xOffset, v.y) + offset
 
     var x = 0.0
@@ -28,19 +29,21 @@ class LetterRenderer(letterSpacing: Double) {
     def shouldModifyLast(i: Int) = i != letterNum - 1
 
     (0 until letterNum).foreach{ i =>
+      val baseX = letters(i).startX
       val ss =
-        (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).map{_.pointsMap(transform(x))}
+        (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).map{_.pointsMap(transform(x-baseX))}
 
       val newX = x + letters(i).width + letterSpacing
 
       rSegs = rSegs ++ (if(shouldModifyLast(i)){
         val nextSeg = letters(i+1).mainSegs.head
+        val nextBaseX = letters(i+1).startX
         val nextCurve = nextSeg.curve
         val thisCurve = ss.last.curve
         val startTangent = thisCurve.p1 - thisCurve.p0
         val scale = math.sqrt((nextCurve.p3-thisCurve.p0).length / (thisCurve.controlLineLength+nextCurve.controlLineLength))
         val p1 = thisCurve.p0 + startTangent * scale
-        val p3 = transform(newX)(nextCurve.p3)
+        val p3 = transform(newX-nextBaseX)(nextCurve.p3)
         val endTangent = nextCurve.p2-nextCurve.p3
         val p2 = p3 + endTangent * scale
         val newLast = ss.last match{
@@ -53,7 +56,7 @@ class LetterRenderer(letterSpacing: Double) {
         ss.map{RenderingSeg.linearThickness}
       })
 
-      val secondarySegs = letters(i).secondarySegs.map{_.pointsMap(transform(x))}
+      val secondarySegs = letters(i).secondarySegs.map{_.pointsMap(transform(x-baseX))}
       rSegs = rSegs ++ secondarySegs.map{ RenderingSeg.linearThickness}
 
       x = newX
@@ -66,7 +69,7 @@ class LetterRenderer(letterSpacing: Double) {
     var x = 0.0
     var segs = IndexedSeq[LetterSeg]()
     letters.foreach{ l =>
-      def transform(v: Vec2) = Vec2(v.x-v.y*lean+x, v.y) + offset
+      def transform(v: Vec2) = Vec2(v.x-v.y*lean+x-l.startX, v.y) + offset
       segs = segs ++ l.segs.map{ s => s.pointsMap(transform)}
       x += l.width + letterSpacing
     }
