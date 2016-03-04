@@ -3,7 +3,6 @@ package utilities
 import java.io._
 
 import editor.Editing
-import utilities.MapWriter.MapData
 
 /**
   * Created by weijiayi on 3/3/16.
@@ -39,7 +38,7 @@ object EditingSaver {
   def loadFromFile(file: File): Option[Editing] = {
     val s = new ObjectInputStream(new FileInputStream(file))
     try{
-      val data = s.readObject().asInstanceOf[MapData]
+      val data = s.readObject().asInstanceOf[IntMap]
       MapWriter.readOption[Editing](data)
     } catch {
       case e: Throwable =>
