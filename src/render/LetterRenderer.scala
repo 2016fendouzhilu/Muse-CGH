@@ -1,17 +1,25 @@
 package render
 
 import main.{Letter, LetterSeg}
-import utilities.{CubicCurve, Vec2}
+import utilities.{MyMath, CubicCurve, Vec2}
 
 /**
   * Render the letters
   */
 class LetterRenderer(letterSpacing: Double) {
+
+  def connectionWidth(start: Double, end: Double)(t: Double) = {
+    val tMin = 0.6
+    val minWidth = math.min(start, end) * 0.4
+    if(t<tMin) start + t/tMin * (minWidth-start)
+    else minWidth + (t-tMin)/(1-tMin) * (end-minWidth)
+  }
+
   def renderAWord(offset: Vec2, lean: Double, letters: IndexedSeq[Letter]): RenderingResult = {
     def transform(xOffset: Double)(v: Vec2) = Vec2(v.x-v.y*lean+xOffset, v.y) + offset
 
     var x = 0.0
-    var segs = IndexedSeq[LetterSeg]()
+    var rSegs = IndexedSeq[RenderingSeg]()
 
     val letterNum = letters.length
 
@@ -25,8 +33,9 @@ class LetterRenderer(letterSpacing: Double) {
 
       val newX = x + letters(i).width + letterSpacing
 
-      segs = if(shouldModifyLast(i)){
-        val nextCurve = letters(i+1).mainSegs.head.curve
+      rSegs = rSegs ++ (if(shouldModifyLast(i)){
+        val nextSeg = letters(i+1).mainSegs.head
+        val nextCurve = nextSeg.curve
         val thisCurve = ss.last.curve
         val startTangent = thisCurve.p1 - thisCurve.p0
         val scale = math.sqrt((nextCurve.p3-thisCurve.p0).length / thisCurve.controlLineLength)
@@ -36,19 +45,21 @@ class LetterRenderer(letterSpacing: Double) {
         val p2 = p3 + endTangent * scale
         val newLast = ss.last match{
           case seg@LetterSeg(c, sw, ew, _, _) =>
-            seg.copy(curve = CubicCurve(c.p0, p1, p2, p3))
+            val curve = CubicCurve(c.p0, p1, p2, p3)
+            RenderingSeg(curve, connectionWidth(sw, nextSeg.endWidth))
         }
-        segs ++ ss.init :+ newLast
+        ss.init.map{RenderingSeg.linearThickness} :+ newLast
       } else {
-        segs ++ ss
-      }
+        ss.map{RenderingSeg.linearThickness}
+      })
 
-      segs = segs ++ letters(i).secondarySegs.map{_.pointsMap(transform(x))}
+      val secondarySegs = letters(i).secondarySegs.map{_.pointsMap(transform(x))}
+      rSegs = rSegs ++ secondarySegs.map{ RenderingSeg.linearThickness}
 
       x = newX
     }
 
-    RenderingResult(segs)
+    RenderingResult(rSegs)
   }
 
   def renderAWordPlainly(offset: Vec2, lean: Double, letters: IndexedSeq[Letter]): RenderingResult = {
@@ -60,8 +71,9 @@ class LetterRenderer(letterSpacing: Double) {
       x += l.width + letterSpacing
     }
 
-    RenderingResult(segs)
+    val rSegs = segs.map{ RenderingSeg.linearThickness }
+    RenderingResult(rSegs)
   }
 }
 
-case class RenderingResult(segs: IndexedSeq[LetterSeg])
+case class RenderingResult(rSegs: IndexedSeq[RenderingSeg])

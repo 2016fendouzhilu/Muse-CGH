@@ -20,8 +20,8 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
 
   val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
 
-  def draw(segs: IndexedSeq[LetterSeg], color: Color): Unit = {
+  def draw(segs: IndexedSeq[RenderingSeg], color: Color): Unit = {
     drawer.setColor(color)
-    segs.foreach(drawer.drawCurve)
+    segs.foreach(drawer.drawRSeg)
   }
 }

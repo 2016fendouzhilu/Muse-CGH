@@ -3,38 +3,44 @@ package main
 import java.awt.geom.{Ellipse2D, Line2D}
 import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
-import utilities.{CubicCurve, Vec2}
+import render.RenderingSeg
+import utilities.{MyMath, CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
   */
 
 class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double,
-                  dotsPerUnit: Double = 30.0, thicknessScale: Double = 1.0) {
+                  dotsPerUnit: Double = 20.0, thicknessScale: Double = 1.0) {
   g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
   def setColor(color: Color) = g2d.setColor(color)
 
-  def dotsForCurve(curve: CubicCurve): Int = {
-    (curve.controlLineLength * dotsPerUnit).toInt + 1
-  }
-
   def drawCurve(inkCurve: LetterSeg): Unit = inkCurve match{
     case LetterSeg(curve, start, end, _, _) =>
-      val dots = dotsForCurve(curve)
+      val points = curve.samples(dotsPerUnit)
+      val dots = points.length
       val dt = 1.0/dots
       val deltaR = (end-start)/dots
 
-      val points = for(i <- 0 to dots) yield {
-        val t = i*dt
-        val p = curve.eval(t)
-        val r = start + i * deltaR
-        (p,r)
-      }
-      for(i <- 0 until dots){
-        val (p0,_) = points(i)
-        val (p1,r1) = points(i+1)
+      for(i <- 0 until dots-1){
+        val p0 = points(i)
+        val p1 = points(i+1)
+        val r1 = MyMath.linearInterpolate(start, end)(i*dt)
         drawLine(p0,p1,r1*thicknessScale)
+      }
+  }
+
+  def drawRSeg(rSeg: RenderingSeg): Unit = rSeg match {
+    case RenderingSeg(curve, wF) =>
+      val points = curve.samples(dotsPerUnit)
+      val dots = points.length
+      val dt = 1.0/dots
+      for(i <- 0 until dots-1) {
+        val p0 = points(i)
+        val p1 = points(i+1)
+        val r = wF(i*dt)
+        drawLine(p0, p1, r*thicknessScale)
       }
   }
 

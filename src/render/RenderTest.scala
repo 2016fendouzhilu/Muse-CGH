@@ -15,11 +15,12 @@ object RenderTest {
 
   def main(args: Array[String]) {
     val word = "abciicba"
+    val beautiful = "beautiful"
     val lean = 0.25
     val renderer = new LetterRenderer(letterSpacing = 0)
     val letterMap = loadDefaultLetterMap()
 
-    val letters = word.collect{
+    val letters = beautiful.collect{
       case c if letterMap.contains(c) => letterMap(c)
     }
 
@@ -30,6 +31,7 @@ object RenderTest {
       setContentPane(new JPanel(){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
         setPreferredSize(new Dimension(1000,400))
+        setBackground(Color.white)
 
         override def paintComponent(g: Graphics): Unit = {
           super.paintComponent(g)
@@ -37,8 +39,8 @@ object RenderTest {
 
           val painter = new LetterPainter(g2d, pixelPerUnit = 40, displayPixelScale = 1,
             imageOffset = Vec2(40,150), dotsPerUnit = 20, thicknessScale = 1.5)
-          painter.draw(fancy.segs, Color.black)
-          painter.draw(plain.segs, Color.black)
+          painter.draw(fancy.rSegs, Color.black)
+          painter.draw(plain.rSegs, Color.black)
         }
       })
       pack()
