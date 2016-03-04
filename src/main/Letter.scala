@@ -1,5 +1,7 @@
 package main
 
+import utilities.CollectionOp
+
 @SerialVersionUID(507692375361807682L)
 case class Letter (segs: IndexedSeq[LetterSeg]) {
 
@@ -8,6 +10,13 @@ case class Letter (segs: IndexedSeq[LetterSeg]) {
   def getCurves(indices: Seq[Int]) = indices.map(segs)
 
   def width = endX - startX
+
+  lazy val (mainSegs, secondarySegs) = {
+    CollectionOp.firstIndex(segs)(_.isStrokeBreak) match{
+      case Some(i) => segs.splitAt(i+1)
+      case None => (segs, IndexedSeq())
+    }
+  }
 }
 
 object Letter{

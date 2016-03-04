@@ -14,7 +14,7 @@ import utilities.{EditingSaver, Vec2}
 object RenderTest {
 
   def main(args: Array[String]) {
-    val word = "abcii"
+    val word = "abciicba"
     val lean = 0.25
     val renderer = new LetterRenderer(letterSpacing = 0)
     val letterMap = loadDefaultLetterMap()
@@ -23,7 +23,8 @@ object RenderTest {
       case c if letterMap.contains(c) => letterMap(c)
     }
 
-    val result = renderer.renderAWord(Vec2.zero, lean, letters)
+    val fancy = renderer.renderAWord(Vec2.zero, lean, letters)
+    val plain = renderer.renderAWordPlainly(Vec2(0,2), lean, letters)
 
     val frame = new JFrame(){
       setContentPane(new JPanel(){
@@ -34,8 +35,10 @@ object RenderTest {
           super.paintComponent(g)
           val g2d = g.asInstanceOf[Graphics2D]
 
-          val painter = new LetterPainter(g2d, pixelPerUnit = 50, displayPixelScale = 1, imageOffset = Vec2(40,150))
-          painter.draw(result.segs, Color.black)
+          val painter = new LetterPainter(g2d, pixelPerUnit = 40, displayPixelScale = 1,
+            imageOffset = Vec2(40,150), dotsPerUnit = 20, thicknessScale = 1.5)
+          painter.draw(fancy.segs, Color.black)
+          painter.draw(plain.segs, Color.black)
         }
       })
       pack()

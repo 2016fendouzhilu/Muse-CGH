@@ -9,7 +9,8 @@ import utilities.{CubicCurve, Vec2}
   * Created by weijiayi on 2/29/16.
   */
 
-class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double, dotsPerUnit: Double = 30.0) {
+class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double,
+                  dotsPerUnit: Double = 30.0, thicknessScale: Double = 1.0) {
   g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
   def setColor(color: Color) = g2d.setColor(color)
@@ -24,16 +25,16 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       val dt = 1.0/dots
       val deltaR = (end-start)/dots
 
-      val points = for(i <- 0 until dots) yield {
+      val points = for(i <- 0 to dots) yield {
         val t = i*dt
         val p = curve.eval(t)
         val r = start + i * deltaR
         (p,r)
       }
-      for(i <- 0 until dots-1){
+      for(i <- 0 until dots){
         val (p0,_) = points(i)
         val (p1,r1) = points(i+1)
-        drawLine(p0,p1,r1)
+        drawLine(p0,p1,r1*thicknessScale)
       }
   }
 

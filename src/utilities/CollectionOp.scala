@@ -22,4 +22,9 @@ object CollectionOp {
       else collection(i)
     }
   }
+
+  def firstIndex[A](xs: IndexedSeq[A])(p: A => Boolean): Option[Int] = {
+    xs.indices.foreach(i => if(p(xs(i))) return Some(i))
+    None
+  }
 }
