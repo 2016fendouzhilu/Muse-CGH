@@ -1,7 +1,9 @@
 package main
 
 @SerialVersionUID(507692375361807682L)
-case class Letter (segs: IndexedSeq[LetterSeg], startX: Double, endX: Double) {
+case class Letter (segs: IndexedSeq[LetterSeg]) {
+
+  lazy val (startX, endX) = Letter.calculateEndXs(segs)
 
   def getCurves(indices: Seq[Int]) = indices.map(segs)
 
@@ -15,19 +17,19 @@ object Letter{
 
   val minWidth = 0.01
 
-  def create(segs: IndexedSeq[LetterSeg]): Letter = {
+  def calculateEndXs(segs: IndexedSeq[LetterSeg]) = {
     var startX, endX = 0.0
     def updateX(x: Double): Unit = {
       if(x<startX) startX = x
       if(x>endX) endX = x
     }
     segs.foreach{s =>
-      val samples = (s.curve.controlLineLength * calculationPointsPerUnit).toInt + 1
-      (0 until samples).foreach {t =>
-        updateX (s.curve.eval(t).x)
-      }
+      s.curve.samples(calculationPointsPerUnit).foreach(v => updateX(v.x))
     }
+    (startX, endX)
+  }
 
-    Letter(segs, startX, endX)
+  def create(segs: IndexedSeq[LetterSeg]): Letter = {
+    Letter(segs)
   }
 }

@@ -66,19 +66,13 @@ object MapWriter {
 
   implicit val LetterWriter = new MapWriter[Letter] {
     override def toMapData(v: Letter): MapData = v match {
-      case Letter(segs, s, e) => Map(
-        (Segs, segs.toVector), (StartX, s), (EndX, e)
+      case Letter(segs) => Map(
+        Segs -> segs.toVector
       )
     }
 
     override def fromMapData(data: MapData): Letter = {
-      if(data.contains(StartX)){
-        Letter(data(Segs).asInstanceOf[Vector[LetterSeg]],
-          data(StartX).asInstanceOf[Double],
-          data(EndX).asInstanceOf[Double])
-      }else{
-        Letter.create(data(Segs).asInstanceOf[Vector[LetterSeg]])
-      }
+      Letter(data(Segs).asInstanceOf[Vector[LetterSeg]])
     }
   }
 
