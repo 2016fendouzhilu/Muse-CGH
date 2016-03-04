@@ -14,6 +14,8 @@ case class LetterSeg(curve: CubicCurve, startWidth: Double, endWidth: Double,
   }
 
   def connectNext = !isStrokeBreak
+
+  def pointsMap(f: Vec2 => Vec2) = copy(curve = curve.pointsMap(f))
 }
 
 object LetterSeg{

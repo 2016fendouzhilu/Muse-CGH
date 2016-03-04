@@ -26,9 +26,9 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     case 3 => copy(p3 = p)
   }
 
-  def map(f: Vec2 => Vec2) = CubicCurve(f(p0), f(p1), f(p2), f(p3))
+  def pointsMap(f: Vec2 => Vec2) = CubicCurve(f(p0), f(p1), f(p2), f(p3))
 
-  def translate(offset: Vec2) = this.map(_ + offset)
+  def translate(offset: Vec2) = this.pointsMap(_ + offset)
 
   def controlLineLength = {
     (p1-p0).length + (p2-p1).length + (p3-p2).length

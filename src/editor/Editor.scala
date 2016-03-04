@@ -238,7 +238,7 @@ class Editor(private var buffer: Editing) {
   }
 
   def scaleLetter(ratio: Double): Unit =
-    editLetterSegs {s => s.copy(curve = s.curve.map(_ * ratio))}
+    editLetterSegs {s => s.copy(curve = s.curve.pointsMap(_ * ratio))}
 
   def scaleTotalThickness(ratio: Double): Unit =
     editLetterSegs {s => s.copy(startWidth = s.startWidth*ratio, endWidth = s.endWidth*ratio)}

@@ -18,7 +18,8 @@ object Letter{
   val minWidth = 0.01
 
   def calculateEndXs(segs: IndexedSeq[LetterSeg]) = {
-    var startX, endX = 0.0
+    var startX = Double.MaxValue
+    var endX = Double.MinValue
     def updateX(x: Double): Unit = {
       if(x<startX) startX = x
       if(x>endX) endX = x
