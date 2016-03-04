@@ -72,7 +72,13 @@ object MapWriter {
     }
 
     override def fromMapData(data: MapData): Letter = {
-      Letter(data(Segs).asInstanceOf[Vector[LetterSeg]])
+      if(data.contains(StartX)){
+        Letter(data(Segs).asInstanceOf[Vector[LetterSeg]],
+          data(StartX).asInstanceOf[Double],
+          data(EndX).asInstanceOf[Double])
+      }else{
+        Letter.create(data(Segs).asInstanceOf[Vector[LetterSeg]])
+      }
     }
   }
 

@@ -37,6 +37,8 @@ case class Vec2(x:Double, y:Double) extends Point2D{
   override def getY: Double = y
 
   override def getX: Double = x
+
+  def =~= (v: Vec2) = (this - v).lengthSquared < Vec2.errorAllowed
 }
 
 object Vec2{
@@ -45,4 +47,6 @@ object Vec2{
   val down = Vec2(0,1)
   val left = Vec2(-1,0)
   val right = Vec2(1,0)
+
+  val errorAllowed = 1e-15
 }

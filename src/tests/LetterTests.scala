@@ -22,7 +22,10 @@ object LetterTests {
 
   val samplesTest = forAll(cubicGen){ c =>
     val samples = c.samples(50)
-    samples.head == c.p0 && samples.last == c.p3
+    samples.head =~= c.p0 && samples.last =~= c.p3
   }
 
+  def main(args: Array[String]) {
+    samplesTest.check
+  }
 }

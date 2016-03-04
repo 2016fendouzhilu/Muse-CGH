@@ -37,7 +37,9 @@ object MapWriterTests {
 
   val letterGen = for{
     segs <- Gen.containerOf[IndexedSeq, LetterSeg](letterSegGen)
-  } yield Letter(segs)
+    startX <- Gen.choose(0.1,2.0)
+    endX <- Gen.choose(-2.0,2.0)
+  } yield Letter(segs, startX, endX)
 
   val editingGen = for{
     l <- letterGen
