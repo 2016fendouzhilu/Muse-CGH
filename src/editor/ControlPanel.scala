@@ -2,7 +2,6 @@ package editor
 
 import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
-import java.io.{File, FileFilter}
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 

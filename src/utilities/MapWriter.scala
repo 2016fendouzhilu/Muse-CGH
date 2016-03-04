@@ -66,17 +66,14 @@ object MapWriter {
 
   implicit val LetterWriter = new MapWriter[Letter] {
     override def toMapData(v: Letter): MapData = v match {
-      case Letter(segs, w, t, d) => Map(
-        (Segs, segs.toVector), (Width, w), (Tall, t), (Deep, d)
+      case Letter(segs, s, e) => Map(
+        (Segs, segs.toVector), (StartX, s), (EndX, e)
       )
     }
 
-    override def fromMapData(data: MapData): Letter = Letter(
-      data(Segs).asInstanceOf[Vector[LetterSeg]],
-      data(Width).asInstanceOf[Double],
-      data(Tall).asInstanceOf[Double],
-      data(Deep).asInstanceOf[Double]
-    )
+    override def fromMapData(data: MapData): Letter = {
+      Letter(data(Segs).asInstanceOf[Vector[LetterSeg]])
+    }
   }
 
   implicit val EditingWriter = new MapWriter[Editing] {
@@ -93,6 +90,7 @@ object MapWriter {
   }
 }
 
+@SerialVersionUID(-793964942612952737L)
 object MapKey extends Enumeration{
   // CAUTION: DO NOT delete these keys, cause this may change their values and break compatibility.
   val Vec2X, Vec2Y = Value
@@ -100,4 +98,5 @@ object MapKey extends Enumeration{
   val Curve, Dots, StartWidth, EndWidth, AlignTangent, IsStrokeBreak = Value
   val Segs, Width, Tall, Deep = Value
   val EditingLetter, EditingSelects = Value
+  val StartX, EndX = Value
 }

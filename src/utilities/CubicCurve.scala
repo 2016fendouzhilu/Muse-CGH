@@ -33,4 +33,13 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
   def controlLineLength = {
     (p1-p0).length + (p2-p1).length + (p3-p2).length
   }
+
+  def samples(dotsPerUnit: Double): IndexedSeq[Vec2] = {
+    val samples = (controlLineLength * dotsPerUnit).toInt + 1
+    val dt = 1.0/samples
+    (0 to samples).map { i =>
+      val t = dt * i
+      eval(t)
+    }
+  }
 }

@@ -23,13 +23,17 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
   val curveHighlightColor = Color.cyan.darker()
   val editThicknessColor = Color.red
 
+  val letterMaxTall = 2.0
+  val letterMaxDeep = 2.0
+  val letterMaxWidth = 2.0
+
   setPreferredSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setMinimumSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setBackground(backgroundColor)
 
   def pointTrans(p: Vec2): Vec2 = {
     val s = pixelPerUnit*displayPixelScale
-    Vec2(p.x*s, (p.y + editor.currentEditing().letter.tall)*s) + imageOffset
+    Vec2(p.x*s, (p.y + letterMaxTall)*s) + imageOffset
   }
 
   def zoomCamera(scale: Double): Unit ={
@@ -67,11 +71,11 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
 
   }
 
-  def boardHeight = MyMath.ceil(editor.currentEditing().letter.height * pixelPerUnit)
+  def boardHeight = MyMath.ceil((letterMaxDeep + letterMaxTall) * pixelPerUnit)
 
-  def boardWidth = MyMath.ceil(editor.currentEditing().letter.width * pixelPerUnit)
+  def boardWidth = MyMath.ceil(letterMaxWidth * pixelPerUnit)
 
-  def boardBaseLine = MyMath.ceil(editor.currentEditing().letter.tall * pixelPerUnit)
+  def boardBaseLine = MyMath.ceil(letterMaxTall * pixelPerUnit)
 
   def windowWidthFromBoard = (boardWidth * displayPixelScale).toInt
 
