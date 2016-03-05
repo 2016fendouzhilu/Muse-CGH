@@ -8,7 +8,7 @@ import collection.mutable
 /**
   * Render the letters
   */
-class LetterRenderer(letterSpacing: Double, spaceWidth: Double) {
+class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSapce: Double) {
 
   def connectionWidth(start: Double, end: Double)(t: Double) = {
     val tMin = 0.6
@@ -24,18 +24,20 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double) {
 
     val letterNum = letters.length
 
-    def shouldDropFirst(i: Int) = i != 0
+    def shouldDropFirst(i: Int) = i != 0 && letters(i).isLetter && letters(i-1).isLetter
 
-    def shouldModifyLast(i: Int) = i != letterNum - 1
+    def shouldModifyLast(i: Int) = i != letterNum - 1 && letters(i).isLetter && letters(i+1).isLetter
 
     var x = 0.0
     var mainSegs, secondarySegs = IndexedSeq[RenderingSeg]()
     (0 until letterNum).foreach{ i =>
+      val frontSpacing = if(letters(i).isSymbol) symbolFrontSapce else 0.0
       val baseX = letters(i).startX
       val ss =
-        (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).map{_.pointsMap(transform(x-baseX))}
+        (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).
+          map{_.pointsMap(transform(x-baseX+frontSpacing))}
 
-      val newX = x + letters(i).width + letterSpacing
+      val newX = x + letters(i).width + letterSpacing + 2*frontSpacing
 
       mainSegs = mainSegs ++ (if(shouldModifyLast(i)){
         val thisSeg = ss.last
@@ -50,7 +52,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double) {
 
       secondarySegs =
         secondarySegs ++ letters(i).secondarySegs.
-          map{_.pointsMap(transform(x-baseX))}.
+          map{_.pointsMap(transform(x-baseX+frontSpacing))}.
           map{ RenderingSeg.linearThickness}
 
       x = newX

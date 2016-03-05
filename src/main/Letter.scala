@@ -16,6 +16,10 @@ case class Letter (segs: IndexedSeq[LetterSeg]) {
       case None => (segs, IndexedSeq())
     }
   }
+
+  def isSymbol = mainSegs.length < 3
+
+  def isLetter = !isSymbol
 }
 
 object Letter{
