@@ -13,14 +13,14 @@ import utilities.Vec2
 class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
                     dotsPerUnit:Double, thicknessScale: Double) {
 
-  def pointTrans(p: Vec2): Vec2 = {
-    val s = pixelPerUnit*displayPixelScale
-    Vec2(p.x*s, p.y*s) + imageOffset
-  }
+  def draw(segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
+    def pointTrans(p: Vec2): Vec2 = {
+      val s = pixelPerUnit*displayPixelScale
+      (p+offset)*s + imageOffset
+    }
 
-  val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
+    val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
 
-  def draw(segs: IndexedSeq[RenderingSeg], color: Color): Unit = {
     drawer.setColor(color)
     segs.foreach(drawer.drawRSeg)
   }

@@ -8,6 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-sdk-2.11.5-New" level="application" />
+    <orderEntry type="library" name="scala-2.11.52-akkaActor" level="application" />
+    <orderEntry type="library" name="scalacheck_2.11-1.12.5" level="application" />
   </component>
 </module>
