@@ -14,20 +14,20 @@ import utilities.{EditingSaver, Vec2}
 object RenderTest {
 
   def main(args: Array[String]) {
-    val word = "abciicba"
+    val word = "abcdefghijklmnthu"
     val beautiful = "beautiful"
     val lean = 0.25
-    val renderer = new LetterRenderer(letterSpacing = 0)
+    val renderer = new LetterRenderer(letterSpacing = 0.0)
     val letterMap = loadDefaultLetterMap()
 
-    val letters = beautiful.collect{
+    val letters = word.collect{
       case c if letterMap.contains(c) => letterMap(c)
     }
 
     val fancy = renderer.renderAWord(Vec2.zero, lean, letters)
     val plain = renderer.renderAWordPlainly(Vec2(0,4), lean, letters)
 
-    val frame = new JFrame(){
+    val frame = new JFrame("Rendering Result"){
       setContentPane(new JPanel(){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
         setPreferredSize(new Dimension(1000,400))
@@ -51,18 +51,22 @@ object RenderTest {
   def loadDefaultLetterMap(): Map[Char, Letter] = {
     var list = List[(Char, Letter)]()
 
-    println("letters found: ")
+    println("letters missing: ")
 
     (0 until 26).foreach{ i =>
       val c = ('a'.toInt + i).toChar
       val file = Paths.get(s"letters/$c.muse").toFile
 
+      var missing = true
       if(file.exists()){
         EditingSaver.loadFromFile(file).foreach{ e =>
           list = (c, e.letter)::list
-          print(s"$c ")
+          missing = false
         }
       }
+
+      if(missing)
+        print(s"$c ")
     }
     list.toMap
   }

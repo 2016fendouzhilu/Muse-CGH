@@ -19,50 +19,52 @@ class LetterRenderer(letterSpacing: Double) {
 
     def transform(xOffset: Double)(v: Vec2) = Vec2(v.x-v.y*lean+xOffset, v.y) + offset
 
-    var x = 0.0
-    var rSegs = IndexedSeq[RenderingSeg]()
-
     val letterNum = letters.length
 
     def shouldDropFirst(i: Int) = i != 0
 
     def shouldModifyLast(i: Int) = i != letterNum - 1
 
-    (0 until letterNum).foreach{ i =>
+    var x = 0.0
+    val rSegs = (0 until letterNum).flatMap{ i =>
       val baseX = letters(i).startX
       val ss =
         (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).map{_.pointsMap(transform(x-baseX))}
 
       val newX = x + letters(i).width + letterSpacing
 
-      rSegs = rSegs ++ (if(shouldModifyLast(i)){
-        val nextSeg = letters(i+1).mainSegs.head
+      val mainSegs = if(shouldModifyLast(i)){
+        val thisSeg = ss.last
         val nextBaseX = letters(i+1).startX
-        val nextCurve = nextSeg.curve
-        val thisCurve = ss.last.curve
-        val startTangent = thisCurve.p1 - thisCurve.p0
-        val scale = math.sqrt((nextCurve.p3-thisCurve.p0).length / (thisCurve.controlLineLength+nextCurve.controlLineLength))
-        val p1 = thisCurve.p0 + startTangent * scale
-        val p3 = transform(newX-nextBaseX)(nextCurve.p3)
-        val endTangent = nextCurve.p2-nextCurve.p3
-        val p2 = p3 + endTangent * scale
-        val newLast = ss.last match{
-          case seg@LetterSeg(c, sw, ew, _, _) =>
-            val curve = CubicCurve(c.p0, p1, p2, p3)
-            RenderingSeg(curve, connectionWidth(sw, nextSeg.endWidth))
-        }
+        val nextSeg = letters(i+1).mainSegs.head.pointsMap(transform(newX-nextBaseX))
+        val newLast = mergeSegs(thisSeg, nextSeg)
+
         ss.init.map{RenderingSeg.linearThickness} :+ newLast
       } else {
         ss.map{RenderingSeg.linearThickness}
-      })
+      }
 
       val secondarySegs = letters(i).secondarySegs.map{_.pointsMap(transform(x-baseX))}
-      rSegs = rSegs ++ secondarySegs.map{ RenderingSeg.linearThickness}
 
       x = newX
+      mainSegs ++ secondarySegs.map{ RenderingSeg.linearThickness}
     }
 
     RenderingResult(rSegs)
+  }
+
+  def mergeSegs(s1: LetterSeg, s2: LetterSeg): RenderingSeg = {
+    val thisCurve = s1.curve
+    val nextCurve = s2.curve
+    val startTangent = thisCurve.p1 - thisCurve.p0
+    val endTangent = nextCurve.p2-nextCurve.p3
+    val scale = ((nextCurve.endPoint-thisCurve.startPoint).length /
+      (thisCurve.straightLineLength +nextCurve.straightLineLength))
+    val p1 = thisCurve.startPoint + startTangent * scale
+    val p2 = nextCurve.endPoint + endTangent * scale
+
+    val newCurve = CubicCurve(thisCurve.p0, p1, p2, nextCurve.p3)
+    RenderingSeg(newCurve, connectionWidth(s1.startWidth, s2.endWidth))
   }
 
   def renderAWordPlainly(offset: Vec2, lean: Double, letters: IndexedSeq[Letter]): RenderingResult = {
