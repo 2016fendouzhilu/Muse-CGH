@@ -11,6 +11,12 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     p0 * dCubic + p1 * (3*dSquare*t) + p2 * (3*delta*t*t) + p3 * (t*t*t)
   }
 
+  def evalTangent(t: Double): Vec2 = {
+    val delta = 1 - t
+    val v = (p1-p0)*(3*delta*delta) + (p2-p1)*(6*delta*t) + (p3-p2)*(3*t*t)
+    v.normalized
+  }
+
   def getPoint(id: Int) = id match{
     case 0 => p0
     case 1 => p1
@@ -47,6 +53,15 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     (0 to samples).map { i =>
       val t = dt * i
       eval(t)
+    }
+  }
+
+  def sampleTangents(dotsPerUnit: Double): IndexedSeq[Vec2] = {
+    val samples = (controlLineLength * dotsPerUnit).toInt + 1
+    val dt = 1.0/samples
+    (0 to samples).map { i =>
+      val t = dt * i
+      evalTangent(t)
     }
   }
 }

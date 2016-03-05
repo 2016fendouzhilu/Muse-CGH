@@ -7,32 +7,31 @@ import java.nio.file.Paths
 import javax.swing.{JScrollPane, JPanel, JFrame}
 
 import main.Letter
-import utilities.{EditingSaver, Vec2}
+import utilities.{LetterMapLoader, EditingSaver, Vec2}
 
 /**
   * Created by weijiayi on 3/4/16.
   */
 object RenderTest {
 
-  def main(args: Array[String]) {
+  def renderText() = {
     val renderer = new LetterRenderer(letterSpacing = 0.0, spaceWidth = 0.8, symbolFrontSapce = 0.2)
-    val letterMap = loadDefaultLetterMap()
+    val letterMap = LetterMapLoader.loadDefaultLetterMap()
 
     val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
 
-    val result = renderer.renderText(letterMap, lean = 0.3, maxLineWidth = 75, breakWordThreshold = 35, lineSpacing = 4)(text)
+    renderer.renderText(letterMap, lean = 0.3, maxLineWidth = 75, breakWordThreshold = 35, lineSpacing = 4)(text)
+  }
 
-    val dotsPerUnit = 50.0
-
+  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double): Unit = {
     val frame = new JFrame(s"Rendering Result [samples = $dotsPerUnit]"){
       setContentPane(new JScrollPane(new JPanel(){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
         setBackground(Color.white)
 
-        val pixelPerUnit = 30
+        val pixelPerUnit = 28
         val displayPixelScale = 1
 
-        println(s"result line width = ${result.lineWidth}")
         val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit * displayPixelScale, result.height * pixelPerUnit * displayPixelScale)
         val edge = 40
 
@@ -51,7 +50,7 @@ object RenderTest {
           result.words.foreach {
             case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
               val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = displayPixelScale,
-                imageOffset = Vec2(edge,edge+60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.2)
+                imageOffset = Vec2(edge,edge+60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
               painter.draw(mainSegs, offset, color)
               painter.draw(secondSegs, offset, color)
@@ -74,48 +73,10 @@ object RenderTest {
     }
   }
 
-  def loadDefaultLetterMap(): Map[Char, Letter] = {
-    var list = List[(Char, Letter)]()
+  def main(args: Array[String]) {
+    val result = renderText()
+    val dotsPerUnit = 50.0
 
-    println("letters missing: ")
-
-    (0 until 26).foreach{ i =>
-      val c = ('a'.toInt + i).toChar
-      loadLetter(s"letters/$c.muse") match{
-        case Some(l) =>
-          list = List(c -> l, c.toUpper -> l) ++ list
-        case None =>
-          print(s"$c ")
-      }
-    }
-
-    List(
-      ','->"comma",
-      '.'->"period",
-      ';'->"semicolon",
-      '\''->"upper_comma",
-      '’' -> "upper_comma",
-      '-'->"hyphen",
-      '—' -> "hyphen"
-    ).foreach{
-      case (key, name) =>
-        loadLetter(s"letters/$name.muse") match{
-          case Some(l) => list = (key -> l) :: list
-          case None =>
-            print(s"$name")
-        }
-    }
-
-    list.toMap
-  }
-
-  def loadLetter(fileName: String): Option[Letter] = {
-    val file = Paths.get(fileName).toFile
-    if(file.exists()){
-      EditingSaver.loadFromFile(file).foreach{ e =>
-        return Some(e.letter)
-      }
-    }
-    None
+    showInScrollPane(result, dotsPerUnit)
   }
 }

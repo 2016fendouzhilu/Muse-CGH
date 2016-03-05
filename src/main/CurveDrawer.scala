@@ -1,6 +1,6 @@
 package main
 
-import java.awt.geom.{Ellipse2D, Line2D}
+import java.awt.geom.{Path2D, Ellipse2D, Line2D}
 import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
 import render.RenderingSeg
@@ -18,30 +18,26 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
 
   def drawCurve(inkCurve: LetterSeg): Unit = inkCurve match{
     case LetterSeg(curve, start, end, _, _) =>
-      val points = curve.samples(dotsPerUnit)
-      val dots = points.length
-      val dt = 1.0/dots
-      val deltaR = (end-start)/dots
+      drawCurveWithWF(curve, MyMath.linearInterpolate(start, end))
+  }
 
-      for(i <- 0 until dots-1){
-        val p0 = points(i)
-        val p1 = points(i+1)
-        val r1 = MyMath.linearInterpolate(start, end)(i*dt)
-        drawLine(p0,p1,r1*thicknessScale)
-      }
+  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double): Unit = {
+    val points = curve.samples(dotsPerUnit)
+    val tangents = curve.sampleTangents(dotsPerUnit)
+    val dots = points.length
+    val dt = 1.0/dots
+
+    for(i <- 0 until dots-1){
+      val r0 = wF(i*dt)
+      val r1 = wF((i+1)*dt)
+      drawThicknessLine(points(i), points(i + 1), tangents(i), tangents(i+1), r0*thicknessScale, r1*thicknessScale)
+    }
   }
 
   def drawRSeg(rSeg: RenderingSeg): Unit = rSeg match {
     case RenderingSeg(curve, wF) =>
-      val points = curve.samples(dotsPerUnit)
-      val dots = points.length
-      val dt = 1.0/dots
-      for(i <- 0 until dots-1) {
-        val p0 = points(i)
-        val p1 = points(i+1)
-        val r = wF(i*dt)
-        drawLine(p0, p1, r*thicknessScale)
-      }
+      drawCurveWithWF(curve, wF)
+      
   }
 
   def drawCurveControlPoints(inkCurve: LetterSeg, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{
@@ -68,6 +64,23 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
     g2d.setStroke(stroke)
     val line = new Line2D.Double(pointTransform(p0), pointTransform(p1))
     g2d.draw(line)
+  }
+
+  def drawThicknessLine(p0: Vec2, p1: Vec2, tangent0: Vec2, tangent1: Vec2, startWidth: Double, endWidth: Double): Unit = {
+    val n0 = Vec2(tangent0.y, -tangent0.x)
+    val n1 = Vec2(tangent1.y, -tangent1.x)
+    val v0 = pointTransform(p0 + n0 * startWidth/2)
+    val v1 = pointTransform(p0 - n0 * startWidth/2)
+    val v2 = pointTransform(p1 - n1 * endWidth/2)
+    val v3 = pointTransform(p1 + n1 * endWidth/2)
+    val path = new Path2D.Double()
+    path.moveTo(v0.x, v0.y)
+    path.lineTo(v1.x, v1.y)
+    path.lineTo(v2.x, v2.y)
+    path.lineTo(v3.x, v3.y)
+    path.closePath()
+
+    g2d.fill(path)
   }
 
   def drawDot(center: Vec2, radius: Double): Unit = {
