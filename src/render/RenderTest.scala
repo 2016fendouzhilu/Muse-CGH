@@ -4,8 +4,9 @@ import java.awt.image.BufferedImage
 import java.awt.{Color, Dimension, Graphics, Graphics2D, RenderingHints}
 import java.io.File
 import java.nio.file.Paths
-import javax.swing.{JScrollPane, JPanel, JFrame}
+import javax.swing._
 
+import editor.MyButton
 import main.Letter
 import utilities.{LetterMapLoader, EditingSaver, Vec2}
 
@@ -13,6 +14,17 @@ import utilities.{LetterMapLoader, EditingSaver, Vec2}
   * Created by weijiayi on 3/4/16.
   */
 object RenderTest {
+
+  def main(args: Array[String]) {
+    val result = renderText()
+    val dotsPerUnit = 50.0
+
+    val pixelPerUnit = 28/2
+
+    val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit, result.height * pixelPerUnit)
+
+    showInAnimation(result, dotsPerUnit, imgWidth, imgHeight, pixelPerUnit, segsPerSecond = dotsPerUnit*2 )
+  }
 
   def renderText() = {
     val renderer = new LetterRenderer(letterSpacing = 0.0, spaceWidth = 0.8, symbolFrontSapce = 0.2)
@@ -23,33 +35,85 @@ object RenderTest {
     renderer.renderText(letterMap, lean = 0.3, maxLineWidth = 75, breakWordThreshold = 35, lineSpacing = 4)(text)
   }
 
-  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double): Unit = {
+  def showInAnimation(result: RenderingResult, dotsPerUnit: Double, imgWidth: Double, imgHeight: Double,
+                      pixelPerUnit: Double, segsPerSecond: Double): Unit = {
+    val frame = new JFrame(s"Rendering Result [samples = $dotsPerUnit]"){
+      val edge = 40
+
+      val totalSize = new Dimension(imgWidth.toInt+2*edge,imgHeight.toInt+2*edge+120)
+
+      setPreferredSize(totalSize)
+
+      def drawAndSleep(g: Graphics, segsPerSecond: Double): Unit = {
+        val g2d = g.asInstanceOf[Graphics2D]
+
+        val color = Color.black
+
+        val dt = (1000.0/segsPerSecond).toInt
+
+        def rest() = Thread.sleep(dt)
+
+        result.words.foreach {
+          case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
+            val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
+              imageOffset = Vec2(edge,edge + 60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
+
+            painter.draw(mainSegs, offset, color, rest)
+            painter.draw(secondSegs, offset, color, rest)
+        }
+      }
+
+      val startButton = new JButton("Start")
+      MyButton.addAction(startButton, () => {
+        startButton.setEnabled(false)
+        new Thread(new Runnable {
+          override def run(): Unit = {
+            repaint()
+            drawAndSleep(getGraphics, segsPerSecond)
+            startButton.setEnabled(true)
+          }
+        }).start()
+
+      })
+
+      val canvas = new JPanel(){
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+        setBackground(Color.white)
+
+      }
+      setContentPane(new JPanel(){
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+        add(startButton)
+        add(canvas)
+      })
+      pack()
+      setVisible(true)
+    }
+
+  }
+
+  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double, imgWidth: Double, imgHeight: Double, pixelPerUnit: Double): Unit = {
     val frame = new JFrame(s"Rendering Result [samples = $dotsPerUnit]"){
       setContentPane(new JScrollPane(new JPanel(){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
         setBackground(Color.white)
 
-        val pixelPerUnit = 28
-        val displayPixelScale = 1
-
-        val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit * displayPixelScale, result.height * pixelPerUnit * displayPixelScale)
         val edge = 40
 
         val screenPixelFactor: Int = 2
         val totalSize = new Dimension(imgWidth.toInt+2*edge,imgHeight.toInt+2*edge+120)
         val screenSize = new Dimension(totalSize.width/screenPixelFactor, totalSize.height/screenPixelFactor)
+
         setPreferredSize(screenSize)
 
         def drawToGraphics(g: Graphics): Unit = {
-          super.paintComponent(g)
           val g2d = g.asInstanceOf[Graphics2D]
-          g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
           val color = Color.black
 
           result.words.foreach {
             case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-              val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = displayPixelScale,
+              val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
                 imageOffset = Vec2(edge,edge+60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
               painter.draw(mainSegs, offset, color)
@@ -71,12 +135,5 @@ object RenderTest {
       pack()
       setVisible(true)
     }
-  }
-
-  def main(args: Array[String]) {
-    val result = renderText()
-    val dotsPerUnit = 50.0
-
-    showInScrollPane(result, dotsPerUnit)
   }
 }
