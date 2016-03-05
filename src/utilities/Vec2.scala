@@ -2,7 +2,6 @@ package utilities
 
 import java.awt.geom.Point2D
 
-@SerialVersionUID(3862705160020858155L)
 case class Vec2(x:Double, y:Double) extends Point2D{
   def rotate(rad: Double) = {
     val sin=math.sin(rad)

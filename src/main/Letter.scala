@@ -2,7 +2,6 @@ package main
 
 import utilities.CollectionOp
 
-@SerialVersionUID(507692375361807682L)
 case class Letter (segs: IndexedSeq[LetterSeg]) {
 
   lazy val (startX, endX) = Letter.calculateEndXs(segs)

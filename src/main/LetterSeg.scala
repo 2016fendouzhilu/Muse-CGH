@@ -5,7 +5,6 @@ import utilities.{CubicCurve, Vec2}
 /**
   * Letter Segment, An extension to CubicCurve with Drawing information
   */
-@SerialVersionUID(-6970630317765739632L)
 case class LetterSeg(curve: CubicCurve, startWidth: Double, endWidth: Double,
                      alignTangent: Boolean = true, isStrokeBreak: Boolean = false){
   def setPoint(id: Int, p: Vec2) = {

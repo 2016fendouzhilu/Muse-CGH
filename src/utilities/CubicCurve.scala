@@ -3,7 +3,6 @@ package utilities
 /**
   * Cubic Bezier Curve
   */
-@SerialVersionUID(-5170034623013212835L)
 case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
   def eval(t: Double): Vec2 = {
     val delta = 1 - t
