@@ -1,13 +1,12 @@
 package editor
 
-import main.{LetterType, Letter, LetterSeg}
-import utilities.{CollectionOp, CubicCurve, Vec2}
+import main.{Letter, LetterSeg, LetterType}
+import utilities.{ChangeSource, CollectionOp, CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
   */
-class Editor(private var buffer: Editing) {
-  private val listeners =  scala.collection.mutable.ListBuffer[EditorListener]()
+class Editor(private var buffer: Editing) extends ChangeSource {
 
   private val history = new EditingHistory(buffer){
     addHistory(buffer)
@@ -47,14 +46,8 @@ class Editor(private var buffer: Editing) {
     case _ => ()
   }
 
-  def addListener(l: EditorListener) = {
-    listeners += l
-    l.editingUpdated()
-  }
 
   def currentEditing() = buffer
-
-  def notifyListeners() = listeners.foreach(_.editingUpdated())
 
   def editAndRecord(editing: Editing): Unit ={
     editWithoutRecord(editing)
@@ -254,9 +247,6 @@ class Editor(private var buffer: Editing) {
 
 }
 
-trait EditorListener {
-  def editingUpdated(): Unit
-}
 
 case class Editing(letter: Letter, selects: Seq[Int]) {
   def selectedInkCurves = letter.getCurves(selects)

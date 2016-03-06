@@ -2,13 +2,10 @@ package render
 
 import java.awt.image.BufferedImage
 import java.awt.{Color, Dimension, Graphics, Graphics2D, RenderingHints}
-import java.io.File
-import java.nio.file.Paths
 import javax.swing._
 
 import editor.MyButton
-import main.Letter
-import utilities.{LetterMapLoader, EditingSaver, Vec2}
+import utilities.{LetterMapLoader, Vec2}
 
 /**
   * Created by weijiayi on 3/4/16.

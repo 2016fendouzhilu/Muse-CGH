@@ -4,13 +4,13 @@ import java.awt._
 import javax.swing.JPanel
 
 import main.CurveDrawer
-import utilities.{CubicCurve, MyMath, Vec2}
+import utilities.{ChangeListener, CubicCurve, MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.
   */
 class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelScale: Double = 4)
-  extends JPanel with EditorListener {
+  extends JPanel with ChangeListener {
 
   var imageOffset = Vec2.zero
 

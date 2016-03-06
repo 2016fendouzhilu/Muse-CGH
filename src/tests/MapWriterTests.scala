@@ -1,7 +1,7 @@
 package tests
 
 import editor.Editing
-import main.{LetterType, Letter, LetterSeg}
+import main.{Letter, LetterSeg, LetterType}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop._

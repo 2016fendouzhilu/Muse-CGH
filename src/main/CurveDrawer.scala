@@ -1,10 +1,10 @@
 package main
 
-import java.awt.geom.{Path2D, Ellipse2D, Line2D}
+import java.awt.geom.{Ellipse2D, Line2D, Path2D}
 import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
 import render.RenderingSeg
-import utilities.{MyMath, CubicCurve, Vec2}
+import utilities.{CubicCurve, MyMath, Vec2}
 
 /**
   * Created by weijiayi on 2/29/16.

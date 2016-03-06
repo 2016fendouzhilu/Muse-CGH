@@ -3,8 +3,7 @@ package editor
 import java.awt.{Dimension, FlowLayout}
 import javax.swing.{JPanel, JToggleButton}
 
-import main.LetterSeg
-import utilities.{CubicCurve, MyMath, Vec2}
+import utilities.MyMath
 
 import scala.collection.mutable
 

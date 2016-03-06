@@ -1,7 +1,7 @@
 package render
 
 import main.LetterSeg
-import utilities.{MyMath, CubicCurve}
+import utilities.{CubicCurve, MyMath}
 
 
 case class RenderingSeg(curve: CubicCurve, widthFunc: Double => Double)

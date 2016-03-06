@@ -6,13 +6,13 @@ import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import main.LetterType
-import utilities.EditingSaver
+import utilities.{ChangeListener, EditingSaver}
 
 /**
   * Created by weijiayi on 2/29/16.
   */
 
-class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel with EditorListener{
+class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel with ChangeListener{
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++

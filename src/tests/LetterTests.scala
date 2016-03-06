@@ -1,8 +1,8 @@
 package tests
 
 import org.scalacheck.Gen
-import utilities.{CubicCurve, Vec2}
 import org.scalacheck.Prop.forAll
+import utilities.{CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 3/4/16.

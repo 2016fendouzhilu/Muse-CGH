@@ -1,8 +1,9 @@
 package render
 
 import main.{Letter, LetterSeg}
-import utilities.{MyMath, CubicCurve, Vec2}
-import collection.mutable
+import utilities.{CubicCurve, Vec2}
+
+import scala.collection.mutable
 
 
 /**

@@ -1,10 +1,8 @@
 package render
 
-import java.awt.{Color, Graphics2D, Graphics}
-import javax.swing.JPanel
+import java.awt.{Color, Graphics2D}
 
-import editor.{EditThickness, EditControlPoint, Editing}
-import main.{LetterSeg, CurveDrawer}
+import main.CurveDrawer
 import utilities.Vec2
 
 /**

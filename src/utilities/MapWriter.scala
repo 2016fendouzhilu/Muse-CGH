@@ -1,7 +1,7 @@
 package utilities
 
 import editor.Editing
-import main.{LetterType, Letter, LetterSeg}
+import main.{Letter, LetterSeg, LetterType}
 
 
 @SerialVersionUID(1L)
