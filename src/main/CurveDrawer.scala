@@ -21,7 +21,7 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       drawCurveWithWF(curve, MyMath.linearInterpolate(start, end))
   }
 
-  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double): Unit = {
+  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double, onLinePaint: Vec2 => Unit = (_) => Unit): Unit = {
     val points = curve.samples(dotsPerUnit)
     val tangents = curve.sampleTangents(dotsPerUnit)
     val dots = points.length
@@ -30,13 +30,15 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
     for(i <- 0 until dots-1){
       val r0 = wF(i*dt)
       val r1 = wF((i+1)*dt)
-      drawThicknessLine(points(i), points(i + 1), tangents(i), tangents(i+1), r0*thicknessScale, r1*thicknessScale)
+      val p1 = points(i + 1)
+      drawThicknessLine(points(i), p1, tangents(i), tangents(i+1), r0*thicknessScale, r1*thicknessScale)
+      onLinePaint(p1)
     }
   }
 
-  def drawRSeg(rSeg: RenderingSeg): Unit = rSeg match {
+  def drawRSeg(rSeg: RenderingSeg, onLinePaint: Vec2 => Unit): Unit = rSeg match {
     case RenderingSeg(curve, wF) =>
-      drawCurveWithWF(curve, wF)
+      drawCurveWithWF(curve, wF, onLinePaint)
       
   }
 

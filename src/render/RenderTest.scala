@@ -19,11 +19,10 @@ object RenderTest {
     val result = renderText()
     val dotsPerUnit = 50.0
 
-    val pixelPerUnit = 28/2
+    val pixelPerUnit = 14
 
-    val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit, result.height * pixelPerUnit)
-
-    showInAnimation(result, dotsPerUnit, imgWidth, imgHeight, pixelPerUnit, segsPerSecond = dotsPerUnit*2 )
+//    showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 12 )
+    showInScrollPane(result, dotsPerUnit, pixelPerUnit)
   }
 
   def renderText() = {
@@ -35,23 +34,33 @@ object RenderTest {
     renderer.renderText(letterMap, lean = 0.3, maxLineWidth = 75, breakWordThreshold = 35, lineSpacing = 4)(text)
   }
 
-  def showInAnimation(result: RenderingResult, dotsPerUnit: Double, imgWidth: Double, imgHeight: Double,
-                      pixelPerUnit: Double, segsPerSecond: Double): Unit = {
+  def showInAnimation(result: RenderingResult, dotsPerUnit: Double,
+                      pixelPerUnit: Double, penSpeed: Double): Unit = {
     val frame = new JFrame(s"Rendering Result [samples = $dotsPerUnit]"){
-      val edge = 40
 
-      val totalSize = new Dimension(imgWidth.toInt+2*edge,imgHeight.toInt+2*edge+120)
+      val edge = (pixelPerUnit * 2).toInt
+      val (imageWidth, imageHeight) = ((result.lineWidth*pixelPerUnit).toInt, (result.height*pixelPerUnit).toInt)
+      val totalSize = new Dimension(imageWidth+2*edge,imageHeight+2*edge+120)
 
       setPreferredSize(totalSize)
 
-      def drawAndSleep(g: Graphics, segsPerSecond: Double): Unit = {
+      def drawAndSleep(g: Graphics, penSpeed: Double, penStartFrom: Vec2): Unit = {
+
+        var lastPos = penStartFrom
+
+        def rest(v: Vec2) = {
+          val dis = (v-lastPos).length
+
+          lastPos = v
+          val dt = dis / penSpeed
+          val millis = (dt/0.001).toInt
+          val nanos = ((dt % 0.001)*1000000).toInt
+          Thread.sleep(millis,nanos)
+        }
+        
         val g2d = g.asInstanceOf[Graphics2D]
 
         val color = Color.black
-
-        val dt = (1000.0/segsPerSecond).toInt
-
-        def rest() = Thread.sleep(dt)
 
         result.words.foreach {
           case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
@@ -69,7 +78,7 @@ object RenderTest {
         new Thread(new Runnable {
           override def run(): Unit = {
             repaint()
-            drawAndSleep(getGraphics, segsPerSecond)
+            drawAndSleep(getGraphics, penSpeed, Vec2.zero)
             startButton.setEnabled(true)
           }
         }).start()
@@ -92,15 +101,15 @@ object RenderTest {
 
   }
 
-  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double, imgWidth: Double, imgHeight: Double, pixelPerUnit: Double): Unit = {
+  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double, pixelPerUnit: Double): Unit = {
     val frame = new JFrame(s"Rendering Result [samples = $dotsPerUnit]"){
       setContentPane(new JScrollPane(new JPanel(){
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
         setBackground(Color.white)
 
-        val edge = 40
-
         val screenPixelFactor: Int = 2
+        val edge = (screenPixelFactor * pixelPerUnit * 2).toInt
+        val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit * screenPixelFactor, result.height * pixelPerUnit * screenPixelFactor)
         val totalSize = new Dimension(imgWidth.toInt+2*edge,imgHeight.toInt+2*edge+120)
         val screenSize = new Dimension(totalSize.width/screenPixelFactor, totalSize.height/screenPixelFactor)
 
@@ -113,7 +122,7 @@ object RenderTest {
 
           result.words.foreach {
             case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-              val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
+              val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
                 imageOffset = Vec2(edge,edge+60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
               painter.draw(mainSegs, offset, color)
@@ -121,7 +130,7 @@ object RenderTest {
           }
         }
 
-        val img = new BufferedImage(totalSize.width*2, totalSize.height*2, BufferedImage.TYPE_INT_ARGB)
+        val img = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
         drawToGraphics(img.getGraphics)
 
         override def paintComponent(g: Graphics): Unit = {

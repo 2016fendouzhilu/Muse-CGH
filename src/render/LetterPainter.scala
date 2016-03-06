@@ -13,7 +13,7 @@ import utilities.Vec2
 class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
                     dotsPerUnit:Double, thicknessScale: Double) {
 
-  def draw(segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color, onOneSegPaint: () => Unit = () => Unit): Unit = {
+  def draw(segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color, onLinePaint: Vec2 => Unit = (_) => Unit): Unit = {
     def pointTrans(p: Vec2): Vec2 = {
       val s = pixelPerUnit*displayPixelScale
       (p+offset)*s + imageOffset
@@ -23,8 +23,7 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
 
     drawer.setColor(color)
     segs.foreach{s =>
-      drawer.drawRSeg(s)
-      onOneSegPaint()
+      drawer.drawRSeg(s, onLinePaint)
     }
   }
 }
