@@ -1,7 +1,7 @@
 package utilities
 
 import editor.Editing
-import main.{Letter, LetterSeg}
+import main.{LetterType, Letter, LetterSeg}
 
 
 @SerialVersionUID(1L)
@@ -26,6 +26,8 @@ case class IntMap(data: Map[Int, MapData]) extends MapData{
   }
 
   def apply(key: Int) = data(key).asInstanceOf[IntMap]
+
+  def hasKey(key: Int) = data.contains(key)
 }
 
 @SerialVersionUID(1L)
@@ -105,13 +107,16 @@ object MapWriter {
 
   implicit val LetterWriter = new MapWriter[Letter] {
     override def toMapData(v: Letter): IntMap = v match {
-      case Letter(segs) => IntMap(Map(
-        Segs -> DataArray(segs.map(s => write(s)))
+      case Letter(segs, t) => IntMap(Map(
+        Segs -> DataArray(segs.map(s => write(s))),
+        LType -> DataInt(t.id)
       ))
     }
 
     override def fromMapData(data: IntMap): Letter = {
-      Letter(data.getArray(Segs).map(d => read[LetterSeg](d.asInstanceOf[IntMap])))
+      val segs = data.getArray(Segs).map(d => read[LetterSeg](d.asInstanceOf[IntMap]))
+      val t = if (data.hasKey(LType)) LetterType(data.getInt(LType)) else LetterType.LowerCase
+      Letter(segs, t)
     }
   }
 
@@ -145,4 +150,5 @@ object MapKey {
   val Segs, Width, Tall, Deep = Value
   val EditingLetter, EditingSelects = Value
   val StartX, EndX = Value
+  val LType = Value
 }

@@ -1,6 +1,6 @@
 package editor
 
-import main.{Letter, LetterSeg}
+import main.{LetterType, Letter, LetterSeg}
 import utilities.{CollectionOp, CubicCurve, Vec2}
 
 /**
@@ -36,7 +36,7 @@ class Editor(private var buffer: Editing) {
       else
         seg.copy(isStrokeBreak = value)
     }
-    editAndRecord(buffer.copy(letter = Letter.create(segs = newSegs)))
+    editAndRecord(buffer.copy(letter = l.copy(segs = newSegs)))
   }
 
   def setStrokeBreak(s: Boolean) = setInkCurveAttributes(isAlignTangent = false)(s)
@@ -100,13 +100,13 @@ class Editor(private var buffer: Editing) {
       )
     }
     val newSegs = CollectionOp.modifyInsert(segs, sIndex)(segsToInsert)
-    editAndRecord(buffer.copy(letter = Letter.create(segs = newSegs)))
+    editAndRecord(buffer.copy(letter = letter.copy(segs = newSegs)))
   }
 
   def deleteSegment(sIndex: Int): Unit = {
     val newSegs = CollectionOp.modifyInsert(buffer.letter.segs, sIndex)(IndexedSeq())
     val selects = if (newSegs.isEmpty) Seq() else Seq(0)
-    editAndRecord(buffer.copy(letter = Letter.create(segs = newSegs), selects = selects))
+    editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = newSegs), selects = selects))
   }
 
   def appendSegment(): Unit = {
@@ -121,7 +121,13 @@ class Editor(private var buffer: Editing) {
         last.copy(curve = newCurve, startWidth = last.endWidth, endWidth = last.startWidth)
       case None => LetterSeg.initCurve
     }
-    editAndRecord(buffer.copy(letter = Letter.create(segs = segs :+ newSeg), selects = Seq(segs.length)))
+    editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = segs :+ newSeg), selects = Seq(segs.length)))
+  }
+
+  def changeLetterType(t: LetterType.Value): Unit = {
+    val l = buffer.letter
+    if(l.letterType != t)
+      editAndRecord(buffer.copy(letter = l.copy(letterType = t)))
   }
 
   def dragControlPoint(pid: Int, drag: Vec2): Unit = {
@@ -191,7 +197,7 @@ class Editor(private var buffer: Editing) {
       }
     }
 
-      val newLetter = Letter.create(segs = segArray.toIndexedSeq)
+      val newLetter = letter.copy(segs = segArray.toIndexedSeq)
       editWithoutRecord(buffer.copy(letter = newLetter))
     }
   }
@@ -228,13 +234,13 @@ class Editor(private var buffer: Editing) {
           segArray(nearIndex) = segArray(nearIndex).copy(startWidth = t)
       }
     }
-    editWithoutRecord(buffer.copy(letter = Letter.create(segs = segArray.toIndexedSeq)))
+    editWithoutRecord(buffer.copy(letter = letter.copy(segs = segArray.toIndexedSeq)))
   }
 
   def editLetterSegs(f: LetterSeg => LetterSeg): Unit = {
     def letter = buffer.letter
     val newSegs = letter.segs.map(f)
-    editWithoutRecord(buffer.copy(letter = Letter.create(segs = newSegs)))
+    editWithoutRecord(buffer.copy(letter = letter.copy(segs = newSegs)))
   }
 
   def scaleLetter(ratio: Double): Unit =

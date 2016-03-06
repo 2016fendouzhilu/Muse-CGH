@@ -21,7 +21,7 @@ object RenderTest {
 
     val pixelPerUnit = 14
 
-//    showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 12 )
+//    showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 18 )
     showInScrollPane(result, dotsPerUnit, pixelPerUnit)
   }
 

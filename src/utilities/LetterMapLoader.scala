@@ -12,15 +12,22 @@ object LetterMapLoader {
   def loadDefaultLetterMap(): Map[Char, Letter] = {
     var list = List[(Char, Letter)]()
 
-    println("letters missing: ")
+    print("letters missing: ")
 
     (0 until 26).foreach{ i =>
       val c = ('a'.toInt + i).toChar
-      loadLetter(s"letters/$c.muse") match{
+      val lower = loadLetter(s"letters/$c.muse")
+      val upper = loadLetter(s"letters/upper_$c.muse")
+
+      lower match {
         case Some(l) =>
-          list = List(c -> l, c.toUpper -> l) ++ list
+          def fromLower() = {
+            print(s"${c.toUpper} ")
+            l
+          }
+          list = List(c -> l, c.toUpper -> upper.getOrElse(fromLower())) ++ list
         case None =>
-          print(s"$c ")
+          print(s"$c ${c.toUpper} ")
       }
     }
 
@@ -31,7 +38,8 @@ object LetterMapLoader {
       '\''->"upper_comma",
       '’' -> "upper_comma",
       '-'->"hyphen",
-      '—' -> "hyphen"
+      '—' -> "hyphen",
+      ':' -> "colon"
     ).foreach{
       case (key, name) =>
         loadLetter(s"letters/$name.muse") match{
@@ -40,6 +48,8 @@ object LetterMapLoader {
             print(s"$name")
         }
     }
+
+    println("\n-----")
 
     list.toMap
   }

@@ -24,14 +24,18 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSapce
 
     val letterNum = letters.length
 
-    def shouldDropFirst(i: Int) = i != 0 && letters(i).isLetter && letters(i-1).isLetter
+    def shouldConnect(l1: Letter, l2: Letter): Boolean = {
+      l1.isLowercase && l2.isLowercase
+    }
 
-    def shouldModifyLast(i: Int) = i != letterNum - 1 && letters(i).isLetter && letters(i+1).isLetter
+    def shouldDropFirst(i: Int) = i != 0 && shouldConnect(letters(i-1), letters(i))
+
+    def shouldModifyLast(i: Int) = i != letterNum - 1 && shouldConnect(letters(i),letters(i+1))
 
     var x = 0.0
     var mainSegs, secondarySegs = IndexedSeq[RenderingSeg]()
     (0 until letterNum).foreach{ i =>
-      val frontSpacing = if(letters(i).isSymbol) symbolFrontSapce else 0.0
+      val frontSpacing = if(letters(i).isPunctuationMark) symbolFrontSapce else 0.0
       val baseX = letters(i).startX
       val ss =
         (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).

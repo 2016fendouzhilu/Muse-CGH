@@ -1,10 +1,11 @@
 package editor
 
-import java.awt.event.{KeyAdapter, KeyEvent}
+import java.awt.event.{ItemEvent, ItemListener, KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
+import main.LetterType
 import utilities.EditingSaver
 
 /**
@@ -64,6 +65,14 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
   val newEditingButton = makeButton("New") { editor.newEditing() }
 
+  val letterTypeBox = new JComboBox[LetterType.Value](LetterType.values.toArray) { setFocusable(false) }
+  letterTypeBox.addItemListener(new ItemListener {
+    override def itemStateChanged(e: ItemEvent): Unit = {
+      val t = LetterType(letterTypeBox.getSelectedIndex)
+      editor.changeLetterType(t)
+    }
+  })
+
   setupLayout()
 
   def setupLayout(): Unit ={
@@ -92,7 +101,15 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
     addRow(newEditingButton, saveButton, loadButton)
 
+    addRow(letterTypeBox)
+
     contentPanel.add(segmentsPanel)
+  }
+
+  def setLetterType(t: LetterType.Value): Unit = {
+    if(t.id != letterTypeBox.getSelectedIndex){
+      letterTypeBox.setSelectedIndex(t.id)
+    }
   }
 
   override def editingUpdated(): Unit = {
@@ -109,6 +126,7 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
           case None =>
             selectBoxes.foreach(_.setEnabled(false))
         }
+        setLetterType(letter.letterType)
     }
     modeButtonPairs.foreach{
       case (m, b) => b.setSelected(m==editor.mode)
@@ -136,8 +154,14 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
     }
     fc.showSaveDialog(this) match {
       case JFileChooser.APPROVE_OPTION =>
-        val select = fc.getSelectedFile.getAbsolutePath
-        EditingSaver.saveToFile(select, editor.currentEditing())
+        val file = fc.getSelectedFile
+        val select = file.getAbsolutePath
+        val name = file.getName
+        val pathToSave = if(editor.currentEditing().letter.isUppercase && !name.startsWith("upper_")){
+          file.getParent + s"/upper_${name.map{_.toLower}}"
+        } else select
+
+        EditingSaver.saveToFile(pathToSave, editor.currentEditing())
       case _ => ()
     }
   }

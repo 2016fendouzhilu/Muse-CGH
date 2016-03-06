@@ -16,17 +16,21 @@ object EditingSaver {
         val bufferFile = new File(musePath + ".old")
         if(bufferFile.exists()) bufferFile.delete()
         file.renameTo(bufferFile) // buffer the old file
+        println(s"overwrite file $musePath")
       }
     }catch {
       case e: Throwable => println(s"can't buffer .muse file: $e")
     }
 
     val outputStream = new ObjectOutputStream(new FileOutputStream(musePath))
-    val textWriter = new FileWriter(musePath.replace(".muse",".txt"))
+    val museTextPath = musePath.replace(".muse",".txt")
+    val textWriter = new FileWriter(museTextPath)
     try {
       val data = MapWriter.write(editing)
       outputStream.writeObject(data)
+      println(s"save to file $musePath")
       textWriter.write(editing.toString)
+      println(s"save to file $museTextPath")
     } catch {
       case e: Throwable => println(s"failed to save .muse file: $e")
     }finally{

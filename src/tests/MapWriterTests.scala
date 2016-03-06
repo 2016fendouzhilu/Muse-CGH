@@ -1,7 +1,7 @@
 package tests
 
 import editor.Editing
-import main.{Letter, LetterSeg}
+import main.{LetterType, Letter, LetterSeg}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
@@ -37,7 +37,8 @@ object MapWriterTests {
 
   val letterGen = for{
     segs <- Gen.containerOf[IndexedSeq, LetterSeg](letterSegGen)
-  } yield Letter(segs)
+    tId <- Gen.choose(0, LetterType.maxId)
+  } yield Letter(segs, LetterType(tId))
 
   val editingGen = for{
     l <- letterGen

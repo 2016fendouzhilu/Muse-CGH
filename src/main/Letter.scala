@@ -2,7 +2,12 @@ package main
 
 import utilities.CollectionOp
 
-case class Letter (segs: IndexedSeq[LetterSeg]) {
+object LetterType extends Enumeration {
+  val LowerCase, Uppercase, PunctuationMark = Value
+}
+
+
+case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
 
   lazy val (startX, endX) = Letter.calculateEndXs(segs)
 
@@ -17,13 +22,19 @@ case class Letter (segs: IndexedSeq[LetterSeg]) {
     }
   }
 
-  def isSymbol = mainSegs.length < 3
+  def isPunctuationMark = {
+    letterType == LetterType.PunctuationMark
+  }
 
-  def isLetter = !isSymbol
+  def isLowercase = letterType == LetterType.LowerCase
+  
+  def isUppercase = {
+    letterType == LetterType.Uppercase
+  }
 }
 
 object Letter{
-  val empty = create(IndexedSeq())
+  val empty = Letter(IndexedSeq(), LetterType.LowerCase)
 
   val calculationPointsPerUnit = 50
 
@@ -40,9 +51,5 @@ object Letter{
       s.curve.samples(calculationPointsPerUnit).foreach(v => updateX(v.x))
     }
     (startX, endX)
-  }
-
-  def create(segs: IndexedSeq[LetterSeg]): Letter = {
-    Letter(segs)
   }
 }
