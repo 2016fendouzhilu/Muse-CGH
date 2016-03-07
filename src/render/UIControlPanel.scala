@@ -62,7 +62,6 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
   ).map(makeLabeledDoubleField)
 
   val textArea = new JTextArea {
-    setPreferredSize(new Dimension(500,400))
     setLineWrap(true)
 
     addKeyListener(new KeyAdapter {
@@ -110,7 +109,9 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
       addARow(wordRow)
     }
 
-    val area = new JScrollPane(textArea)
+    val area = new JScrollPane(textArea){
+      setPreferredSize(new Dimension(500,400))
+    }
 
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
     add(parametersPanel)
