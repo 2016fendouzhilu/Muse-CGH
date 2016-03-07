@@ -63,10 +63,15 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
 
   val textArea = new JTextArea {
     setPreferredSize(new Dimension(500,400))
+    setLineWrap(true)
 
     addKeyListener(new KeyAdapter {
       override def keyReleased(e: KeyEvent): Unit = {
-        if(core.interactiveMode.get){
+        def isArrowKey(code: Int) = {
+          List(KeyEvent.VK_RIGHT, KeyEvent.VK_LEFT, KeyEvent.VK_UP, KeyEvent.VK_DOWN).contains(code)
+        }
+
+        if(core.interactiveMode.get && !isArrowKey(e.getKeyCode)){
           core.textRendered.set(getText)
         }
       }

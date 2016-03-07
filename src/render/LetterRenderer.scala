@@ -127,34 +127,38 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         y += lineSpacing
         x = 0
       case PreRenderingWord(word, letters) =>
-        if (x + word.width < maxLineWidth) {
-          // keep going
-          words.append((Vec2(x, y), word))
-          x += word.width
-        } else if (maxLineWidth - x < breakWordThreshold) {
-          // start from new line
-          y += lineSpacing
-          words.append((Vec2(0, y), word))
-          x = word.width
-        } else {
-          // break word
-          var succeed = false
-          lMap.get('-').foreach{ hyphen =>
-            val spaceLeft = maxLineWidth - x
-            tryBreakWord(lean, hyphen)(letters, spaceLeft).foreach{
-              case (l, r) =>
-                words.append((Vec2(x,y), l))
-                y += lineSpacing
-                words.append((Vec2(0,y), r))
-                x = r.width
-                succeed = true
-            }
-          }
-          if(!succeed){
+        def renderWord(word: RenderingWord, letters: IndexedSeq[Letter]): Boolean = {
+          if (x + word.width < maxLineWidth) {
+            // keep going
+            words.append((Vec2(x, y), word))
+            x += word.width
+            true
+          } else if (maxLineWidth - x < breakWordThreshold) {
+            // start from new line
             y += lineSpacing
-            x = 0
-            println("Failed to break word, ignore it.")
+            words.append((Vec2(0, y), word))
+            x = word.width
+            true
+          } else {
+            // break word
+            lMap.get('-').foreach{ hyphen =>
+              val spaceLeft = maxLineWidth - x
+              tryBreakWord(lean, hyphen)(letters, spaceLeft).foreach{
+                case (l, r) =>
+                  words.append((Vec2(x,y), l))
+                  y += lineSpacing
+                  x = 0
+                  return renderWord(r.rWord, r.letters)
+              }
+            }
+            false
           }
+        }
+        val succeed = renderWord(word, letters)
+        if(!succeed){
+          y += lineSpacing
+          x = 0
+          println("Failed to break word, ignore it.")
         }
     }
 
@@ -175,7 +179,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     (ls.toIndexedSeq, unConverted.toIndexedSeq)
   }
 
-  def tryBreakWord(lean: Double, hyphen: Letter)(letters: IndexedSeq[Letter], spaceLeft: Double): Option[(RenderingWord, RenderingWord)] = {
+  def tryBreakWord(lean: Double, hyphen: Letter)(letters: IndexedSeq[Letter], spaceLeft: Double): Option[(RenderingWord, PreRenderingWord)] = {
     var x = hyphen.width + symbolFrontSpace * 2
     val head = letters.takeWhile{l =>
       x += l.width
@@ -186,7 +190,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
       val tail = letters.drop(head.length)
       val firstPart = renderAWord(lean, head :+ hyphen)
       val secondPart = renderAWord(lean, tail)
-      Some(firstPart, secondPart)
+      Some(firstPart, PreRenderingWord(secondPart, tail))
     }
   }
 
