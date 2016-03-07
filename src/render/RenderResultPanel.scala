@@ -21,7 +21,7 @@ class RenderResultPanel(core: UICore) extends JFrame("Result") with ChangeListen
         spaceWidth = core.spaceWidth.get,
         symbolFrontSpace = core.symbolFrontSpace.get)
 
-      renderer.renderText(letterMap, lean = core.lean.get ,
+      renderer.renderTextInParallel(letterMap, lean = core.lean.get ,
         maxLineWidth = core.maxLineWidth.get,
         breakWordThreshold = core.breakWordThreshold.get,
         lineSpacing = core.lineSpacing.get)(text)

@@ -22,10 +22,10 @@ class UICore() extends ChangeSource{
 
   val maxLineWidth = newSettable[Double](50.0)
 
-  val breakWordThreshold = newSettable[Double](35.0)
+  val breakWordThreshold = newSettable[Double](6.0)
 
   val lineSpacing = newSettable[Double](4.0)
 
-  val interactiveMode = newSettable[Boolean](false)
+  val interactiveMode = newSettable[Boolean](true)
 
 }

@@ -93,42 +93,69 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     RenderingWord(rSegs, IndexedSeq(), x)
   }
 
-  def renderText(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double, lineSpacing: Double)(text: String): RenderingResult = {
+  def renderTextInParallel(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double, lineSpacing: Double)(text: String): RenderingResult = {
     require(maxLineWidth > 0 && breakWordThreshold<maxLineWidth)
-    val newline = "\n"
-    val whitespace = " "
-    val paragraphs = text.split(newline)
+    val newline = '\n'
+    val whitespace = ' '
+
+    val textElements: IndexedSeq[TextElement] = text.split(newline).toIndexedSeq.flatMap {
+      case "" => IndexedSeq(TextNewline)
+      case p =>
+        p.split(whitespace).toIndexedSeq.flatMap {
+          case "" => IndexedSeq(TextSpace)
+          case w =>
+            val (letters, unConverted) = convertLetters(w, lMap)
+            unConverted.foreach(c => println(s"can't render $c in word $w"))
+            IndexedSeq(TextWord(letters), TextSpace)
+        }.dropRight(1) :+ TextNewline
+    }.dropRight(1)
+
+    // Parallel rendering
+    val renderingElements: Array[RenderingElement] =  textElements.par.map {
+      case TextWord(letters) =>
+        val w = renderAWord(lean, letters)
+        PreRenderingWord(w, letters)
+      case other: RenderingElement => other
+    }.toArray
 
     val words = new mutable.ListBuffer[(Vec2, RenderingWord)]()
 
     var x, y = 0.0
-    paragraphs.foreach{ p =>
-      p.split(whitespace).foreach{
-        case "" => x + spaceWidth
-        case w =>
-          val (letters, unConverted) = convertLetters(w, lMap)
-          unConverted.foreach(c => println(s"can't render $c in word $w"))
-          val word = renderAWord(lean, letters)
-          val deltaX = word.width + spaceWidth
-
-          if(x + word.width < maxLineWidth) {
-            // keep going
-            words.append((Vec2(x, y), word))
-            x += deltaX
-          } else if(maxLineWidth-x < breakWordThreshold) {
-            // start from new line
-            y += lineSpacing
-            words.append((Vec2(0,y),word))
-            x = deltaX
-          } else{
-            // break word
-            println("don't know how to break yet!")
+    renderingElements.foreach {
+      case TextSpace => x += spaceWidth
+      case TextNewline =>
+        y += lineSpacing
+        x = 0
+      case PreRenderingWord(word, letters) =>
+        if (x + word.width < maxLineWidth) {
+          // keep going
+          words.append((Vec2(x, y), word))
+          x += word.width
+        } else if (maxLineWidth - x < breakWordThreshold) {
+          // start from new line
+          y += lineSpacing
+          words.append((Vec2(0, y), word))
+          x = word.width
+        } else {
+          // break word
+          var succeed = false
+          lMap.get('-').foreach{ hyphen =>
+            val spaceLeft = maxLineWidth - x
+            tryBreakWord(lean, hyphen)(letters, spaceLeft).foreach{
+              case (l, r) =>
+                words.append((Vec2(x,y), l))
+                y += lineSpacing
+                words.append((Vec2(0,y), r))
+                x = r.width
+                succeed = true
+            }
+          }
+          if(!succeed){
             y += lineSpacing
             x = 0
+            println("Failed to break word, ignore it.")
           }
-      }
-      y += lineSpacing
-      x = 0
+        }
     }
 
     RenderingResult(words.toIndexedSeq, maxLineWidth, y)
@@ -148,8 +175,34 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     (ls.toIndexedSeq, unConverted.toIndexedSeq)
   }
 
+  def tryBreakWord(lean: Double, hyphen: Letter)(letters: IndexedSeq[Letter], spaceLeft: Double): Option[(RenderingWord, RenderingWord)] = {
+    var x = hyphen.width + symbolFrontSpace * 2
+    val head = letters.takeWhile{l =>
+      x += l.width
+      x < spaceLeft
+    }
+    if(head.isEmpty) None
+    else{
+      val tail = letters.drop(head.length)
+      val firstPart = renderAWord(lean, head :+ hyphen)
+      val secondPart = renderAWord(lean, tail)
+      Some(firstPart, secondPart)
+    }
+  }
+
 }
 
+sealed trait RenderingElement
+
+sealed trait TextElement
+
+case object TextSpace extends TextElement with RenderingElement
+
+case object TextNewline extends TextElement with RenderingElement
+
+case class TextWord(word: IndexedSeq[Letter]) extends TextElement
+
+case class PreRenderingWord(rWord: RenderingWord, letters: IndexedSeq[Letter]) extends RenderingElement
 
 case class RenderingWord(mainSegs: IndexedSeq[RenderingSeg], secondarySegs: IndexedSeq[RenderingSeg], width: Double)
 
