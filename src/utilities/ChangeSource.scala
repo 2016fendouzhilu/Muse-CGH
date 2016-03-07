@@ -12,8 +12,26 @@ trait ChangeSource {
   }
 
   def notifyListeners() = listeners.foreach(_.editingUpdated())
+  
+  def beforeNotify(action: =>Unit) = {
+    action
+    notifyListeners()
+  }
+  
+  def newSettable[T](init: T) = {
+    new Settable(init, notifyListeners)
+  } 
 }
 
 trait ChangeListener {
   def editingUpdated(): Unit
+}
+
+class Settable[T](private var value: T, action: () => Unit) {
+  def set(v: T) = {
+    value = v
+    action()
+  }
+  
+  def get = value
 }

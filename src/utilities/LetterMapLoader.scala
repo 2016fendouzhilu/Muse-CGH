@@ -39,7 +39,9 @@ object LetterMapLoader {
       '’' -> "upper_comma",
       '-'->"hyphen",
       '—' -> "hyphen",
-      ':' -> "colon"
+      ':' -> "colon",
+      '?' -> "question_mark",
+      '!' -> "exclamation_mark"
     ).foreach{
       case (key, name) =>
         loadLetter(s"letters/$name.muse") match{

@@ -9,7 +9,7 @@ import scala.collection.mutable
 /**
   * Render the letters
   */
-class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSapce: Double) {
+class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace: Double) {
 
   def connectionWidth(start: Double, end: Double)(t: Double) = {
     val tMin = 0.6
@@ -36,7 +36,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSapce
     var x = 0.0
     var mainSegs, secondarySegs = IndexedSeq[RenderingSeg]()
     (0 until letterNum).foreach{ i =>
-      val frontSpacing = if(letters(i).isPunctuationMark) symbolFrontSapce else 0.0
+      val frontSpacing = if(letters(i).isPunctuationMark) symbolFrontSpace else 0.0
       val baseX = letters(i).startX
       val ss =
         (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).
