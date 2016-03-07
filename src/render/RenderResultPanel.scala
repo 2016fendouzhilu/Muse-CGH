@@ -9,6 +9,7 @@ import utilities.{LetterMapLoader, ChangeListener}
  */
 class RenderResultPanel(core: UICore) extends JFrame("Result") with ChangeListener{
   setVisible(true)
+  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
   val letterMap = LetterMapLoader.loadDefaultLetterMap()
 
@@ -29,7 +30,6 @@ class RenderResultPanel(core: UICore) extends JFrame("Result") with ChangeListen
     val sPane = RenderTest.showInScrollPane(result = result , dotsPerUnit = core.samplesPerUnit.get, pixelPerUnit = core.pixelPerUnit.get)
     setContentPane(sPane)
     pack()
-    setVisible(true)
   }
 
 }

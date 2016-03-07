@@ -9,7 +9,7 @@ object UITest {
   def main(args: Array[String]) {
     val core = new UICore
 
-    val uiPanel = new UIPanel(core){
+    val uiPanel = new UIControlPanel(core){
       core.addListener(this)
     }
 

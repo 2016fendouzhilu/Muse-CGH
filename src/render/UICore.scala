@@ -26,4 +26,6 @@ class UICore() extends ChangeSource{
 
   val lineSpacing = newSettable[Double](4.0)
 
+  val interactiveMode = newSettable[Boolean](false)
+
 }

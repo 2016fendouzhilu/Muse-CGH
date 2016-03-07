@@ -6,7 +6,7 @@ import javax.swing._
 import javax.swing.text.JTextComponent
 
 import editor.MyButton
-import render.UIPanel.DoubleFieldInfo
+import render.UIControlPanel.DoubleFieldInfo
 import utilities.{ValueTextComponent, Settable, ChangeListener}
 
 import scala.collection.mutable.ListBuffer
@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * Control the parameters of UICore for rendering
  */
-class UIPanel(core: UICore) extends JPanel with ChangeListener {
+class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
 
   def textToDouble(s: String) = {
     try{ Some(s.toDouble) }
@@ -61,10 +61,23 @@ class UIPanel(core: UICore) extends JPanel with ChangeListener {
     (core.symbolFrontSpace, "Mark spacing", noConstraint)
   ).map(makeLabeledDoubleField)
 
-  val textArea = new JTextArea { setPreferredSize(new Dimension(500,400)) }
+  val textArea = new JTextArea {
+    setPreferredSize(new Dimension(500,400))
+
+    addKeyListener(new KeyAdapter {
+      override def keyReleased(e: KeyEvent): Unit = {
+        if(core.interactiveMode.get){
+          core.textRendered.set(getText)
+        }
+      }
+    })
+  }
 
   val renderButton = new JButton("Render Text")
   MyButton.addAction(renderButton, () => core.textRendered.set(textArea.getText))
+  
+  val interactiveCheckBox = new JCheckBox("Interactive")
+  MyButton.addAction(interactiveCheckBox, ()=> core.interactiveMode.set(interactiveCheckBox.isSelected))
 
   def makeLabeledDoubleField(info: DoubleFieldInfo) = info match {
     case (settable, label, cons) =>
@@ -97,16 +110,20 @@ class UIPanel(core: UICore) extends JPanel with ChangeListener {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
     add(parametersPanel)
     add(area)
-    add(renderButton)
+    add(new JPanel(new FlowLayout()){
+      add(interactiveCheckBox)
+      add(renderButton)
+    })
   }
 
 
   override def editingUpdated(): Unit = {
     updateList.foreach(_.updateText())
+    interactiveCheckBox.setSelected(core.interactiveMode.get)
   }
 
 }
 
-object UIPanel {
+object UIControlPanel {
   type DoubleFieldInfo = (Settable[Double], String, Double => Boolean)
 }
