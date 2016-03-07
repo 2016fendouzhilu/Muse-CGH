@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Handwriting:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Handwriting_jar</output-path>
+    <root id="archive" name="Handwriting.jar">
+      <element id="module-output" name="Handwriting" />
+      <element id="extracted-dir" path="/Applications/scala-2.11.5/lib/scala-library.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/Applications/scala-2.11.5/lib/scala-parser-combinators_2.11-1.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/Applications/scala-2.11.5/lib/scala-swing_2.11-1.0.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
