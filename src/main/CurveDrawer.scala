@@ -21,7 +21,7 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       drawCurveWithWF(curve, MyMath.linearInterpolate(start, end))
   }
 
-  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double, onLinePaint: Vec2 => Unit = (_) => Unit): Unit = {
+  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double, timeUsed: Double => Unit = (_) => Unit): Unit = {
     val points = curve.samples(dotsPerUnit)
     val tangents = curve.sampleTangents(dotsPerUnit)
     val dots = points.length
@@ -32,15 +32,13 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       val r1 = wF((i+1)*dt)
       val p0 = points(i)
       val p1 = points(i + 1)
-      onLinePaint(p0)
-      drawThicknessLine(p0, p1, tangents(i), tangents(i+1), r0*thicknessScale, r1*thicknessScale)
+      val (t0,t1) = (tangents(i),tangents(i+1))
+      val length: Double = (p0 - p1).length
+      val curvature = (t0 - t1).length / length
+      val slower = math.sqrt(1.0+ curvature)
+      timeUsed(length*slower)
+      drawThicknessLine(p0, p1, t0, t1, r0*thicknessScale, r1*thicknessScale)
     }
-  }
-
-  def drawRSeg(rSeg: RenderingSeg, onLinePaint: Vec2 => Unit): Unit = rSeg match {
-    case RenderingSeg(curve, wF) =>
-      drawCurveWithWF(curve, wF, onLinePaint)
-      
   }
 
   def drawCurveControlPoints(inkCurve: LetterSeg, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{

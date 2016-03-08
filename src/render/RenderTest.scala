@@ -20,7 +20,7 @@ object RenderTest {
 
     val screenFactor = 2
 
-    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 12, frameRate = 30, screenPixelFactor = screenFactor)
+    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 40, frameRate = 60, screenPixelFactor = screenFactor)
 //    val p = showInScrollPane(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor)
 
     new JFrame("Rendering Result"){
@@ -36,8 +36,9 @@ object RenderTest {
     val renderer = new LetterRenderer(letterSpacing = 0.0, spaceWidth = 0.8, symbolFrontSpace = 0.2)
     val letterMap = LetterMapLoader.loadDefaultLetterMap()
 
-    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
-//    val text = "Beautiful"
+//    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
+//    val text = "Thousands cities from home, wander into the unknown. Chances are here I was told, Crossing the footsteps of new and of old"
+    val text = "Designing of beautiful fonts."
 
     renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 30, breakWordThreshold = 5, lineSpacing = 4)(text)
   }
@@ -74,22 +75,17 @@ object RenderTest {
     val timePerFrame = 1.0/frameRate
     def drawAndSleep(g: Graphics, penStartFrom: Vec2): Unit = {
 
-      var lastPos = penStartFrom
       var timer = 0.0
-
-      def rest(v: Vec2) = {
-        val dis = (v - lastPos).length
-
-        lastPos = v
-        val dt = dis / penSpeed
-        timer += dt
+      def rest(dis: Double) = {
+        timer += dis/penSpeed
         if(timer > timePerFrame){
-          val millis = (timer / 0.001).toInt
-          val nanos = ((timer % 0.001) * 1000000).toInt
-          timer = 0.0
+          val millis = (timePerFrame / 0.001).toInt
+          val nanos = ((timePerFrame % 0.001) * 1000000).toInt
+          timer -= timePerFrame
           Thread.sleep(millis, nanos)
         }
       }
+      val wordsRestDis = 5
 
       val screenG = g.asInstanceOf[Graphics2D]
       val imgG = buffer.getGraphics.asInstanceOf[Graphics2D]
@@ -102,6 +98,7 @@ object RenderTest {
             imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
           painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs++secondSegs, offset, penColor)
+          rest(wordsRestDis)
       }
     }
 

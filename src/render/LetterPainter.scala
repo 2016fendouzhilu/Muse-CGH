@@ -20,12 +20,12 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
 
     drawer.setColor(color)
-    segs.foreach{s =>
-      drawer.drawRSeg(s, (_)=>Unit)
+    segs.foreach{ case RenderingSeg(curve, wf) =>
+      drawer.drawCurveWithWF(curve, wf)
     }
   }
 
-  def drawAndBuffer(bufferScaleFactor: Double, bufferG: Graphics2D, onLinePaint: Vec2 => Unit = (_) => Unit)(
+  def drawAndBuffer(bufferScaleFactor: Double, bufferG: Graphics2D, timeUsed: Double => Unit = (_) => Unit)(
     segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
     val s = pixelPerUnit*displayPixelScale
     def pointTrans(p: Vec2): Vec2 = {
@@ -39,9 +39,15 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
 
     drawer.setColor(color)
     bufferDrawer.setColor(color)
-    segs.foreach{s =>
-      drawer.drawRSeg(s, v => onLinePaint(v+offset))
-      bufferDrawer.drawRSeg(s, _ => ())
+
+    var lastPos = Vec2.zero
+    segs.foreach{case RenderingSeg(curve, wf) =>
+      val dis = (curve.p0 - lastPos).length
+      lastPos = curve.p0
+
+      timeUsed(dis)
+      drawer.drawCurveWithWF(curve, wf, timeUsed)
+      bufferDrawer.drawCurveWithWF(curve, wf)
     }
   }
 }
