@@ -5,7 +5,7 @@ import java.awt.{Color, Dimension, Graphics, Graphics2D, RenderingHints}
 import javax.swing._
 
 import editor.MyButton
-import utilities.{LetterMapLoader, Vec2}
+import utilities.{RNG, LetterMapLoader, Vec2}
 
 /**
   * Created by weijiayi on 3/4/16.
@@ -40,13 +40,14 @@ object RenderTest {
 //    val text = "Thousands cities from home, wander into the unknown. Chances are here I was told, Crossing the footsteps of new and of old"
     val text = "Designing of beautiful fonts."
 
-    renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 30, breakWordThreshold = 5, lineSpacing = 4)(text)
+    renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 30, breakWordThreshold = 5,
+      lineSpacing = 4, randomness = 0.04)(text)(RNG(1))._1
   }
 
   def showInAnimation(result: RenderingResult, dotsPerUnit: Double,
                       pixelPerUnit: Double, penSpeed: Double, frameRate: Double, screenPixelFactor: Int): JPanel = {
     val edge = (pixelPerUnit * 2).toInt
-    val topHeight = (2*pixelPerUnit).toInt
+    val topHeight = (3*pixelPerUnit).toInt
     val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
     val screenSize = new Dimension(imgWidth.toInt + 2 * edge, imgHeight.toInt + 2 * edge + topHeight)
     val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
@@ -97,7 +98,7 @@ object RenderTest {
           val painter = new LetterPainter(screenG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
             imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
-          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs++secondSegs, offset, penColor)
+          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs ++ secondSegs, offset, penColor)
           rest(wordsRestDis)
       }
     }
@@ -129,7 +130,7 @@ object RenderTest {
       setBackground(Color.white)
 
       val edge = (pixelPerUnit * 2).toInt
-      val topHeight = (2*pixelPerUnit).toInt
+      val topHeight = (3*pixelPerUnit).toInt
       val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
       val screenSize = new Dimension(imgWidth.toInt + 2 * edge, imgHeight.toInt + 2 * edge + topHeight)
       val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
@@ -146,7 +147,7 @@ object RenderTest {
             val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
               imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
-            painter.draw(mainSegs++secondSegs, offset, color)
+            painter.draw(mainSegs ++ secondSegs, offset, color)
         }
       }
 

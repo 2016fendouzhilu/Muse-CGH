@@ -20,6 +20,10 @@ class UICore() extends ChangeSource{
 
   val lean = newSettable[Double](0.3)
 
+  val randomness = newSettable[Double](0.08)
+
+  val seed = newSettable[Int](1)
+
   val maxLineWidth = newSettable[Double](50.0)
 
   val breakWordThreshold = newSettable[Double](6.0)

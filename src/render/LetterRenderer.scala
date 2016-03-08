@@ -1,9 +1,10 @@
 package render
 
 import main.{Letter, LetterSeg}
-import utilities.{CubicCurve, Vec2}
+import utilities.{PeriodicAngularFunctions, RNG, CubicCurve, Vec2}
 
 import scala.collection.mutable
+import utilities.RNG._
 
 
 /**
@@ -93,7 +94,8 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     RenderingWord(rSegs, IndexedSeq(), x)
   }
 
-  def renderTextInParallel(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double, lineSpacing: Double)(text: String): RenderingResult = {
+  def renderTextInParallel(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double,
+                           lineSpacing: Double, randomness: Double)(text: String): State[RNG,RenderingResult] = State((rng: RNG) => {
     require(maxLineWidth > 0 && breakWordThreshold<maxLineWidth)
     val newline = '\n'
     val whitespace = ' '
@@ -111,12 +113,23 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     }.dropRight(1)
 
     // Parallel rendering
-    val renderingElements: Array[RenderingElement] =  textElements.par.map {
-      case TextWord(letters) =>
-        val w = renderAWord(lean, letters)
-        PreRenderingWord(w, letters)
-      case other: RenderingElement => other
-    }.toArray
+    val (renderingElements,newRng) =  textElements.par.foldLeft((IndexedSeq[RenderingElement](),rng)) { (s, element) =>
+      s match{
+        case (elements, oldR) => element match{
+          case TextWord(letters) =>
+            var r = oldR
+            val randomLetters = letters.map{ l =>
+              val (coes, newR) = RNG.nextDoubles(6)(r)
+              r = newR
+              val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
+              l.modifyByAngularFunc(angF)
+            }
+            val w = renderAWord(lean, randomLetters)
+            (elements :+ PreRenderingWord(w, randomLetters), r)
+          case other: RenderingElement => (elements :+ other, oldR)
+        }
+      }
+    }
 
     val words = new mutable.ListBuffer[(Vec2, RenderingWord)]()
 
@@ -162,8 +175,8 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         }
     }
 
-    RenderingResult(words.toIndexedSeq, maxLineWidth, y)
-  }
+    (RenderingResult(words.toIndexedSeq, maxLineWidth, y), newRng)
+  })
 
   def convertLetters(s: String, lMap: Map[Char, Letter]): (IndexedSeq[Letter], IndexedSeq[Char]) = {
     val ls = new mutable.ListBuffer[Letter]

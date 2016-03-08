@@ -1,6 +1,6 @@
 package main
 
-import utilities.CollectionOp
+import utilities.{Vec2, CollectionOp}
 
 object LetterType extends Enumeration {
   val LowerCase, Uppercase, PunctuationMark = Value
@@ -9,7 +9,7 @@ object LetterType extends Enumeration {
 
 case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
 
-  lazy val (startX, endX) = Letter.calculateEndXs(segs)
+  lazy val (startX, endX, centerOfMass) = Letter.calculateCurveInfo(segs)
 
   def getCurves(indices: Seq[Int]) = indices.map(segs)
 
@@ -31,6 +31,23 @@ case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
   def isUppercase = {
     letterType == LetterType.Uppercase
   }
+
+
+  def modifyByAngularFunc(f: Double => Double) = {
+    def modifyPoint(p: Vec2) = {
+      val relative = p-centerOfMass
+      val angle = math.atan2(relative.x, relative.y)
+      relative * f(angle) + centerOfMass
+    }
+
+    val newSegs = segs.map { s =>
+      val p0 = modifyPoint(s.curve.p0)
+      val p3 = modifyPoint(s.curve.p3)
+      s.dragEndpoints(p0, p3)
+    }
+
+    this.copy(segs = newSegs)
+  }
 }
 
 object Letter{
@@ -40,16 +57,22 @@ object Letter{
 
   val minWidth = 0.01
 
-  def calculateEndXs(segs: IndexedSeq[LetterSeg]) = {
+  def calculateCurveInfo(segs: IndexedSeq[LetterSeg]) = {
     var startX = Double.MaxValue
     var endX = Double.MinValue
+    var posSum = Vec2.zero
+    var sampleNum = 0
     def updateX(x: Double): Unit = {
       if(x<startX) startX = x
       if(x>endX) endX = x
     }
     segs.foreach{s =>
-      s.curve.samples(calculationPointsPerUnit).foreach(v => updateX(v.x))
+      s.curve.samples(calculationPointsPerUnit).foreach{v =>
+        updateX(v.x)
+        posSum += v
+        sampleNum += 1
+      }
     }
-    (startX, endX)
+    (startX, endX, posSum/sampleNum)
   }
 }

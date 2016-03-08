@@ -46,7 +46,8 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
   val fontRow = List[DoubleFieldInfo] (
     (core.pixelPerUnit, "Font size", positiveConstraint),
     (core.samplesPerUnit, "Samples", positiveConstraint),
-    (core.lean, "Lean", noConstraint)
+    (core.lean, "Lean", noConstraint),
+    (core.randomness, "Randomness", noConstraint)
   ).map(makeLabeledDoubleField)
 
   val layoutRow = List[DoubleFieldInfo] (
