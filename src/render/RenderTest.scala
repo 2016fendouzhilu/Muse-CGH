@@ -18,8 +18,10 @@ object RenderTest {
 
     val pixelPerUnit = 14
 
-//    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 18 )
-    val p = showInScrollPane(result, dotsPerUnit, pixelPerUnit)
+    val screenFactor = 2
+
+    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 100, screenPixelFactor = screenFactor)
+//    val p = showInScrollPane(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor)
 
     new JFrame("Rendering Result"){
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
@@ -34,17 +36,29 @@ object RenderTest {
     val renderer = new LetterRenderer(letterSpacing = 0.0, spaceWidth = 0.8, symbolFrontSpace = 0.2)
     val letterMap = LetterMapLoader.loadDefaultLetterMap()
 
-    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
+//    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
+    val text = "Beautiful"
 
     renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 75, breakWordThreshold = 35, lineSpacing = 4)(text)
   }
 
   def showInAnimation(result: RenderingResult, dotsPerUnit: Double,
-                      pixelPerUnit: Double, penSpeed: Double): JPanel = {
-
+                      pixelPerUnit: Double, penSpeed: Double, screenPixelFactor: Int): JPanel = {
     val edge = (pixelPerUnit * 2).toInt
-    val (imageWidth, imageHeight) = ((result.lineWidth * pixelPerUnit).toInt, (result.height * pixelPerUnit).toInt)
-    val totalSize = new Dimension(imageWidth + 2 * edge, imageHeight + 2 * edge + 120)
+    val topHeight = (2*pixelPerUnit).toInt
+    val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
+    val screenSize = new Dimension(imgWidth.toInt + 2 * edge, imgHeight.toInt + 2 * edge + topHeight)
+    val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
+
+    val backgroundColor = Color.white
+
+    val buffer = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
+
+    def clearImageBuffer(): Unit = {
+      val g = buffer.getGraphics
+      g.setColor(backgroundColor)
+      g.fillRect(0,0, buffer.getWidth, buffer.getHeight)
+    }
 
     def drawAndSleep(g: Graphics, penSpeed: Double, penStartFrom: Vec2): Unit = {
 
@@ -60,23 +74,30 @@ object RenderTest {
         Thread.sleep(millis, nanos)
       }
 
-      val g2d = g.asInstanceOf[Graphics2D]
+      val screenG = g.asInstanceOf[Graphics2D]
+      val imgG = buffer.getGraphics.asInstanceOf[Graphics2D]
 
-      val color = Color.black
+      val penColor = Color.black
 
       result.words.foreach {
         case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-          val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
-            imageOffset = Vec2(edge, edge + 60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
+          val painter = new LetterPainter(screenG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
+            imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
-          painter.draw(mainSegs, offset, color, rest)
-          painter.draw(secondSegs, offset, color, rest)
+          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs, offset, penColor)
+          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(secondSegs, offset, penColor)
       }
     }
 
     val canvas = new JPanel() {
-      setBackground(Color.white)
-      setPreferredSize(totalSize)
+      setBackground(backgroundColor)
+      setPreferredSize(screenSize)
+
+      override def paintComponent(g: Graphics): Unit = {
+        super.paintComponent(g)
+
+        g.drawImage(buffer, 0, 0, screenSize.width, screenSize.height, 0, 0, totalSize.width, totalSize.height, null)
+      }
     }
 
     val startButton = new JButton("Start")
@@ -84,6 +105,7 @@ object RenderTest {
       startButton.setEnabled(false)
       new Thread(new Runnable {
         override def run(): Unit = {
+          clearImageBuffer()
           canvas.repaint()
           drawAndSleep(canvas.getGraphics, penSpeed, Vec2.zero)
           startButton.setEnabled(true)
@@ -95,20 +117,20 @@ object RenderTest {
     new JPanel() {
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
       add(startButton)
-      add(canvas)
+      add(new JScrollPane(canvas))
     }
   }
 
 
-  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double, pixelPerUnit: Double): JScrollPane = {
+  def showInScrollPane(result: RenderingResult, dotsPerUnit: Double, pixelPerUnit: Double, screenPixelFactor: Int): JScrollPane = {
     new JScrollPane(new JPanel() {
       setBackground(Color.white)
 
-      val screenPixelFactor: Int = 2
-      val edge = (screenPixelFactor * pixelPerUnit * 2).toInt
-      val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit * screenPixelFactor, result.height * pixelPerUnit * screenPixelFactor)
-      val totalSize = new Dimension(imgWidth.toInt + 2 * edge, imgHeight.toInt + 2 * edge + 120)
-      val screenSize = new Dimension(totalSize.width / screenPixelFactor, totalSize.height / screenPixelFactor)
+      val edge = (pixelPerUnit * 2).toInt
+      val topHeight = (2*pixelPerUnit).toInt
+      val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
+      val screenSize = new Dimension(imgWidth.toInt + 2 * edge, imgHeight.toInt + 2 * edge + topHeight)
+      val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
 
       setPreferredSize(screenSize)
 
@@ -120,7 +142,7 @@ object RenderTest {
         result.words.foreach {
           case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
             val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
-              imageOffset = Vec2(edge, edge + 60), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
+              imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
             painter.draw(mainSegs, offset, color)
             painter.draw(secondSegs, offset, color)
@@ -132,10 +154,8 @@ object RenderTest {
 
       override def paintComponent(g: Graphics): Unit = {
         super.paintComponent(g)
-        val g2d = g.asInstanceOf[Graphics2D]
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
-        g2d.drawImage(img, 0, 0, screenSize.width, screenSize.height, 0, 0, totalSize.width, totalSize.height, null)
+        g.drawImage(img, 0, 0, screenSize.width, screenSize.height, 0, 0, totalSize.width, totalSize.height, null)
       }
     })
 

@@ -27,7 +27,8 @@ class RenderResultPanel(core: UICore) extends JFrame("Result") with ChangeListen
         lineSpacing = core.lineSpacing.get)(text)
     }
 
-    val sPane = RenderTest.showInScrollPane(result = result , dotsPerUnit = core.samplesPerUnit.get, pixelPerUnit = core.pixelPerUnit.get)
+    val sPane = RenderTest.showInScrollPane(result = result , dotsPerUnit = core.samplesPerUnit.get,
+      pixelPerUnit = core.pixelPerUnit.get, screenPixelFactor = 2)
     setContentPane(sPane)
     pack()
   }
