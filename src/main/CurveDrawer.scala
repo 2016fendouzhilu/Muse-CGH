@@ -30,9 +30,10 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
     for(i <- 0 until dots-1){
       val r0 = wF(i*dt)
       val r1 = wF((i+1)*dt)
+      val p0 = points(i)
       val p1 = points(i + 1)
-      onLinePaint(p1)
-      drawThicknessLine(points(i), p1, tangents(i), tangents(i+1), r0*thicknessScale, r1*thicknessScale)
+      onLinePaint(p0)
+      drawThicknessLine(p0, p1, tangents(i), tangents(i+1), r0*thicknessScale, r1*thicknessScale)
     }
   }
 

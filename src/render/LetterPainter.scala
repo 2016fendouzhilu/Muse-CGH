@@ -25,7 +25,8 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     }
   }
 
-  def drawAndBuffer(bufferScaleFactor: Double, bufferG: Graphics2D, onLinePaint: Vec2 => Unit = (_) => Unit)(segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
+  def drawAndBuffer(bufferScaleFactor: Double, bufferG: Graphics2D, onLinePaint: Vec2 => Unit = (_) => Unit)(
+    segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
     val s = pixelPerUnit*displayPixelScale
     def pointTrans(p: Vec2): Vec2 = {
       (p+offset)*s + imageOffset
@@ -39,8 +40,8 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     drawer.setColor(color)
     bufferDrawer.setColor(color)
     segs.foreach{s =>
-      drawer.drawRSeg(s, _ => ())
-      bufferDrawer.drawRSeg(s, onLinePaint)
+      drawer.drawRSeg(s, v => onLinePaint(v+offset))
+      bufferDrawer.drawRSeg(s, _ => ())
     }
   }
 }

@@ -12,9 +12,20 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
   }
 
   def evalTangent(t: Double): Vec2 = {
+    evalFirstDerivative(t).normalized
+  }
+
+  def evalCurvature(t: Double): Double = {
+    evalSecondDerivative(t).length / evalFirstDerivative(t).length
+  }
+
+  def evalFirstDerivative(t: Double) = {
     val delta = 1 - t
-    val v = (p1-p0)*(3*delta*delta) + (p2-p1)*(6*delta*t) + (p3-p2)*(3*t*t)
-    v.normalized
+    (p1-p0)*(3*delta*delta) + (p2-p1)*(6*delta*t) + (p3-p2)*(3*t*t)
+  }
+
+  def evalSecondDerivative(t: Double) = {
+    (p2-p1*2+p0) * (6 * (1-t)) + (p3-p2*2+p1) * (6*t)
   }
 
   def getPoint(id: Int) = id match{

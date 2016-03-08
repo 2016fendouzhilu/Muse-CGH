@@ -28,7 +28,7 @@ case class Vec2(x:Double, y:Double) extends Point2D{
 
   def lengthSquared = x*x+y*y
 
-  def length=math.sqrt(lengthSquared)
+  def length = math.sqrt(lengthSquared)
 
   def normalized = this/length
 

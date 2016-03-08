@@ -20,7 +20,7 @@ object RenderTest {
 
     val screenFactor = 2
 
-    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 100, screenPixelFactor = screenFactor)
+    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 12, frameRate = 30, screenPixelFactor = screenFactor)
 //    val p = showInScrollPane(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor)
 
     new JFrame("Rendering Result"){
@@ -36,14 +36,14 @@ object RenderTest {
     val renderer = new LetterRenderer(letterSpacing = 0.0, spaceWidth = 0.8, symbolFrontSpace = 0.2)
     val letterMap = LetterMapLoader.loadDefaultLetterMap()
 
-//    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
-    val text = "Beautiful"
+    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
+//    val text = "Beautiful"
 
-    renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 75, breakWordThreshold = 35, lineSpacing = 4)(text)
+    renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 30, breakWordThreshold = 5, lineSpacing = 4)(text)
   }
 
   def showInAnimation(result: RenderingResult, dotsPerUnit: Double,
-                      pixelPerUnit: Double, penSpeed: Double, screenPixelFactor: Int): JPanel = {
+                      pixelPerUnit: Double, penSpeed: Double, frameRate: Double, screenPixelFactor: Int): JPanel = {
     val edge = (pixelPerUnit * 2).toInt
     val topHeight = (2*pixelPerUnit).toInt
     val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
@@ -60,18 +60,35 @@ object RenderTest {
       g.fillRect(0,0, buffer.getWidth, buffer.getHeight)
     }
 
-    def drawAndSleep(g: Graphics, penSpeed: Double, penStartFrom: Vec2): Unit = {
+    val canvas = new JPanel() {
+      setBackground(backgroundColor)
+      setPreferredSize(screenSize)
+
+      override def paintComponent(g: Graphics): Unit = {
+        super.paintComponent(g)
+
+        g.drawImage(buffer, 0, 0, screenSize.width, screenSize.height, 0, 0, totalSize.width, totalSize.height, null)
+      }
+    }
+
+    val timePerFrame = 1.0/frameRate
+    def drawAndSleep(g: Graphics, penStartFrom: Vec2): Unit = {
 
       var lastPos = penStartFrom
+      var timer = 0.0
 
       def rest(v: Vec2) = {
         val dis = (v - lastPos).length
 
         lastPos = v
         val dt = dis / penSpeed
-        val millis = (dt / 0.001).toInt
-        val nanos = ((dt % 0.001) * 1000000).toInt
-        Thread.sleep(millis, nanos)
+        timer += dt
+        if(timer > timePerFrame){
+          val millis = (timer / 0.001).toInt
+          val nanos = ((timer % 0.001) * 1000000).toInt
+          timer = 0.0
+          Thread.sleep(millis, nanos)
+        }
       }
 
       val screenG = g.asInstanceOf[Graphics2D]
@@ -84,19 +101,7 @@ object RenderTest {
           val painter = new LetterPainter(screenG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
             imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
-          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs, offset, penColor)
-          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(secondSegs, offset, penColor)
-      }
-    }
-
-    val canvas = new JPanel() {
-      setBackground(backgroundColor)
-      setPreferredSize(screenSize)
-
-      override def paintComponent(g: Graphics): Unit = {
-        super.paintComponent(g)
-
-        g.drawImage(buffer, 0, 0, screenSize.width, screenSize.height, 0, 0, totalSize.width, totalSize.height, null)
+          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs++secondSegs, offset, penColor)
       }
     }
 
@@ -107,7 +112,7 @@ object RenderTest {
         override def run(): Unit = {
           clearImageBuffer()
           canvas.repaint()
-          drawAndSleep(canvas.getGraphics, penSpeed, Vec2.zero)
+          drawAndSleep(canvas.getGraphics, Vec2.zero)
           startButton.setEnabled(true)
         }
       }).start()
@@ -144,8 +149,7 @@ object RenderTest {
             val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
               imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
-            painter.draw(mainSegs, offset, color)
-            painter.draw(secondSegs, offset, color)
+            painter.draw(mainSegs++secondSegs, offset, color)
         }
       }
 
