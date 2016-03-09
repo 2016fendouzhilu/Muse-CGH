@@ -112,22 +112,22 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         }.dropRight(1) :+ TextNewline
     }.dropRight(1)
 
+    val wordCount = textElements.length
+    val renderingElements = new Array[RenderingElement](wordCount)
     // Parallel rendering
-    val (renderingElements,newRng) =  textElements.par.foldLeft((IndexedSeq[RenderingElement](),rng)) { (s, element) =>
-      s match{
-        case (elements, oldR) => element match{
-          case TextWord(letters) =>
-            var r = oldR
-            val randomLetters = letters.map{ l =>
-              val (coes, newR) = RNG.nextDoubles(6)(r)
-              r = newR
-              val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
-              l.modifyByAngularFunc(angF)
-            }
-            val w = renderAWord(lean, randomLetters)
-            (elements :+ PreRenderingWord(w, randomLetters), r)
-          case other: RenderingElement => (elements :+ other, oldR)
-        }
+    textElements.zipWithIndex.par.foreach { case (te,i) =>
+      renderingElements(i) = te match{
+        case TextWord(letters) =>
+          var r = RNG(rng.seed+i)
+          val randomLetters = letters.map{ l =>
+            val (coes, newR) = RNG.nextDoubles(6)(r)
+            r = newR
+            val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
+            l.modifyByAngularFunc(angF)
+          }
+          val w = renderAWord(lean, randomLetters)
+          PreRenderingWord(w, randomLetters)
+        case other: RenderingElement => other
       }
     }
 
@@ -175,7 +175,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         }
     }
 
-    (RenderingResult(words.toIndexedSeq, maxLineWidth, y), newRng)
+    (RenderingResult(words.toIndexedSeq, maxLineWidth, y), RNG(rng.seed+wordCount))
   })
 
   def convertLetters(s: String, lMap: Map[Char, Letter]): (IndexedSeq[Letter], IndexedSeq[Char]) = {
