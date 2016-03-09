@@ -25,8 +25,8 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     }
   }
 
-  def drawAndBuffer(bufferScaleFactor: Double, bufferG: Graphics2D, timeUsed: Double => Unit = (_) => Unit)(
-    segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
+  def drawAndBuffer(bufferScaleFactor: Double, bufferG: Graphics2D, timeUsed: Double => Boolean = (_) => false)(
+    segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Boolean = {
     val s = pixelPerUnit*displayPixelScale
     def pointTrans(p: Vec2): Vec2 = {
       (p+offset)*s + imageOffset
@@ -45,9 +45,10 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
       val dis = (curve.p0 - lastPos).length
       lastPos = curve.p0
 
-      timeUsed(dis)
-      drawer.drawCurveWithWF(curve, wf, timeUsed)
+      if(timeUsed(dis) ||
+      drawer.drawCurveWithWF(curve, wf, timeUsed)) return true
       bufferDrawer.drawCurveWithWF(curve, wf)
     }
+    false
   }
 }

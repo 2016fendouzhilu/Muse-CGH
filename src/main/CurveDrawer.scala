@@ -21,7 +21,7 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       drawCurveWithWF(curve, MyMath.linearInterpolate(start, end))
   }
 
-  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double, timeUsed: Double => Unit = (_) => Unit): Unit = {
+  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double, timeUsed: Double => Boolean = (_) => false): Boolean = {
     val points = curve.samples(dotsPerUnit)
     val tangents = curve.sampleTangents(dotsPerUnit)
     val dots = points.length
@@ -36,9 +36,10 @@ class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor
       val length: Double = (p0 - p1).length
       val curvature = (t0 - t1).length / length
       val slower = math.sqrt(1.0+ curvature)
-      timeUsed(length*slower)
+      if(timeUsed(length*slower)) return true
       drawThicknessLine(p0, p1, t0, t1, r0*thicknessScale, r1*thicknessScale)
     }
+    false
   }
 
   def drawCurveControlPoints(inkCurve: LetterSeg, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{

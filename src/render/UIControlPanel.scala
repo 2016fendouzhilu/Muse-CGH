@@ -62,6 +62,11 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
     (core.symbolFrontSpace, "Mark spacing", noConstraint)
   ).map(makeLabeledDoubleField)
 
+  val animationRow = List[DoubleFieldInfo] (
+    (core.penSpeed, "Animation Speed", positiveConstraint),
+    (core.frameRate, "Animation FPS", positiveConstraint)
+  ).map(makeLabeledDoubleField)
+
   val textArea = new JTextArea {
     setLineWrap(true)
 
@@ -83,6 +88,12 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
   
   val interactiveCheckBox = new JCheckBox("Interactive")
   MyButton.addAction(interactiveCheckBox, ()=> core.interactiveMode.set(interactiveCheckBox.isSelected))
+
+  val animationCheckBox = new JCheckBox("Animation")
+  MyButton.addAction(animationCheckBox, () => {
+    core.isAnimationMode = animationCheckBox.isSelected
+    core.textRendered.set(textArea.getText)
+  })
 
   def makeLabeledDoubleField(info: DoubleFieldInfo) = info match {
     case (settable, label, cons) =>
@@ -108,6 +119,7 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
       addARow(fontRow)
       addARow(layoutRow)
       addARow(wordRow)
+      addARow(animationRow)
     }
 
     val area = new JScrollPane(textArea){
@@ -120,6 +132,7 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
     add(new JPanel(new FlowLayout()){
       add(interactiveCheckBox)
       add(renderButton)
+      add(animationCheckBox)
     })
   }
 

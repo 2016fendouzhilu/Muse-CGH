@@ -20,7 +20,8 @@ object RenderTest {
 
     val screenFactor = 2
 
-    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, penSpeed = 40, frameRate = 60, screenPixelFactor = screenFactor)
+    val p = showInAnimation(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor)(
+      penSpeed = 40, frameRate = 60, shouldRun = true)
 //    val p = showInScrollPane(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor)
 
     new JFrame("Rendering Result"){
@@ -45,7 +46,8 @@ object RenderTest {
   }
 
   def showInAnimation(result: RenderingResult, dotsPerUnit: Double,
-                      pixelPerUnit: Double, penSpeed: Double, frameRate: Double, screenPixelFactor: Int): JPanel = {
+                      pixelPerUnit: Double, screenPixelFactor: Int)(
+              penSpeed: => Double, frameRate: => Double, shouldRun: => Boolean): JPanel = {
     val edge = (pixelPerUnit * 2).toInt
     val topHeight = (3*pixelPerUnit).toInt
     val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
@@ -73,11 +75,13 @@ object RenderTest {
       }
     }
 
-    val timePerFrame = 1.0/frameRate
-    def drawAndSleep(g: Graphics, penStartFrom: Vec2): Unit = {
+    def drawAndSleep(g: Graphics, penStartFrom: Vec2): Boolean = {
 
       var timer = 0.0
-      def rest(dis: Double) = {
+
+      def shouldStop(dis: Double): Boolean = {
+        if(!shouldRun) return true
+        val timePerFrame = 1.0/frameRate
         timer += dis/penSpeed
         if(timer > timePerFrame){
           val millis = (timePerFrame / 0.001).toInt
@@ -85,6 +89,7 @@ object RenderTest {
           timer -= timePerFrame
           Thread.sleep(millis, nanos)
         }
+        false
       }
       val wordsRestDis = 5
 
@@ -98,9 +103,11 @@ object RenderTest {
           val painter = new LetterPainter(screenG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
             imageOffset = Vec2(edge, edge + topHeight), dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
 
-          painter.drawAndBuffer(screenPixelFactor, imgG, rest)(mainSegs ++ secondSegs, offset, penColor)
-          rest(wordsRestDis)
+          val stop = painter.drawAndBuffer(screenPixelFactor, imgG, shouldStop)(mainSegs ++ secondSegs,
+            offset, penColor) || shouldStop(wordsRestDis)
+          if(stop) return true
       }
+      false
     }
 
     val startButton = new JButton("Start")

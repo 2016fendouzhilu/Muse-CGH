@@ -5,7 +5,7 @@ import utilities.ChangeSource
 /**
  * Created by weijiayi on 3/6/16.
  */
-class UICore() extends ChangeSource{
+class UICore() extends ChangeSource {
   val textRendered = newSettable[String]("")
 
   val samplesPerUnit = newSettable[Double](50.0)
@@ -31,5 +31,13 @@ class UICore() extends ChangeSource{
   val lineSpacing = newSettable[Double](4.0)
 
   val interactiveMode = newSettable[Boolean](true)
+
+  val penSpeed = newSettable[Double](40)
+
+  val frameRate = newSettable[Double](60)
+
+  var isAnimationMode = false
+
+  var animationFinished = true
 
 }
