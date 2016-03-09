@@ -1,5 +1,5 @@
 # Muse-CGH
-### A program to make Computer Generated Handwriting [with cursive and *random(ok, not random yet)* letters]
+### A program to make Computer Generated Handwriting [with cursive and random letters]
 
 #### you can [download the compiled program](Muse.zip) directly (.jar file)
 
