@@ -20,7 +20,7 @@ class UICore() extends ChangeSource {
 
   val lean = newSettable[Double](0.3)
 
-  val randomness = newSettable[Double](0.08)
+  val randomness = newSettable[Double](0.07)
 
   val seed = newSettable[Int](1)
 
