@@ -10,7 +10,7 @@ import utilities.{CubicCurve, MyMath, Vec2}
   * Created by weijiayi on 2/29/16.
   */
 
-class CurveDrawer(val g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double,
+class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double,
                   dotsPerUnit: Double = 20.0, thicknessScale: Double = 1.0) {
   g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 

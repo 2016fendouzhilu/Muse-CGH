@@ -15,11 +15,13 @@ case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
 
   def width = endX - startX
 
-  lazy val (mainSegs, secondarySegs) = {
-    CollectionOp.firstIndex(segs)(_.isStrokeBreak) match{
-      case Some(i) => segs.splitAt(i+1)
-      case None => (segs, IndexedSeq())
-    }
+  lazy val (mainSegs, secondarySegs) = letterType match {
+    case LetterType.LowerCase =>
+      CollectionOp.firstIndex(segs)(_.isStrokeBreak) match{
+        case Some(i) => segs.splitAt(i+1)
+        case None => (segs, IndexedSeq())
+      }
+    case _ => (segs, IndexedSeq())
   }
 
   def isPunctuationMark = {

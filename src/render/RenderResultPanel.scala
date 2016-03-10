@@ -32,21 +32,20 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
         randomness = core.randomness.get)(text)(RNG(core.seed.get))
     }
 
-    val sPane =
+    val sPane ={
+      val parameters = new RenderingParameters(result, core.samplesPerUnit.get, core.pixelPerUnit.get, screenPixelFactor = 2)
       if (core.isAnimationMode) {
         val handle = new Settable[Boolean](true, ()=>Unit)
         currentAnimationHandle = Some(handle)
-        RenderTest.showInAnimation(result, core.samplesPerUnit.get, core.pixelPerUnit.get, screenPixelFactor = 2)(
-          penSpeed = core.penSpeed.get, frameRate = core.frameRate.get, shouldRun = handle.get)
+        parameters.showInAnimation(penSpeed = core.penSpeed.get, frameRate = core.frameRate.get, shouldRun = handle.get)
       }
       else
-        RenderTest.showInScrollPane(result = result, dotsPerUnit = core.samplesPerUnit.get,
-          pixelPerUnit = core.pixelPerUnit.get, screenPixelFactor = 2)
+        parameters.showInScrollPane()
+    }
 
     setTitle(s"Result (randomness = ${core.randomness.get})")
     setContentPane(sPane)
     pack()
-
   }
 
 }
