@@ -5,7 +5,7 @@ import javax.swing.{JFrame, JPanel}
 import utilities.{Settable, RNG, LetterMapLoader, ChangeListener}
 
 /**
- * Created by weijiayi on 3/7/16.
+ * Use this class to display rendering results
  */
 class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
   setVisible(true)
