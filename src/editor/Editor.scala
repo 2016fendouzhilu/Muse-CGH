@@ -174,8 +174,9 @@ class Editor(private var buffer: Editing) extends ChangeSource {
         if (nearby >= 0) {
           val nearbySeg = segArray(nearby)
           if (nearbySeg.alignTangent) {
-            val relative = c.p0 - c.p1
-            setPoint(nearby, 2, nearbySeg.curve.p3 + relative)
+            val tangent = (c.p0 - c.p1).normalized
+            val nearLen = (nearbySeg.curve.p3 - nearbySeg.curve.p2).length
+            setPoint(nearby, 2, nearbySeg.curve.p3 + tangent * nearLen)
           }
         }
       } else {
@@ -183,8 +184,9 @@ class Editor(private var buffer: Editing) extends ChangeSource {
         if (nearby < endIndex) {
           val nearbyC = segArray(nearby).curve
           if (segArray(segIndex).alignTangent) {
-            val relative = c.p3 - c.p2
-            setPoint(nearby, 1, nearbyC.p0 + relative)
+            val tangent = (c.p3 - c.p2).normalized
+            val nearLen = (nearbyC.p0 - nearbyC.p1).length
+            setPoint(nearby, 1, nearbyC.p0 + tangent * nearLen)
           }
         }
       }
