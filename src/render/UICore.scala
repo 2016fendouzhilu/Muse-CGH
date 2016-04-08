@@ -10,23 +10,27 @@ class UICore() extends ChangeSource {
 
   val samplesPerUnit = newSettable[Double](50.0)
 
-  val pixelPerUnit = newSettable[Double](12.0)
+  val pixelPerUnit = newSettable[Double](10.0)
 
   val letterSpacing = newSettable[Double](0.0)
 
   val spaceWidth = newSettable[Double](0.8)
 
-  val symbolFrontSpace = newSettable[Double](0.2)
+  val symbolFrontSpace = newSettable[Double](0.4)
 
   val lean = newSettable[Double](0.3)
 
+  val thicknessScale = newSettable[Double](2.8)
+
   val randomness = newSettable[Double](0.07)
 
-  val seed = newSettable[Int](1)
+  val lineRandomness = newSettable[Double](0.1)
 
-  val maxLineWidth = newSettable[Double](50.0)
+  val seed = newSettable[Double](0.0)
 
-  val breakWordThreshold = newSettable[Double](6.0)
+  val maxLineWidth = newSettable[Double](90.0)
+
+  val breakWordThreshold = newSettable[Double](4.0)
 
   val lineSpacing = newSettable[Double](4.0)
 

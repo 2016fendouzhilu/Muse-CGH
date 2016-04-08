@@ -18,18 +18,20 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
     IndexedSeq(EditThickness(true), EditThickness(false), ScaleLetter, TranslateLetter, ScaleTotalThickness)
 
-  val modeButtonPairs = modes.map{ m =>
-    val text = m match {
-      case MoveCamera => "MoveCamera"
-      case EditControlPoint(i) => s"Edit P$i"
-      case EditThickness(isHead) => s"Edit ${if(isHead) "Head" else "Tail"}"
-      case ScaleLetter => "Scale"
-      case TranslateLetter => "Translate"
-      case ScaleTotalThickness => "Scale Thickness"
+  val modeButtonPairs = modes.zipWithIndex.map{ case (m, id) =>
+    val (name,explain) = m match {
+      case MoveCamera => ("MoveCamera", "Move the camera to view different parts")
+      case EditControlPoint(i) => (s"Edit P$i", "Edit this control point's position of current selected segment")
+      case EditThickness(isHead) => (s"${if(isHead) "Head" else "Tail"} Thickness", "Scale the thickness of current selected segment")
+      case ScaleLetter => ("Scale", "Scale size of the whole glyph")
+      case TranslateLetter => ("Translate", "Shift the position of all segments")
+      case ScaleTotalThickness => ("Scale Thickness", "Scale the thickness of all segments")
     }
-    val b = new JRadioButton(text){
+    val hotkey = if(id == 0) "`" else id.toString
+    val b = new JRadioButton(name){
       setFocusable(false)
       MyButton.addAction(this, ()=>changeMode(m))
+      setToolTipText(s"$name:\n$explain.\nHot key [$hotkey]")
     }
     (m,b)
   }
@@ -146,12 +148,17 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
   }
 
   def fontFileFilter = new FileNameExtensionFilter("Muse Editing Files", "muse")
+  import java.nio.file.Paths
+  def mkFileChooser = {
+    val defaultPath = Paths.get("letters").toAbsolutePath.toFile
+    new JFileChooser(defaultPath){
+      setFileFilter(fontFileFilter)
+      setMultiSelectionEnabled(false)
+    }
+  }
 
   def saveEditing(): Unit = {
-    import java.nio.file.Paths
-    val fc = new JFileChooser(Paths.get("").toAbsolutePath.toFile){
-      setFileFilter(fontFileFilter)
-    }
+    val fc = mkFileChooser
     fc.showSaveDialog(this) match {
       case JFileChooser.APPROVE_OPTION =>
         val file = fc.getSelectedFile
@@ -167,11 +174,7 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
   }
 
   def loadEditing(): Unit = {
-    import java.nio.file.Paths
-    val fc = new JFileChooser(Paths.get("").toAbsolutePath.toFile){
-      setFileFilter(fontFileFilter)
-      setMultiSelectionEnabled(false)
-    }
+    val fc = mkFileChooser
     fc.showOpenDialog(this) match {
       case JFileChooser.APPROVE_OPTION =>
         val select = fc.getSelectedFile

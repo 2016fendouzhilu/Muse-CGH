@@ -16,7 +16,7 @@ object RenderTest {
 
     val screenFactor = 2
 
-    val parameters = new RenderingParameters(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor)
+    val parameters = new RenderingParameters(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor, thicknessScale = 1.8)
     val p = parameters.showInAnimation(penSpeed = 40, frameRate = 60, shouldRun = true)
     //    val p = parameters.showInScrollPane()
 
@@ -37,6 +37,6 @@ object RenderTest {
     val text = "Thousands cities from home, wander into the unknown. Chances are here I was told, Crossing the footsteps of new and of old"
 
     renderer.renderTextInParallel(letterMap, lean = 0.3, maxLineWidth = 30, breakWordThreshold = 5,
-      lineSpacing = 4, randomness = 0.04)(text)(RNG(1))._1
+      lineSpacing = 4, randomness = 0.04, lineRandomness = 0.1)(text)(RNG(1))._1
   }
 }

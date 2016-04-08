@@ -12,7 +12,7 @@ import utilities.{RNG, LetterMapLoader, Vec2}
   */
 class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
                           pixelPerUnit: Double, screenPixelFactor: Int,
-                          wordsRestDis: Double = 5,
+                          wordsRestDis: Double = 5, thicknessScale: Double,
                           backgroundColor: Color = Color.white, penColor: Color = Color.black){
   val edge = (pixelPerUnit * 2).toInt
   val topHeight = (3*pixelPerUnit).toInt
@@ -63,7 +63,7 @@ class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
       result.words.foreach {
         case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
           val painter = new LetterPainter(bufferG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
-            imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
+            imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
 
           val stop = painter.drawAnimation(screenPixelFactor, shouldStop)(mainSegs ++ secondSegs,
             offset, penColor) || shouldStop(wordsRestDis)
@@ -104,7 +104,7 @@ class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
         result.words.foreach {
           case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
             val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
-              imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = 1.8)
+              imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
 
             painter.draw(mainSegs ++ secondSegs, offset, penColor)
         }

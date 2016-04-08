@@ -25,15 +25,20 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
         spaceWidth = core.spaceWidth.get,
         symbolFrontSpace = core.symbolFrontSpace.get)
 
+      val rng = {
+        RNG((core.seed.get*Long.MaxValue).toLong)
+      }
       renderer.renderTextInParallel(letterMap, lean = core.lean.get,
         maxLineWidth = core.maxLineWidth.get,
         breakWordThreshold = core.breakWordThreshold.get,
         lineSpacing = core.lineSpacing.get,
-        randomness = core.randomness.get)(text)(RNG(core.seed.get))
+        randomness = core.randomness.get,
+        lineRandomness = core.lineRandomness.get)(text)(rng)
     }
 
     val sPane ={
-      val parameters = new RenderingParameters(result, core.samplesPerUnit.get, core.pixelPerUnit.get, screenPixelFactor = 2)
+      val parameters = new RenderingParameters(result, core.samplesPerUnit.get, core.pixelPerUnit.get,
+        thicknessScale = core.thicknessScale.get, screenPixelFactor = 2)
       if (core.isAnimationMode) {
         val handle = new Settable[Boolean](true, ()=>Unit)
         currentAnimationHandle = Some(handle)

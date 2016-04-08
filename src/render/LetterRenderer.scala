@@ -95,45 +95,59 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
   }
 
   def renderTextInParallel(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double,
-                           lineSpacing: Double, randomness: Double)(text: String): State[RNG,RenderingResult] = State((rng: RNG) => {
+                           lineSpacing: Double, randomness: Double, lineRandomness: Double)(text: String): State[RNG,RenderingResult] = State((rng: RNG) => {
     require(maxLineWidth > 0 && breakWordThreshold<maxLineWidth)
-    val newline = '\n'
-    val whitespace = ' '
 
-    val textElements: IndexedSeq[TextElement] = text.split(newline).toIndexedSeq.flatMap {
-      case "" => IndexedSeq(TextNewline)
-      case p =>
-        p.split(whitespace).toIndexedSeq.flatMap {
-          case "" => IndexedSeq(TextSpace)
-          case w =>
-            val (letters, unConverted) = convertLetters(w, lMap)
-            unConverted.foreach(c => println(s"can't render $c in word $w"))
-            IndexedSeq(TextWord(letters), TextSpace)
-        }.dropRight(1) :+ TextNewline
-    }.dropRight(1)
+    val (renderingElements, wordCount) = {
+      val newline = '\n'
+      val whitespace = ' '
 
-    val wordCount = textElements.length
-    val renderingElements = new Array[RenderingElement](wordCount)
-    // Parallel rendering
-    textElements.zipWithIndex.par.foreach { case (te,i) =>
-      renderingElements(i) = te match{
-        case TextWord(letters) =>
-          var r = RNG(rng.seed+i)
-          val randomLetters = letters.map{ l =>
-            val (coes, newR) = RNG.nextDoubles(6)(r)
-            r = newR
-            val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
-            l.modifyByAngularFunc(angF)
-          }
-          val w = renderAWord(lean, randomLetters)
-          PreRenderingWord(w, randomLetters)
-        case other: RenderingElement => other
+      val textElements: IndexedSeq[TextElement] = text.split(newline).toIndexedSeq.flatMap {
+        case "" => IndexedSeq(TextNewline)
+        case p =>
+          p.split(whitespace).toIndexedSeq.flatMap {
+            case "" => IndexedSeq(TextSpace)
+            case w =>
+              val (letters, unConverted) = convertLetters(w, lMap)
+              unConverted.foreach(c => println(s"can't render $c in word $w"))
+              IndexedSeq(TextWord(letters), TextSpace)
+          }.dropRight(1) :+ TextNewline
+      }.dropRight(1)
+
+      val wordCount = textElements.length
+      val renderingElements = new Array[RenderingElement](wordCount)
+      // Parallel rendering
+      textElements.zipWithIndex.par.foreach { case (te, i) =>
+        renderingElements(i) = te match {
+          case TextWord(letters) =>
+            var r = RNG(rng.seed + i)
+            val randomLetters = letters.map { l =>
+              val (coes, newR) = RNG.nextDoubles(6)(r)
+              r = newR
+              val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
+              l.modifyByAngularFunc(angF)
+            }
+            val w = renderAWord(lean, randomLetters)
+            PreRenderingWord(w, randomLetters)
+          case other: RenderingElement => other
+        }
       }
+      (renderingElements, wordCount)
     }
 
     val words = new mutable.ListBuffer[(Vec2, RenderingWord)]()
 
-    var x, y = 0.0
+    import scala.util.Random
+
+    var x, y, yOffset = 0.0
+    val rand = new Random(rng.seed)
+    def randomY() = {
+      // Random walking with decay
+      val dy = rand.nextGaussian() * lineRandomness
+      yOffset = yOffset * 0.8 + dy
+      y + yOffset
+    }
+
     renderingElements.foreach {
       case TextSpace => x += spaceWidth
       case TextNewline =>
@@ -143,13 +157,13 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         def renderWord(word: RenderingWord, letters: IndexedSeq[Letter]): Boolean = {
           if (x + word.width < maxLineWidth) {
             // keep going
-            words.append((Vec2(x, y), word))
+            words.append((Vec2(x, randomY()), word))
             x += word.width
             true
           } else if (maxLineWidth - x < breakWordThreshold) {
             // start from new line
             y += lineSpacing
-            words.append((Vec2(0, y), word))
+            words.append((Vec2(0, randomY()), word))
             x = word.width
             true
           } else {
@@ -158,7 +172,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
               val spaceLeft = maxLineWidth - x
               tryBreakWord(lean, hyphen)(letters, spaceLeft).foreach{
                 case (l, r) =>
-                  words.append((Vec2(x,y), l))
+                  words.append((Vec2(x,randomY()), l))
                   y += lineSpacing
                   x = 0
                   return renderWord(r.rWord, r.letters)

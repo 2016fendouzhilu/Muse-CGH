@@ -47,7 +47,13 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
     (core.pixelPerUnit, "Font size", positiveConstraint),
     (core.samplesPerUnit, "Samples", positiveConstraint),
     (core.lean, "Lean", noConstraint),
-    (core.randomness, "Randomness", noConstraint)
+    (core.thicknessScale, "Thickness", positiveConstraint)
+  ).map(makeLabeledDoubleField)
+
+  val randomRow = List[DoubleFieldInfo] (
+    (core.randomness, "Letter Random", noConstraint),
+    (core.lineRandomness, "Line Random", noConstraint),
+    (core.seed, "Seed", (s: Double) => s >= -1 && s <= 1.0)
   ).map(makeLabeledDoubleField)
 
   val layoutRow = List[DoubleFieldInfo] (
@@ -119,6 +125,7 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
       addARow(fontRow)
       addARow(layoutRow)
       addARow(wordRow)
+      addARow(randomRow)
       addARow(animationRow)
     }
 
