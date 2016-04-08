@@ -29,8 +29,10 @@ trait ChangeListener {
 
 class Settable[T](private var value: T, action: () => Unit) {
   def set(v: T) = {
-    value = v
-    action()
+    if(v!=value){
+      value = v
+      action()
+    }
   }
   
   def get = value

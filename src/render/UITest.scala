@@ -4,6 +4,7 @@ import java.awt.{Dimension, FlowLayout}
 import javax.swing.{JButton, BoxLayout, JPanel, JFrame}
 
 import editor.{EditorMain, MyButton}
+import utilities.LetterMapLoader
 
 /**
  * Created by weijiayi on 3/7/16.
@@ -30,6 +31,11 @@ object UITest {
       editor.setVisible(!editor.isVisible)
     })
 
+    val reloadLetterMapButton = new JButton("Reload Letters")
+    MyButton.addAction(reloadLetterMapButton, ()=>{
+      core.letterMap.set(LetterMapLoader.loadDefaultLetterMap())
+    })
+
     val controlFrame = new JFrame("Control Panel"){
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
@@ -37,6 +43,7 @@ object UITest {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
         add(new JPanel(new FlowLayout()){
           add(openEditorButton)
+          add(reloadLetterMapButton)
           add(new JPanel())
         })
         add(uiPanel)

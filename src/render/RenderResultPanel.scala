@@ -11,7 +11,7 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
   setVisible(true)
   setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
-  val letterMap = LetterMapLoader.loadDefaultLetterMap()
+//  var letterMap = LetterMapLoader.loadDefaultLetterMap()
   
   var currentAnimationHandle: Option[Settable[Boolean]] = None
 
@@ -28,7 +28,7 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
       val rng = {
         RNG((core.seed.get*Long.MaxValue).toLong)
       }
-      renderer.renderTextInParallel(letterMap, lean = core.lean.get,
+      renderer.renderTextInParallel(core.letterMap.get, lean = core.lean.get,
         maxLineWidth = core.maxLineWidth.get,
         breakWordThreshold = core.breakWordThreshold.get,
         lineSpacing = core.lineSpacing.get,
@@ -37,8 +37,12 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
     }
 
     val sPane ={
+      val useAspectRatio = {
+        val as = core.aspectRatio.get
+        if(as>0) Some(as) else None
+      }
       val parameters = new RenderingParameters(result, core.samplesPerUnit.get, core.pixelPerUnit.get,
-        thicknessScale = core.thicknessScale.get, screenPixelFactor = 2)
+        thicknessScale = core.thicknessScale.get, screenPixelFactor = 2, useAspectRatio = useAspectRatio)
       if (core.isAnimationMode) {
         val handle = new Settable[Boolean](true, ()=>Unit)
         currentAnimationHandle = Some(handle)

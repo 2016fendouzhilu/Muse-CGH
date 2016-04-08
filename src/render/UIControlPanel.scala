@@ -59,7 +59,8 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
   val layoutRow = List[DoubleFieldInfo] (
     (core.maxLineWidth, "Line width", (w: Double) => w > 0 && w > core.breakWordThreshold.get),
     (core.lineSpacing, "Line spacing", positiveConstraint),
-    (core.breakWordThreshold, "Break threshold", (b: Double) => b > 0 && b < core.maxLineWidth.get)
+    (core.breakWordThreshold, "Break threshold", (b: Double) => b > 0 && b < core.maxLineWidth.get),
+    (core.aspectRatio, "Aspect Ratio", noConstraint)
   ).map(makeLabeledDoubleField)
 
   val wordRow = List[DoubleFieldInfo] (

@@ -1,6 +1,6 @@
 package render
 
-import utilities.ChangeSource
+import utilities.{LetterMapLoader, ChangeSource}
 
 /**
  * Created by weijiayi on 3/6/16.
@@ -32,6 +32,10 @@ class UICore() extends ChangeSource {
 
   val breakWordThreshold = newSettable[Double](4.0)
 
+  /**
+   * use aspect ratio only if this value is positive */
+  val aspectRatio = newSettable[Double](-1.0)
+
   val lineSpacing = newSettable[Double](4.0)
 
   val interactiveMode = newSettable[Boolean](true)
@@ -39,6 +43,8 @@ class UICore() extends ChangeSource {
   val penSpeed = newSettable[Double](40)
 
   val frameRate = newSettable[Double](60)
+
+  val letterMap = newSettable(LetterMapLoader.loadDefaultLetterMap())
 
   var isAnimationMode = false
 

@@ -14,7 +14,7 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
   def draw(segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
     def pointTrans(p: Vec2): Vec2 = {
       val s = pixelPerUnit*displayPixelScale
-      (p+offset)*s + imageOffset
+      (p+offset)*s + imageOffset*displayPixelScale
     }
 
     val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
@@ -29,7 +29,7 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Boolean = {
     val s = pixelPerUnit*displayPixelScale
     def pointTrans(p: Vec2): Vec2 = {
-      ((p+offset)*s + imageOffset)* bufferScaleFactor
+      ((p+offset)*s + imageOffset*displayPixelScale)* bufferScaleFactor
     }
 
     val drawer = new CurveDrawer(g2d, pointTrans, s, dotsPerUnit, thicknessScale)

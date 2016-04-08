@@ -2,7 +2,11 @@ package render
 
 import java.awt.image.BufferedImage
 import java.awt.{Color, Dimension, Graphics, Graphics2D, RenderingHints}
+import java.io.File
+import java.nio.file.Paths
+import javax.imageio.ImageIO
 import javax.swing._
+import javax.swing.filechooser.FileNameExtensionFilter
 
 import editor.MyButton
 import utilities.{RNG, LetterMapLoader, Vec2}
@@ -13,11 +17,18 @@ import utilities.{RNG, LetterMapLoader, Vec2}
 class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
                           pixelPerUnit: Double, screenPixelFactor: Int,
                           wordsRestDis: Double = 5, thicknessScale: Double,
-                          backgroundColor: Color = Color.white, penColor: Color = Color.black){
+                          backgroundColor: Color = Color.white, penColor: Color = Color.black,
+                          useAspectRatio: Option[Double] = None){
   val edge = (pixelPerUnit * 2).toInt
   val topHeight = (3*pixelPerUnit).toInt
   val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
-  val screenSize = new Dimension(imgWidth.toInt + 2 * edge, imgHeight.toInt + 2 * edge + topHeight)
+
+  val screenWidth = imgWidth.toInt + 2 * edge
+  val screenHeight = useAspectRatio match{
+    case Some(r) => (screenWidth * r).toInt
+    case None => imgHeight.toInt + 2 * edge + topHeight
+  }
+  val screenSize = new Dimension(screenWidth, screenHeight)
   val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
   val imageOffset = Vec2(edge, edge + topHeight)
 
@@ -93,8 +104,8 @@ class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
     }
   }
 
-  def showInScrollPane(): JScrollPane = {
-    new JScrollPane(new JPanel() {
+  def showInScrollPane(): JPanel = {
+    val scrollPane = new JScrollPane(new JPanel() {
       setBackground(backgroundColor)
       setPreferredSize(screenSize)
 
@@ -120,6 +131,35 @@ class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
     }){
       setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS)
     }
+
+    val saveButton = new JButton("Save Image")
+    MyButton.addAction(saveButton, openSaveImageDialog)
+
+    new JPanel() {
+      setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
+      add(saveButton)
+      add(scrollPane)
+    }
+  }
+
+  def openSaveImageDialog(): Unit ={
+    val defaultPath = Paths.get("").toAbsolutePath.toFile
+    val fc = new JFileChooser(defaultPath){
+      setFileFilter(new FileNameExtensionFilter("PNG Files", "png"))
+      setMultiSelectionEnabled(false)
+    }
+    fc.showSaveDialog(null) match {
+      case JFileChooser.APPROVE_OPTION =>
+        val path = fc.getSelectedFile.getAbsolutePath
+        val file = new File(if(path endsWith ".png") path else path+".png")
+        try {
+          ImageIO.write(buffer, "png", file)
+        }catch {
+          case _: Throwable => println("failed to save image")
+        }
+    }
+
+
   }
 
 }
