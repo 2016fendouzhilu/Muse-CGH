@@ -17,8 +17,8 @@ object UITest {
       core.addListener(this)
     }
 
-    val resultFrame = new RenderResultPanel(core)
-    core.addListener(resultFrame)
+    val resultFrames = new RenderResultFrames(core)
+    core.addListener(resultFrames)
 
     lazy val editor = new JFrame("Font Editor") {
       val p = EditorMain.makeEditorPanel()
@@ -52,7 +52,8 @@ object UITest {
       setVisible(true)
     }
 
-    resultFrame.setLocation(controlFrame.getWidth, 0)
-
+    resultFrames.renderingFrame.setLocation(controlFrame.getWidth, 0)
+    resultFrames.infoFrame.setLocation(0,controlFrame.getHeight+20)
+    resultFrames.setInfoFrameSize(new Dimension(controlFrame.getWidth, 80))
   }
 }

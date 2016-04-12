@@ -31,7 +31,8 @@ object LetterMapLoader {
       }
     }
 
-    List(
+    val numberList = (0 to 9).map(i => (i + '0').toChar -> i.toString).toList
+    val punctuationMarkList = List(
       ','->"comma",
       '.'->"period",
       ';'->"semicolon",
@@ -44,9 +45,10 @@ object LetterMapLoader {
       '!' -> "exclamation_mark",
       '(' -> "open_bracket",
       ')' -> "close_bracket",
-      '"' -> "quotation_mark",
-      '3' -> "3"
-    ).foreach{
+      '"' -> "quotation_mark"
+    )
+
+    (numberList ++ punctuationMarkList).foreach{
       case (key, name) =>
         loadLetter(s"letters/$name.muse") match{
           case Some(l) => list = (key -> l) :: list

@@ -34,16 +34,21 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
 
     def shouldModifyLast(i: Int) = i != letterNum - 1 && shouldConnect(letters(i),letters(i+1))
 
+    def shouldPrependSpace(i: Int) =
+        i != 0 && (letters(i).isPunctuationMark || letters(i-1).isPunctuationMark)
+
+
     var x = 0.0
     var mainSegs, secondarySegs = IndexedSeq[RenderingSeg]()
+
     (0 until letterNum).foreach{ i =>
-      val frontSpacing = if(letters(i).isPunctuationMark) symbolFrontSpace else 0.0
+      val frontSpacing = if(shouldPrependSpace(i)) symbolFrontSpace else 0.0
       val baseX = letters(i).startX
       val ss =
         (if(shouldDropFirst(i)) letters(i).mainSegs.tail else letters(i).mainSegs).
           map{_.pointsMap(transform(x-baseX+frontSpacing))}
 
-      val newX = x + letters(i).width + letterSpacing + 2*frontSpacing
+      val newX = x + letters(i).width + letterSpacing + frontSpacing
 
       mainSegs = mainSegs ++ (if(shouldModifyLast(i)){
         val thisSeg = ss.last
@@ -97,6 +102,11 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
   def renderTextInParallel(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double,
                            lineSpacing: Double, randomness: Double, lineRandomness: Double)(text: String): State[RNG,RenderingResult] = State((rng: RNG) => {
     require(maxLineWidth > 0 && breakWordThreshold<maxLineWidth)
+    val infoBuffer = new mutable.ListBuffer[String]
+    def printInfoLine(s: String): Unit = {
+      infoBuffer.append(s)
+      Predef.println(s)
+    }
 
     val (renderingElements, wordCount) = {
       val newline = '\n'
@@ -109,7 +119,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
             case "" => IndexedSeq(TextSpace)
             case w =>
               val (letters, unConverted) = convertLetters(w, lMap)
-              unConverted.foreach(c => println(s"can't render $c in word $w"))
+              unConverted.foreach(c => printInfoLine(s"Can't render '$c' in word '$w'"))
               IndexedSeq(TextWord(letters), TextSpace)
           }.dropRight(1) :+ TextNewline
       }.dropRight(1)
@@ -185,11 +195,11 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         if(!succeed){
           y += lineSpacing
           x = 0
-          println("Failed to break word, ignore it.")
+          printInfoLine("Failed to break word, ignore it.")
         }
     }
 
-    (RenderingResult(words.toIndexedSeq, maxLineWidth, y), RNG(rng.seed+wordCount))
+    (RenderingResult(words.toIndexedSeq, maxLineWidth, y, infoBuffer.mkString("\n")), RNG(rng.seed+wordCount))
   })
 
   def convertLetters(s: String, lMap: Map[Char, Letter]): (IndexedSeq[Letter], IndexedSeq[Char]) = {
@@ -237,4 +247,4 @@ case class PreRenderingWord(rWord: RenderingWord, letters: IndexedSeq[Letter]) e
 
 case class RenderingWord(mainSegs: IndexedSeq[RenderingSeg], secondarySegs: IndexedSeq[RenderingSeg], width: Double)
 
-case class RenderingResult(words: IndexedSeq[(Vec2, RenderingWord)], lineWidth: Double, height: Double)
+case class RenderingResult(words: IndexedSeq[(Vec2, RenderingWord)], lineWidth: Double, height: Double, info: String)

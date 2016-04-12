@@ -1,17 +1,37 @@
 package render
 
-import javax.swing.{JFrame, JPanel}
+import java.awt.Dimension
+import javax.swing.{JTextArea, JScrollPane, JFrame, JPanel}
 
-import utilities.{Settable, RNG, LetterMapLoader, ChangeListener}
+import utilities.{Settable, RNG, ChangeListener}
 
 /**
  * Use this class to display rendering results
  */
-class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
-  setVisible(true)
-  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+class RenderResultFrames(core: UICore) extends ChangeListener{
 
-//  var letterMap = LetterMapLoader.loadDefaultLetterMap()
+  val renderingFrame = new JFrame(){
+    setVisible(true)
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+  }
+
+  private val infoArea = new JTextArea(){
+    setLineWrap(false)
+    setEditable(false)
+  }
+
+  private val infoScroll = new JScrollPane(infoArea)
+
+  val infoFrame = new JFrame("Console output"){
+    setContentPane(infoScroll)
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+    setVisible(true)
+  }
+
+  def setInfoFrameSize(size: Dimension): Unit ={
+    infoScroll.setPreferredSize(size)
+    infoFrame.pack()
+  }
   
   var currentAnimationHandle: Option[Settable[Boolean]] = None
 
@@ -36,6 +56,8 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
         lineRandomness = core.lineRandomness.get)(text)(rng)
     }
 
+    infoArea.setText(result.info)
+
     val sPane ={
       val useAspectRatio = {
         val as = core.aspectRatio.get
@@ -52,9 +74,9 @@ class RenderResultPanel(core: UICore) extends JFrame with ChangeListener{
         parameters.showInScrollPane()
     }
 
-    setTitle(s"Result (randomness = ${core.randomness.get})")
-    setContentPane(sPane)
-    pack()
+    renderingFrame.setTitle(s"Result (randomness = ${core.randomness.get})")
+    renderingFrame.setContentPane(sPane)
+    renderingFrame.pack()
   }
 
 }

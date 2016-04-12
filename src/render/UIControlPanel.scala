@@ -21,9 +21,9 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
     catch { case e: Throwable => None}
   }
 
-  val updateList = new ListBuffer[ValueTextComponent[_,_]]()
+  private val updateList = new ListBuffer[ValueTextComponent[_,_]]()
 
-  def makeDoubleFiled(settable: Settable[Double], constraint: Double => Boolean = _ => true):
+  private def makeDoubleFiled(settable: Settable[Double], constraint: Double => Boolean = _ => true):
       ValueTextComponent[Double, JTextField] = {
     val field = new JTextField()
 
@@ -102,7 +102,7 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
     core.textRendered.set(textArea.getText)
   })
 
-  def makeLabeledDoubleField(info: DoubleFieldInfo) = info match {
+  private def makeLabeledDoubleField(info: DoubleFieldInfo) = info match {
     case (settable, label, cons) =>
       (new JLabel(label), makeDoubleFiled(settable, cons))
   }
@@ -130,13 +130,9 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
       addARow(animationRow)
     }
 
-    val area = new JScrollPane(textArea){
-      setPreferredSize(new Dimension(500,400))
-    }
-
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
     add(parametersPanel)
-    add(area)
+    add(new JScrollPane(textArea){setPreferredSize(new Dimension(500,350))})
     add(new JPanel(new FlowLayout()){
       add(interactiveCheckBox)
       add(renderButton)
