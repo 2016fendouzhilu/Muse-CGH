@@ -5,7 +5,7 @@
 
 #### Muse can generate human-lick English handwriting from text. Its algorithm will connect the strokes of adjacent characters in a word, using randomness to ensure that every character is unique in the rendering result.
 
-##### The following photo shows some rendered text printed on a paper. As you may agree, it's quite pretty and vivde:
+##### The following photo shows some rendered text printed on a paper. As you may agree, it's quite pretty and vivid:
 
 ![alt tag](Printed.jpg)
 
@@ -24,4 +24,4 @@
 
 ![alt tag](Editor_Screenshot.png)
 
-#### This work is under [the MIT liscence](LICENSE.txt), so feel free to use it in your own projects. There's a plan for command line-interface support.
+#### This work is under [the MIT license](LICENSE.txt), so feel free to use it in your own projects. There's a plan for command line-interface support.
