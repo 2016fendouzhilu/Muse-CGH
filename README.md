@@ -24,4 +24,4 @@
 
 ![alt tag](Editor_Screenshot.png)
 
-#### This work is under [the MIT liscence](LICENSE.txt), so feel free to use it in your own projects. There's a plan for command line interface support. Email me if you have any questions.
+#### This work is under [the MIT liscence](LICENSE.txt), so feel free to use it in your own projects. There's a plan for command line-interface support.
