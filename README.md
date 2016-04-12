@@ -1,9 +1,9 @@
 # Muse-CGH
-### A program to make Computer Generated Handwriting [with cursive and random letters]
+### A program to convert text into human-style Computer Generated Handwritings.
 
 #### you can [download the compiled program (v1.1)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/v1.1/Muse1.1.zip) directly (.jar file)
 
-#### Muse can generate human-lick English handwriting from text. Its algorithm will connect the strokes of adjacent characters in a word, using randomness to ensure that every character is unique in the rendering result.
+#### Muse can generate human-style English handwriting from text. Its algorithm will connect the strokes of adjacent characters to produce cursive words, and uses randomness to ensure that every character is unique in the rendering results.
 
 ##### The following photo shows some rendered text printed on a paper. As you may agree, it's quite pretty and vivid:
 
@@ -11,7 +11,7 @@
 
 
 
-* Muse has an easy to use user interface, with interactive editing support, you can see the rendering results while you typing.
+* You can use Muse through its easy-to-use graphical user interface. With interactive editing mode turned on, you will see the rendering results changing as you typing.
 
 ![alt tag](Interactive.png)
 
