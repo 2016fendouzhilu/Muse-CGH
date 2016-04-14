@@ -5,7 +5,7 @@
 
 #### Muse can generate human-style English handwriting from text. Its algorithm will connect the strokes of adjacent characters to produce cursive words, and uses randomness to ensure that every character is unique in the rendering results.
 
-##### The following photo shows some rendered text printed on a paper. As you may agree, it's quite pretty and vivid:
+##### The following photo shows some rendered text printed on papers. As you can see, it's quite vivid:
 
 ![alt tag](Printed.jpg)
 
