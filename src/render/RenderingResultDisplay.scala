@@ -14,7 +14,7 @@ import utilities.{RNG, LetterMapLoader, Vec2}
 /**
   * Created by weijiayi on 3/4/16.
   */
-class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
+class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
                           pixelPerUnit: Double, screenPixelFactor: Int,
                           wordsRestDis: Double = 5, thicknessScale: Double,
                           backgroundColor: Color = Color.white, penColor: Color = Color.black,
@@ -32,7 +32,7 @@ class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
   val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
   val imageOffset = Vec2(edge, edge + topHeight)
 
-  val buffer = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
+  lazy val buffer = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
 
   def clearImageBuffer(): Unit = {
     val g = buffer.getGraphics
@@ -103,25 +103,24 @@ class RenderingParameters(result: RenderingResult, dotsPerUnit: Double,
       add(new JScrollPane(canvas))
     }
   }
+  
+  def drawToBuffer(): Unit ={
+    val g2d = buffer.getGraphics.asInstanceOf[Graphics2D]
+    result.words.foreach {
+      case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
+        val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
+          imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
+
+        painter.draw(mainSegs ++ secondSegs, offset, penColor)
+    }
+  }
 
   def showInScrollPane(): JPanel = {
     val scrollPane = new JScrollPane(new JPanel() {
       setBackground(backgroundColor)
       setPreferredSize(screenSize)
-
-      def drawToGraphics(g: Graphics): Unit = {
-        val g2d = g.asInstanceOf[Graphics2D]
-
-        result.words.foreach {
-          case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-            val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
-              imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
-
-            painter.draw(mainSegs ++ secondSegs, offset, penColor)
-        }
-      }
-
-      drawToGraphics(buffer.getGraphics)
+      
+      drawToBuffer()
 
       override def paintComponent(g: Graphics): Unit = {
         super.paintComponent(g)

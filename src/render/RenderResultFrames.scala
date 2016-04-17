@@ -63,7 +63,7 @@ class RenderResultFrames(core: UICore) extends ChangeListener{
         val as = core.aspectRatio.get
         if(as>0) Some(as) else None
       }
-      val parameters = new RenderingParameters(result, core.samplesPerUnit.get, core.pixelPerUnit.get,
+      val parameters = new RenderingResultDisplay(result, core.samplesPerUnit.get, core.pixelPerUnit.get,
         thicknessScale = core.thicknessScale.get, screenPixelFactor = 2, useAspectRatio = useAspectRatio)
       if (core.isAnimationMode) {
         val handle = new Settable[Boolean](true, ()=>Unit)

@@ -7,9 +7,9 @@ import editor.{EditorMain, MyButton}
 import utilities.LetterMapLoader
 
 /**
- * Created by weijiayi on 3/7/16.
+ * Run Muse in GUI mode.
  */
-object UITest {
+object UIMain {
   def main(args: Array[String]) {
     val core = new UICore
 

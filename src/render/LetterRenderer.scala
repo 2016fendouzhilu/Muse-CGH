@@ -158,11 +158,17 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
       y + yOffset
     }
 
+    def toNewLine(): Unit ={
+      y += lineSpacing
+      x = 0
+    }
+
     renderingElements.foreach {
-      case TextSpace => x += spaceWidth
-      case TextNewline =>
-        y += lineSpacing
-        x = 0
+      case TextSpace =>
+        val x1 = x + spaceWidth
+        if(x1<maxLineWidth) x = x1
+        else toNewLine()
+      case TextNewline => toNewLine()
       case PreRenderingWord(word, letters) =>
         def renderWord(word: RenderingWord, letters: IndexedSeq[Letter]): Boolean = {
           if (x + word.width < maxLineWidth) {
