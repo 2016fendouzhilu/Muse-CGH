@@ -1,11 +1,11 @@
-package gui.user
+package ui.user
 
 import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.text.JTextComponent
 
-import gui.MyButton
+import ui.MyButton
 import main.{DoubleFieldInfo, ParamsCore}
 import utilities.{ChangeListener, Settable, ValueTextComponent}
 

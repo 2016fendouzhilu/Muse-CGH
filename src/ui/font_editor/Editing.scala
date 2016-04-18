@@ -1,4 +1,4 @@
-package gui.font_editor
+package ui.font_editor
 
 import main.MuseChar
 

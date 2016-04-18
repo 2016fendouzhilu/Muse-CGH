@@ -1,4 +1,4 @@
-package gui.font_editor
+package ui.font_editor
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.{BoxLayout, JComponent, JFrame, JPanel}

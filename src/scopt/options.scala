@@ -1,6 +1,8 @@
 package scopt
 
-// this file was copied from "https://github.com/scopt/scopt"
+/**
+ * this file was copied from "https://github.com/scopt/scopt", a light-weight command-line arg parsing library.
+ */
 
 
 import java.net.UnknownHostException

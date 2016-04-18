@@ -1,11 +1,11 @@
-package gui.font_editor
+package ui.font_editor
 
 import java.awt.event.{ItemEvent, ItemListener, KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import gui.MyButton
+import ui.MyButton
 import main.MuseCharType
 import utilities.{ChangeListener, EditingSaver}
 

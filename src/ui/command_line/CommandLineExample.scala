@@ -1,7 +1,7 @@
-package command_line
+package ui.command_line
 
 /**
- * Created by weijiayi on 4/17/16.
+ * demonstrates how to use command-line mode.
  */
 object CommandLineExample {
   def main(args: Array[String]) {

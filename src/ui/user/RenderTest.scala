@@ -1,4 +1,4 @@
-package gui.user
+package ui.user
 
 import javax.swing.JFrame
 
@@ -17,7 +17,7 @@ object RenderTest {
 
     val screenFactor = 2
 
-    val parameters = new RenderingResultDisplay(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor, thicknessScale = 1.8)
+    val parameters = new PaintableResult(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor, thicknessScale = 1.8)
     val p = parameters.showInAnimation(penSpeed = 40, frameRate = 60, shouldRun = true)
     //    val p = parameters.showInScrollPane()
 

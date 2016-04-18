@@ -9,7 +9,7 @@ import utilities.{CubicCurve, MyMath, Vec2}
   * Created by weijiayi on 2/29/16.
   */
 
-class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Double,
+class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, widthScale: Double,
                   dotsPerUnit: Double = 20.0, thicknessScale: Double = 1.0) {
   g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
 
@@ -56,7 +56,7 @@ class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Do
   }
 
   def drawLine(p0: Vec2, p1: Vec2, width: Double, noWidthScale: Boolean = false, dashed: Option[(Float,Float)] = None): Unit ={
-    val w = width * (if(noWidthScale) 1.0 else scaleFactor)
+    val w = width * (if(noWidthScale) 1.0 else widthScale)
     val stroke = dashed match{
       case Some((a,b)) =>
         new BasicStroke(w.toFloat, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, Array(a,b), 0)
@@ -86,7 +86,7 @@ class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Do
 
   def drawDot(center: Vec2, radius: Double): Unit = {
     val c = pointTransform(center)
-    val r = radius * scaleFactor
+    val r = radius * widthScale
     val dot = new Ellipse2D.Double(c.x-r, c.y-r, 2*r, 2*r)
 
     g2d.fill(dot)

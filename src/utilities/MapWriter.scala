@@ -1,6 +1,6 @@
 package utilities
 
-import gui.font_editor.Editing
+import ui.font_editor.Editing
 import main.{LetterSeg, MuseChar, MuseCharType}
 
 

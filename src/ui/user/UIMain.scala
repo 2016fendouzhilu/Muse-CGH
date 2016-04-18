@@ -1,10 +1,10 @@
-package gui.user
+package ui.user
 
 import java.awt.{Dimension, FlowLayout}
 import javax.swing.{BoxLayout, JButton, JFrame, JPanel}
 
-import gui.MyButton
-import gui.font_editor.EditorMain
+import ui.MyButton
+import ui.font_editor.EditorMain
 import main.ParamsCore
 import utilities.MuseCharMapLoader
 

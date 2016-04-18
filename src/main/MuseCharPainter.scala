@@ -1,14 +1,19 @@
 package main
 
-import java.awt.{Color, Graphics2D}
+import java.awt.image.BufferedImage
+import java.awt.{RenderingHints, Color, Graphics2D}
 
 import utilities.Vec2
 
 /**
-  * Created by weijiayi on 3/4/16.
+  * CurveDrawer wrapper to set up point transformation
   */
 class MuseCharPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
                     dotsPerUnit:Double, thicknessScale: Double) {
+
+  def paintWordWithBuffering(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color, width: Double, height: Double): Unit ={
+    ???
+  }
 
   def draw(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color): Unit = {
     def pointTrans(p: Vec2): Vec2 = {

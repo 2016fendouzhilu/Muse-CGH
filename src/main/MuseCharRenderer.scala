@@ -157,7 +157,7 @@ class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpa
       y + yOffset
     }
 
-    def toNewLine(): Unit ={
+    def goToNewLine(): Unit ={
       y += lineSpacing
       x = 0
     }
@@ -166,8 +166,8 @@ class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpa
       case TextSpace =>
         val x1 = x + spaceWidth
         if(x1<maxLineWidth) x = x1
-        else toNewLine()
-      case TextNewline => toNewLine()
+        else goToNewLine()
+      case TextNewline => goToNewLine()
       case PreRenderingWord(word, letters) =>
         def renderWord(word: RenderingWord, letters: IndexedSeq[MuseChar]): Boolean = {
           if (x + word.width < maxLineWidth) {

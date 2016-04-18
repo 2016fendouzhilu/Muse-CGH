@@ -1,9 +1,9 @@
-package gui.font_editor
+package ui.font_editor
 
 import java.awt._
 import javax.swing.JPanel
 
-import gui.MouseManager
+import ui.MouseManager
 import main.CurveDrawer
 import utilities.{ChangeListener, CubicCurve, MyMath, Vec2}
 

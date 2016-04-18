@@ -1,9 +1,9 @@
-package gui.font_editor
+package ui.font_editor
 
 import java.awt.{Dimension, FlowLayout}
 import javax.swing.{JPanel, JToggleButton}
 
-import gui.MyButton
+import ui.MyButton
 import utilities.MyMath
 
 import scala.collection.mutable

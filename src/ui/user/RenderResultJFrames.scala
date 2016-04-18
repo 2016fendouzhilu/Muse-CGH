@@ -1,4 +1,4 @@
-package gui.user
+package ui.user
 
 import java.awt.Dimension
 import javax.swing.{JFrame, JScrollPane, JTextArea}
@@ -39,7 +39,7 @@ class RenderResultJFrames(core: ParamsCore) extends ChangeListener{
   override def editingUpdated(): Unit = {
     currentAnimationHandle.foreach(s => s.set(false))
     
-    val resultDisplay = core.renderingResultDisplay(infoArea.setText)
+    val resultDisplay = core.getPaintableResult(infoArea.setText)
 
     val sPane ={
       if (core.isAnimationMode) {

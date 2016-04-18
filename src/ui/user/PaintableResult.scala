@@ -1,4 +1,4 @@
-package gui.user
+package ui.user
 
 import java.awt.image.BufferedImage
 import java.awt.{Color, Dimension, Graphics, Graphics2D}
@@ -8,14 +8,14 @@ import javax.imageio.ImageIO
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import gui.MyButton
+import ui.MyButton
 import main.{MuseCharPainter, RenderingResult, RenderingWord}
-import utilities.Vec2
+import utilities.{ImageSaver, Vec2}
 
 /**
-  * Created by weijiayi on 3/4/16.
+  * paint RenderingResult to an image, a scroll panel or make some animation
   */
-class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
+class PaintableResult(result: RenderingResult, dotsPerUnit: Double,
                           pixelPerUnit: Double, screenPixelFactor: Int,
                           wordsRestDis: Double = 5, thicknessScale: Double,
                           backgroundColor: Color = Color.white, penColor: Color = Color.black,
@@ -33,7 +33,7 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
   val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
   val imageOffset = Vec2(edge, edge + topHeight)
 
-  lazy val buffer = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
+  val buffer = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
 
   def clearImageBuffer(): Unit = {
     val g = buffer.getGraphics
@@ -108,11 +108,11 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
   def drawToBuffer(): Unit ={
     val start = System.currentTimeMillis()
     val g2d = buffer.getGraphics.asInstanceOf[Graphics2D]
-    result.words.foreach {
-      case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-        val painter = new MuseCharPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
-          imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
+    val painter = new MuseCharPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
+      imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
 
+    result.words.foreach {
+      case (offset, RenderingWord(mainSegs, secondSegs, width)) =>
         painter.draw(mainSegs ++ secondSegs, offset, penColor)
     }
     val timeUse = System.currentTimeMillis() - start
@@ -154,15 +154,8 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
     fc.showSaveDialog(null) match {
       case JFileChooser.APPROVE_OPTION =>
         val path = fc.getSelectedFile.getAbsolutePath
-        val file = new File(if(path endsWith ".png") path else path+".png")
-        try {
-          ImageIO.write(buffer, "png", file)
-        }catch {
-          case _: Throwable => println("failed to save image")
-        }
+        ImageSaver.saveImage(buffer, path)
     }
-
-
   }
 
 }
