@@ -1,7 +1,7 @@
 package utilities
 
 import gui.font_editor.Editing
-import main.{MuseChar, LetterSeg, MuseCharType}
+import main.{LetterSeg, MuseChar, MuseCharType}
 
 
 @SerialVersionUID(1L)

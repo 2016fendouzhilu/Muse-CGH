@@ -1,6 +1,6 @@
 package main
 
-import utilities.{Vec2, CollectionOp}
+import utilities.{CollectionOp, Vec2}
 
 object MuseCharType extends Enumeration {
   val LowerCase, Uppercase, PunctuationMark = Value

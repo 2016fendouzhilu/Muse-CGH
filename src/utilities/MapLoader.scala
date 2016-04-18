@@ -1,7 +1,5 @@
 package utilities
 
-package utilities
-
 import java.nio.file.Paths
 
 import main.MuseChar

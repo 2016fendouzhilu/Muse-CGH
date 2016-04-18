@@ -1,7 +1,7 @@
 package tests
 
 import gui.font_editor.Editing
-import main.{MuseChar, LetterSeg, MuseCharType}
+import main.{LetterSeg, MuseChar, MuseCharType}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop._

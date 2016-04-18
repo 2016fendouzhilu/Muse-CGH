@@ -50,14 +50,14 @@ class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
         }
 
         if(core.interactiveMode.get && !isArrowKey(e.getKeyCode)){
-          core.textRendered.set(getText)
+          core.textToRender.set(getText)
         }
       }
     })
   }
 
   val renderButton = new JButton("Render Text")
-  MyButton.addAction(renderButton, () => core.textRendered.set(textArea.getText))
+  MyButton.addAction(renderButton, () => core.textToRender.set(textArea.getText))
   
   val interactiveCheckBox = new JCheckBox("Interactive")
   MyButton.addAction(interactiveCheckBox, ()=> core.interactiveMode.set(interactiveCheckBox.isSelected))
@@ -65,7 +65,7 @@ class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
   val animationCheckBox = new JCheckBox("Animation")
   MyButton.addAction(animationCheckBox, () => {
     core.isAnimationMode = animationCheckBox.isSelected
-    core.textRendered.set(textArea.getText)
+    core.textToRender.set(textArea.getText)
   })
 
   private def makeLabeledDoubleField(info: DoubleFieldInfo) = info match {

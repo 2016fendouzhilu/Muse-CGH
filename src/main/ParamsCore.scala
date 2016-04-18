@@ -1,12 +1,13 @@
 package main
 
-import utilities.{ChangeSource, CharMapLoader, Settable}
+import gui.user.RenderingResultDisplay
+import utilities.{ChangeSource, MapLoader, RNG, Settable}
 
 /**
  * Stores all the user-settable parameters
  */
 class ParamsCore() extends ChangeSource {
-  val textRendered = newSettable[String]("")
+  val textToRender = newSettable[String]("")
 
   val samplesPerUnit = newSettable[Double](50.0)
 
@@ -44,7 +45,12 @@ class ParamsCore() extends ChangeSource {
 
   val frameRate = newSettable[Double](60)
 
-  val letterMap = newSettable(CharMapLoader.loadDefaultCharMap())
+  val letterMap = newSettable(MapLoader.loadDefaultCharMap())
+
+  /**
+   * Set to 2 for Retina display, 1 for normal
+   */
+  val screenPixelFactor = newSettable[Int](2)
 
   var isAnimationMode = false
 
@@ -98,6 +104,37 @@ class ParamsCore() extends ChangeSource {
     DoubleFieldInfo(frameRate, "Animation FPS", positiveConstraint,
       description = "the updating frequency in animation")
   )
+
+
+  def renderingResultDisplay(infoPrinter: String=>Unit): RenderingResultDisplay = {
+
+    val text = textToRender.get
+
+    val (result, _) = {
+      val renderer = new MuseCharRenderer(letterSpacing = letterSpacing.get,
+        spaceWidth = spaceWidth.get,
+        symbolFrontSpace = symbolFrontSpace.get)
+
+      val rng = {
+        RNG((seed.get * Long.MaxValue).toLong)
+      }
+      renderer.renderTextInParallel(letterMap.get, lean = lean.get,
+        maxLineWidth = maxLineWidth.get,
+        breakWordThreshold = breakWordThreshold.get,
+        lineSpacing = lineSpacing.get,
+        randomness = randomness.get,
+        lineRandomness = lineRandomness.get)(text)(rng)
+    }
+
+    infoPrinter(result.info)
+
+    val aspectRatioOpt = {
+      val as = aspectRatio.get
+      if (as > 0) Some(as) else None
+    }
+    new RenderingResultDisplay(result, samplesPerUnit.get, pixelPerUnit.get,
+      thicknessScale = thicknessScale.get, screenPixelFactor = screenPixelFactor.get, useAspectRatio = aspectRatioOpt)
+  }
 }
 
 case class DoubleFieldInfo (s: Settable[Double], fullName: String, cons: NamedConstraint[Double],

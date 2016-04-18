@@ -1,8 +1,9 @@
 package gui.user
 
 import javax.swing.JFrame
+
 import main.MuseCharRenderer
-import utilities.{CharMapLoader, RNG}
+import utilities.RNG
 
 /**
  * Created by weijiayi on 3/10/16.

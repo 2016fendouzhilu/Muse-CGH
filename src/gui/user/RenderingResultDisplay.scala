@@ -9,7 +9,7 @@ import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import gui.MyButton
-import main.{RenderingWord, MuseCharPainter, RenderingResult}
+import main.{MuseCharPainter, RenderingResult, RenderingWord}
 import utilities.Vec2
 
 /**

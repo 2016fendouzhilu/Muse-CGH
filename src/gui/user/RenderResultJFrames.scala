@@ -3,8 +3,8 @@ package gui.user
 import java.awt.Dimension
 import javax.swing.{JFrame, JScrollPane, JTextArea}
 
-import main.{MuseCharRenderer, ParamsCore}
-import utilities.{ChangeListener, RNG, Settable}
+import main.ParamsCore
+import utilities.{ChangeListener, Settable}
 
 /**
  * Use this class to display rendering results
@@ -39,40 +39,16 @@ class RenderResultJFrames(core: ParamsCore) extends ChangeListener{
   override def editingUpdated(): Unit = {
     currentAnimationHandle.foreach(s => s.set(false))
     
-    val text = core.textRendered.get
-
-    val (result, _) = {
-      val renderer = new MuseCharRenderer(letterSpacing = core.letterSpacing.get,
-        spaceWidth = core.spaceWidth.get,
-        symbolFrontSpace = core.symbolFrontSpace.get)
-
-      val rng = {
-        RNG((core.seed.get*Long.MaxValue).toLong)
-      }
-      renderer.renderTextInParallel(core.letterMap.get, lean = core.lean.get,
-        maxLineWidth = core.maxLineWidth.get,
-        breakWordThreshold = core.breakWordThreshold.get,
-        lineSpacing = core.lineSpacing.get,
-        randomness = core.randomness.get,
-        lineRandomness = core.lineRandomness.get)(text)(rng)
-    }
-
-    infoArea.setText(result.info)
+    val resultDisplay = core.renderingResultDisplay(infoArea.setText)
 
     val sPane ={
-      val useAspectRatio = {
-        val as = core.aspectRatio.get
-        if(as>0) Some(as) else None
-      }
-      val parameters = new RenderingResultDisplay(result, core.samplesPerUnit.get, core.pixelPerUnit.get,
-        thicknessScale = core.thicknessScale.get, screenPixelFactor = 2, useAspectRatio = useAspectRatio)
       if (core.isAnimationMode) {
         val handle = new Settable[Boolean](true, ()=>Unit)
         currentAnimationHandle = Some(handle)
-        parameters.showInAnimation(penSpeed = core.penSpeed.get, frameRate = core.frameRate.get, shouldRun = handle.get)
+        resultDisplay.showInAnimation(penSpeed = core.penSpeed.get, frameRate = core.frameRate.get, shouldRun = handle.get)
       }
       else
-        parameters.showInScrollPane()
+        resultDisplay.showInScrollPane()
     }
 
     renderingFrame.setTitle(s"Result (randomness = ${core.randomness.get})")

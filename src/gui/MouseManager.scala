@@ -3,7 +3,7 @@ package gui
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.JComponent
 
-import gui.MouseManager.{LastPos, CurrentPos, InitPos, Offset}
+import gui.MouseManager.{CurrentPos, InitPos, LastPos, Offset}
 import utilities.Vec2
 
 /**

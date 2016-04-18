@@ -1,6 +1,6 @@
 package utilities
 
-import java.awt.event.{KeyEvent, KeyAdapter, FocusEvent, FocusAdapter}
+import java.awt.event.{FocusAdapter, FocusEvent, KeyAdapter, KeyEvent}
 import javax.swing.text.JTextComponent
 
 import utilities.ValueTextComponent.KeyCode

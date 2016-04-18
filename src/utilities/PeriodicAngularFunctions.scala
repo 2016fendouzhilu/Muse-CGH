@@ -1,6 +1,6 @@
 package utilities
 
-import math._
+import scala.math._
 
 /**
  * Functions with a period of 2π

@@ -6,7 +6,6 @@ import javax.swing.{BoxLayout, JButton, JFrame, JPanel}
 import gui.MyButton
 import gui.font_editor.EditorMain
 import main.ParamsCore
-import utilities.CharMapLoader
 
 /**
  * Run Muse in GUI mode.
