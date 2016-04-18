@@ -106,6 +106,7 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
   }
   
   def drawToBuffer(): Unit ={
+    val start = System.currentTimeMillis()
     val g2d = buffer.getGraphics.asInstanceOf[Graphics2D]
     result.words.foreach {
       case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
@@ -114,6 +115,8 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
 
         painter.draw(mainSegs ++ secondSegs, offset, penColor)
     }
+    val timeUse = System.currentTimeMillis() - start
+    println(s"painting time use $timeUse ms.")
   }
 
   def showInScrollPane(): JPanel = {

@@ -1,7 +1,7 @@
 package main
 
 import gui.user.RenderingResultDisplay
-import utilities.{ChangeSource, MapLoader, RNG, Settable}
+import utilities.{ChangeSource, MuseCharMapLoader, RNG, Settable}
 
 /**
  * Stores all the user-settable parameters
@@ -45,7 +45,7 @@ class ParamsCore() extends ChangeSource {
 
   val frameRate = newSettable[Double](60)
 
-  val letterMap = newSettable(MapLoader.loadDefaultCharMap())
+  val letterMap = newSettable(MuseCharMapLoader.loadDefaultCharMap())
 
   /**
    * Set to 2 for Retina display, 1 for normal
@@ -118,6 +118,7 @@ class ParamsCore() extends ChangeSource {
       val rng = {
         RNG((seed.get * Long.MaxValue).toLong)
       }
+      infoPrinter("start to render text...")
       renderer.renderTextInParallel(letterMap.get, lean = lean.get,
         maxLineWidth = maxLineWidth.get,
         breakWordThreshold = breakWordThreshold.get,
@@ -125,7 +126,7 @@ class ParamsCore() extends ChangeSource {
         randomness = randomness.get,
         lineRandomness = lineRandomness.get)(text)(rng)
     }
-
+    infoPrinter("rendering finished.")
     infoPrinter(result.info)
 
     val aspectRatioOpt = {

@@ -6,6 +6,7 @@ import javax.swing.{BoxLayout, JButton, JFrame, JPanel}
 import gui.MyButton
 import gui.font_editor.EditorMain
 import main.ParamsCore
+import utilities.MuseCharMapLoader
 
 /**
  * Run Muse in GUI mode.
@@ -34,7 +35,7 @@ object UIMain {
 
     val reloadLetterMapButton = new JButton("Reload Letters")
     MyButton.addAction(reloadLetterMapButton, ()=>{
-      core.letterMap.set(CharMapLoader.loadDefaultCharMap())
+      core.letterMap.set(MuseCharMapLoader.loadDefaultCharMap())
     })
 
     val controlFrame = new JFrame("Control Panel"){

@@ -7,7 +7,7 @@ import main.MuseChar
 /**
  * Load MuseChars from disk
  */
-object MapLoader {
+object MuseCharMapLoader {
 
   def loadDefaultCharMap(): Map[Char, MuseChar] = {
     var list = List[(Char, MuseChar)]()

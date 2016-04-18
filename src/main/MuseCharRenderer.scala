@@ -104,7 +104,7 @@ class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpa
     val infoBuffer = new mutable.ListBuffer[String]
     def printInfoLine(s: String): Unit = {
       infoBuffer.append(s)
-      Predef.println(s)
+//      Predef.println(s)
     }
 
     val (renderingElements, wordCount) = {

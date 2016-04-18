@@ -62,12 +62,14 @@ object CommandLineMain {
   def renderToImage(core: ParamsCore,imgFileFullName: String): Unit = {
 
     val display = core.renderingResultDisplay(info=>println(info))
+    println("start to paint text...")
     display.drawToBuffer()
+    println("painting finished.")
 
     val (name, ext) = nameAndExtension(imgFileFullName, "png")
     val file = new File(name+s".$ext")
     ImageIO.write(display.buffer, ext, file)
-    println(s"rendered result to ${file.getAbsolutePath}")
+    println(s"result saved to ${file.getAbsolutePath}")
   }
 
 

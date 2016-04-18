@@ -3,7 +3,7 @@ package gui.user
 import javax.swing.JFrame
 
 import main.MuseCharRenderer
-import utilities.RNG
+import utilities.{MuseCharMapLoader, RNG}
 
 /**
  * Created by weijiayi on 3/10/16.
@@ -32,7 +32,7 @@ object RenderTest {
 
   def renderText() = {
     val renderer = new MuseCharRenderer(letterSpacing = 0.0, spaceWidth = 0.8, symbolFrontSpace = 0.2)
-    val letterMap = CharMapLoader.loadDefaultCharMap()
+    val letterMap = MuseCharMapLoader.loadDefaultCharMap()
 
     //    val text = "None of this had even a hope of any practical application in my life. But ten years later, when we were designing the first Macintosh computer, it all came back to me. And we designed it all into the Mac. It was the first computer with beautiful typography. If I had never dropped in on that single course in college, the Mac would have never had multiple typefaces or proportionally spaced fonts. And since Windows just copied the Mac, its likely that no personal computer would have them. If I had never dropped out, I would have never dropped in on this calligraphy class, and personal computers might not have the wonderful typography that they do. Of course it was impossible to connect the dots looking forward when I was in college. But it was very, very clear looking backwards ten years later."
     val text = "Thousands cities from home, wander into the unknown. Chances are here I was told, Crossing the footsteps of new and of old"
