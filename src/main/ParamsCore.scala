@@ -54,7 +54,7 @@ class ParamsCore() extends ChangeSource {
     DoubleFieldInfo(letterSpacing, "Letter spacing", noConstraint,
       description = "extra spacing between letters in a word"),
     DoubleFieldInfo(symbolFrontSpace, "Mark spacing", noConstraint,
-      description = "extra spacing for punctuation makrs and numbers")
+      description = "extra spacing for punctuation marks and numbers")
   )
 
 

@@ -1,5 +1,5 @@
 # Muse-CGH
-### A program to convert text into human-style Computer Generated Handwritings.
+### A program to convert text into human-style Computer Generated Handwriting.
 
 you can [download the compiled program (v1.3)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/v1.3/Muse1.3.zip) directly (.jar file)
 
@@ -24,9 +24,9 @@ you can [download the compiled program (v1.3)](https://github.com/MrVPlussOne/Mu
 
 ![alt tag](Sample.png)
 
-##### In the image shown above, the upper right panel is Muse's Result Panel, where the rendered image or animation is presented; the upper left panel is Muse's Control Panel, a place you enter text or adjust parameters; the buttom left panel is the Console Output Panel, it tells you information about Muse's state.
+##### In the image shown above, the upper right panel is Muse's Result Panel, where the rendered image or animation is presented; the upper left panel is Muse's Control Panel, a place you enter text or adjust parameters; the button left panel is the Console Output Panel, it tells you information about Muse's state.
 
- - At the bottom of Control Panel, there're two checkboxes. If you check the 'Interactive' box, everytime you change the text content, without clicking 'Render' button, the Result Panel will update automatically. If you check the 'Animation' box, Result Panel will change into animation mode, then you can watch Muse writing in action!
+ - At the bottom of Control Panel, there're two checkboxes. If you check the 'Interactive' box, every time you change the text content, without clicking 'Render' button, the Result Panel will update automatically. If you check the 'Animation' box, Result Panel will change into animation mode, then you can watch Muse writing in action!
  
  - At the top of Control Panel, there're two buttons. Click the 'Font Editor' button to bring up the font editor. You can create new Muse Characters or modify the existent ones as you wish. After saving your changes in the font editor, click the 'Reload Letters' button in the Control Panel to let Muse reload character map from disk. (Muse load its characters from a folder named 'letters' in its current directory)
 
@@ -96,7 +96,7 @@ Usage: muse [options] <input file>
   --LetterSpacing <value>
         Letter spacing: extra spacing between letters in a word, must be float number (default: 0.0)
   --MarkSpacing <value>
-        Mark spacing: extra spacing for punctuation makrs and numbers, must be float number (default: 0.4)
+        Mark spacing: extra spacing for punctuation marks and numbers, must be float number (default: 0.4)
   --LetterRandom <value>
         Letter Random: how much randomness is used for letters in words, must be float number (default: 0.07)
   --LineRandom <value>
@@ -106,6 +106,6 @@ Usage: muse [options] <input file>
 
 
 
-### Licese
+### License
 ##### This work is under [the MIT license](LICENSE.txt), so feel free to use it in your own projects :)
 

@@ -28,7 +28,9 @@ object CommandLineMain {
             try {
               core.textToRender.set(Source.fromFile(ip).mkString) // read input from file
             } catch {
-              case e: Throwable => println(s"failed to read input from file.\n$e}")
+              case e: Throwable =>
+                println(s"failed to read input from file.\n$e}")
+                System.exit(-1)
             }
           } text "the input file to read."
 
