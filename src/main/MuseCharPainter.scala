@@ -1,17 +1,16 @@
-package render
+package main
 
 import java.awt.{Color, Graphics2D}
 
-import main.CurveDrawer
 import utilities.Vec2
 
 /**
   * Created by weijiayi on 3/4/16.
   */
-class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
+class MuseCharPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
                     dotsPerUnit:Double, thicknessScale: Double) {
 
-  def draw(segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Unit = {
+  def draw(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color): Unit = {
     def pointTrans(p: Vec2): Vec2 = {
       val s = pixelPerUnit*displayPixelScale
       (p+offset)*s + imageOffset*displayPixelScale
@@ -20,13 +19,13 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
 
     drawer.setColor(color)
-    segs.foreach{ case RenderingSeg(curve, wf) =>
+    segs.foreach{ case WidthCurve(curve, wf) =>
       drawer.drawCurveWithWF(curve, wf)
     }
   }
 
   def drawAnimation(bufferScaleFactor: Double, timeUsed: Double => Boolean = (_) => false)(
-    segs: IndexedSeq[RenderingSeg], offset: Vec2, color: Color): Boolean = {
+    segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color): Boolean = {
     val s = pixelPerUnit*displayPixelScale
     def pointTrans(p: Vec2): Vec2 = {
       ((p+offset)*s + imageOffset*displayPixelScale)* bufferScaleFactor
@@ -37,7 +36,7 @@ class LetterPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Do
     drawer.setColor(color)
 
     var lastPos = Vec2.zero
-    segs.foreach{case RenderingSeg(curve, wf) =>
+    segs.foreach{case WidthCurve(curve, wf) =>
       val dis = (curve.p0 - lastPos).length
       lastPos = curve.p0
 

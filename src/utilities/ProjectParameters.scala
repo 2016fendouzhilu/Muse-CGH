@@ -1,4 +1,4 @@
-package main
+package utilities
 
 /**
  * Created by weijiayi on 4/17/16.

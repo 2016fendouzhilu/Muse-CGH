@@ -2,21 +2,21 @@ package main
 
 import utilities.{Vec2, CollectionOp}
 
-object LetterType extends Enumeration {
+object MuseCharType extends Enumeration {
   val LowerCase, Uppercase, PunctuationMark = Value
 }
 
 
-case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
+case class MuseChar (segs: IndexedSeq[LetterSeg], letterType: MuseCharType.Value) {
 
-  lazy val (startX, endX, centerOfMass) = Letter.calculateCurveInfo(segs)
+  lazy val (startX, endX, centerOfMass) = MuseChar.calculateCurveInfo(segs)
 
   def getCurves(indices: Seq[Int]) = indices.map(segs)
 
   def width = endX - startX
 
   lazy val (mainSegs, secondarySegs) = letterType match {
-    case LetterType.LowerCase =>
+    case MuseCharType.LowerCase =>
       CollectionOp.firstIndex(segs)(_.isStrokeBreak) match{
         case Some(i) => segs.splitAt(i+1)
         case None => (segs, IndexedSeq())
@@ -25,13 +25,13 @@ case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
   }
 
   def isPunctuationMark = {
-    letterType == LetterType.PunctuationMark
+    letterType == MuseCharType.PunctuationMark
   }
 
-  def isLowercase = letterType == LetterType.LowerCase
+  def isLowercase = letterType == MuseCharType.LowerCase
   
   def isUppercase = {
-    letterType == LetterType.Uppercase
+    letterType == MuseCharType.Uppercase
   }
 
 
@@ -52,8 +52,8 @@ case class Letter (segs: IndexedSeq[LetterSeg], letterType: LetterType.Value) {
   }
 }
 
-object Letter{
-  val empty = Letter(IndexedSeq(), LetterType.LowerCase)
+object MuseChar{
+  val empty = MuseChar(IndexedSeq(), MuseCharType.LowerCase)
 
   val calculationPointsPerUnit = 50
 

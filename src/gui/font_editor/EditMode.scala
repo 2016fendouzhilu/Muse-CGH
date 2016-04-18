@@ -1,4 +1,4 @@
-package editor
+package gui.font_editor
 
 /**
   * Current Editing Modes

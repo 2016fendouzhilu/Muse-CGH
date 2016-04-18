@@ -1,14 +1,15 @@
-package render
+package gui.user
 
 import java.awt.Dimension
-import javax.swing.{JTextArea, JScrollPane, JFrame, JPanel}
+import javax.swing.{JFrame, JScrollPane, JTextArea}
 
-import utilities.{Settable, RNG, ChangeListener}
+import main.{MuseCharRenderer, ParamsCore}
+import utilities.{ChangeListener, RNG, Settable}
 
 /**
  * Use this class to display rendering results
  */
-class RenderResultFrames(core: ParamsCore) extends ChangeListener{
+class RenderResultJFrames(core: ParamsCore) extends ChangeListener{
 
   val renderingFrame = new JFrame(){
     setVisible(true)
@@ -41,7 +42,7 @@ class RenderResultFrames(core: ParamsCore) extends ChangeListener{
     val text = core.textRendered.get
 
     val (result, _) = {
-      val renderer = new LetterRenderer(letterSpacing = core.letterSpacing.get,
+      val renderer = new MuseCharRenderer(letterSpacing = core.letterSpacing.get,
         spaceWidth = core.spaceWidth.get,
         symbolFrontSpace = core.symbolFrontSpace.get)
 

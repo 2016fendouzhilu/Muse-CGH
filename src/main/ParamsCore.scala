@@ -1,6 +1,6 @@
-package render
+package main
 
-import utilities.{Settable, LetterMapLoader, ChangeSource}
+import utilities.{ChangeSource, CharMapLoader, Settable}
 
 /**
  * Stores all the user-settable parameters
@@ -44,7 +44,7 @@ class ParamsCore() extends ChangeSource {
 
   val frameRate = newSettable[Double](60)
 
-  val letterMap = newSettable(LetterMapLoader.loadDefaultLetterMap())
+  val letterMap = newSettable(CharMapLoader.loadDefaultCharMap())
 
   var isAnimationMode = false
 

@@ -1,4 +1,4 @@
-package editor
+package gui
 
 import java.awt.event.{ActionEvent, ActionListener}
 import javax.swing.AbstractButton

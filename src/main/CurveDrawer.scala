@@ -3,7 +3,6 @@ package main
 import java.awt.geom.{Ellipse2D, Line2D, Path2D}
 import java.awt.{BasicStroke, Color, Graphics2D, RenderingHints}
 
-import render.RenderingSeg
 import utilities.{CubicCurve, MyMath, Vec2}
 
 /**
@@ -93,7 +92,7 @@ class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, scaleFactor: Do
     g2d.fill(dot)
   }
 
-  def drawLetter(letter: Letter, mainStrokeColor: Color, highlightColor: Color, highlights: Seq[Int]) = {
+  def drawLetter(letter: MuseChar, mainStrokeColor: Color, highlightColor: Color, highlights: Seq[Int]) = {
     letter.segs.zipWithIndex.foreach{case (s, i) =>
       if(!(highlights contains i)){
         setColor(mainStrokeColor)

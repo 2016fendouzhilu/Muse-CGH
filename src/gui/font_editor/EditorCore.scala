@@ -1,12 +1,12 @@
-package editor
+package gui.font_editor
 
-import main.{Letter, LetterSeg, LetterType}
+import main.{LetterSeg, MuseCharType}
 import utilities.{ChangeSource, CollectionOp, CubicCurve, Vec2}
 
 /**
-  * Created by weijiayi on 2/29/16.
+  * Model for font editor
   */
-class Editor(private var buffer: Editing) extends ChangeSource {
+class EditorCore(private var buffer: Editing) extends ChangeSource {
 
   private val history = new EditingHistory(buffer){
     addHistory(buffer)
@@ -117,7 +117,7 @@ class Editor(private var buffer: Editing) extends ChangeSource {
     editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = segs :+ newSeg), selects = Seq(segs.length)))
   }
 
-  def changeLetterType(t: LetterType.Value): Unit = {
+  def changeLetterType(t: MuseCharType.Value): Unit = {
     val l = buffer.letter
     if(l.letterType != t)
       editAndRecord(buffer.copy(letter = l.copy(letterType = t)))
@@ -247,39 +247,4 @@ class Editor(private var buffer: Editing) extends ChangeSource {
   def translateLetter(offset: Vec2): Unit =
     editLetterSegs {s => s.copy(curve = s.curve.translate(offset))}
 
-}
-
-
-case class Editing(letter: Letter, selects: Seq[Int]) {
-  def selectedInkCurves = letter.getCurves(selects)
-}
-
-object Editing{
-  def empty = Editing(Letter.empty, Seq())
-}
-
-class EditingHistory(init: Editing) {
-  private var history: List[Editing] = List(init)
-  private var redoBuffer: List[Editing] = List()
-
-  def addHistory(e: Editing): Unit ={
-    history = e :: history
-    redoBuffer = List()
-  }
-
-  def undo(): Editing = history match{
-    case now::last::_ =>
-      history = history.tail
-      redoBuffer = now :: redoBuffer
-      last
-    case _ => history.head
-  }
-
-  def redo(): Option[Editing] = redoBuffer match{
-    case h::t =>
-      history = h :: history
-      redoBuffer = t
-      Some(h)
-    case _ => None
-  }
 }

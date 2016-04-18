@@ -1,9 +1,9 @@
-package editor
+package gui
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.JComponent
 
-import editor.MouseManager._
+import gui.MouseManager.{LastPos, CurrentPos, InitPos, Offset}
 import utilities.Vec2
 
 /**

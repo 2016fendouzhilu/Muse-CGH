@@ -1,4 +1,4 @@
-package editor
+package gui.font_editor
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 import javax.swing.{BoxLayout, JComponent, JFrame, JPanel}
@@ -15,9 +15,9 @@ object EditorMain {
   }
 
   def makeEditorPanel() = {
-    val editor = new Editor(Editing.empty)
+    val editor = new EditorCore(Editing.empty)
 
-    val editingPanel = new EditingPanel(editor, displayPixelScale = 3){
+    val editingPanel = new EditingDisplayPanel(editor, displayPixelScale = 3){
       editor.addListener(this)
     }
 

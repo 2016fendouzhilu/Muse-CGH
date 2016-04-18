@@ -1,18 +1,19 @@
-package editor
+package gui.font_editor
 
 import java.awt.event.{ItemEvent, ItemListener, KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import main.LetterType
+import gui.MyButton
+import main.MuseCharType
 import utilities.{ChangeListener, EditingSaver}
 
 /**
-  * Created by weijiayi on 2/29/16.
+  * Control Panel for font editor
   */
 
-class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel with ChangeListener{
+class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPanel with ChangeListener{
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
@@ -67,10 +68,10 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
 
   val newEditingButton = makeButton("New") { editor.newEditing() }
 
-  val letterTypeBox = new JComboBox[LetterType.Value](LetterType.values.toArray) { setFocusable(false) }
+  val letterTypeBox = new JComboBox[MuseCharType.Value](MuseCharType.values.toArray) { setFocusable(false) }
   letterTypeBox.addItemListener(new ItemListener {
     override def itemStateChanged(e: ItemEvent): Unit = {
-      val t = LetterType(letterTypeBox.getSelectedIndex)
+      val t = MuseCharType(letterTypeBox.getSelectedIndex)
       editor.changeLetterType(t)
     }
   })
@@ -108,7 +109,7 @@ class ControlPanel(editor: Editor, zoomAction: Double => Unit) extends JPanel wi
     contentPanel.add(segmentsPanel)
   }
 
-  def setLetterType(t: LetterType.Value): Unit = {
+  def setLetterType(t: MuseCharType.Value): Unit = {
     if(t.id != letterTypeBox.getSelectedIndex){
       letterTypeBox.setSelectedIndex(t.id)
     }

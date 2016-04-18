@@ -1,7 +1,7 @@
 package tests
 
-import editor.Editing
-import main.{Letter, LetterSeg, LetterType}
+import gui.font_editor.Editing
+import main.{MuseChar, LetterSeg, MuseCharType}
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
@@ -37,8 +37,8 @@ object MapWriterTests {
 
   val letterGen = for{
     segs <- Gen.containerOf[IndexedSeq, LetterSeg](letterSegGen)
-    tId <- Gen.choose(0, LetterType.maxId)
-  } yield Letter(segs, LetterType(tId))
+    tId <- Gen.choose(0, MuseCharType.maxId)
+  } yield MuseChar(segs, MuseCharType(tId))
 
   val editingGen = for{
     l <- letterGen
@@ -51,7 +51,7 @@ object MapWriterTests {
 
   val letterSegCheck = forAll(letterSegGen) { l => readOption[LetterSeg](write(l)) contains l}
 
-  val letterCheck = forAll(letterGen) { l => readOption[Letter](write(l)) contains l}
+  val letterCheck = forAll(letterGen) { l => readOption[MuseChar](write(l)) contains l}
 
   val editingCheck = forAll(editingGen) { e => readOption[Editing](write(e)) contains e}
 

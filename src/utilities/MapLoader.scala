@@ -1,23 +1,25 @@
 package utilities
 
+package utilities
+
 import java.nio.file.Paths
 
-import main.Letter
+import main.MuseChar
 
 /**
- * Created by weijiayi on 3/5/16.
+ * Load MuseChars from disk
  */
-object LetterMapLoader {
+object MapLoader {
 
-  def loadDefaultLetterMap(): Map[Char, Letter] = {
-    var list = List[(Char, Letter)]()
+  def loadDefaultCharMap(): Map[Char, MuseChar] = {
+    var list = List[(Char, MuseChar)]()
 
     print("letters missing: ")
 
     (0 until 26).foreach{ i =>
       val c = ('a'.toInt + i).toChar
-      val lower = loadLetter(s"letters/$c.muse")
-      val upper = loadLetter(s"letters/upper_$c.muse")
+      val lower = loadChar(s"letters/$c.muse")
+      val upper = loadChar(s"letters/upper_$c.muse")
 
       lower match {
         case Some(l) =>
@@ -50,7 +52,7 @@ object LetterMapLoader {
 
     (numberList ++ punctuationMarkList).foreach{
       case (key, name) =>
-        loadLetter(s"letters/$name.muse") match{
+        loadChar(s"letters/$name.muse") match{
           case Some(l) => list = (key -> l) :: list
           case None =>
             print(s"$name ")
@@ -62,7 +64,7 @@ object LetterMapLoader {
     list.toMap
   }
 
-  def loadLetter(fileName: String): Option[Letter] = {
+  def loadChar(fileName: String): Option[MuseChar] = {
     val file = Paths.get(fileName).toFile
     if(file.exists()){
       EditingSaver.loadFromFile(file).foreach{ e =>
@@ -72,3 +74,4 @@ object LetterMapLoader {
     None
   }
 }
+

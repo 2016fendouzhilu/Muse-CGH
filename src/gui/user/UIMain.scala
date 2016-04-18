@@ -1,10 +1,12 @@
-package render
+package gui.user
 
 import java.awt.{Dimension, FlowLayout}
-import javax.swing.{JButton, BoxLayout, JPanel, JFrame}
+import javax.swing.{BoxLayout, JButton, JFrame, JPanel}
 
-import editor.{EditorMain, MyButton}
-import utilities.LetterMapLoader
+import gui.MyButton
+import gui.font_editor.EditorMain
+import main.ParamsCore
+import utilities.CharMapLoader
 
 /**
  * Run Muse in GUI mode.
@@ -17,7 +19,7 @@ object UIMain {
       core.addListener(this)
     }
 
-    val resultFrames = new RenderResultFrames(core)
+    val resultFrames = new RenderResultJFrames(core)
     core.addListener(resultFrames)
 
     lazy val editor = new JFrame("Font Editor") {
@@ -33,7 +35,7 @@ object UIMain {
 
     val reloadLetterMapButton = new JButton("Reload Letters")
     MyButton.addAction(reloadLetterMapButton, ()=>{
-      core.letterMap.set(LetterMapLoader.loadDefaultLetterMap())
+      core.letterMap.set(CharMapLoader.loadDefaultCharMap())
     })
 
     val controlFrame = new JFrame("Control Panel"){

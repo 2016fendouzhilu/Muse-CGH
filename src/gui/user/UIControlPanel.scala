@@ -1,17 +1,18 @@
-package render
+package gui.user
 
+import java.awt.event.{KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
-import java.awt.event.{KeyEvent, KeyAdapter, FocusEvent, FocusAdapter}
 import javax.swing._
 import javax.swing.text.JTextComponent
 
-import editor.MyButton
-import utilities.{ValueTextComponent, Settable, ChangeListener}
+import gui.MyButton
+import main.{DoubleFieldInfo, ParamsCore}
+import utilities.{ChangeListener, Settable, ValueTextComponent}
 
 import scala.collection.mutable.ListBuffer
 
 /**
- * Control the parameters of UICore for rendering
+ * Control the parameters of ParamsCore for rendering
  */
 class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
 

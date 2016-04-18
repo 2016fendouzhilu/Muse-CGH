@@ -1,15 +1,16 @@
-package render
+package gui.user
 
 import java.awt.image.BufferedImage
-import java.awt.{Color, Dimension, Graphics, Graphics2D, RenderingHints}
+import java.awt.{Color, Dimension, Graphics, Graphics2D}
 import java.io.File
 import java.nio.file.Paths
 import javax.imageio.ImageIO
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import editor.MyButton
-import utilities.{RNG, LetterMapLoader, Vec2}
+import gui.MyButton
+import main.{RenderingWord, MuseCharPainter, RenderingResult}
+import utilities.Vec2
 
 /**
   * Created by weijiayi on 3/4/16.
@@ -73,7 +74,7 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
 
       result.words.foreach {
         case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-          val painter = new LetterPainter(bufferG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
+          val painter = new MuseCharPainter(bufferG, pixelPerUnit = pixelPerUnit, displayPixelScale = 1,
             imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
 
           val stop = painter.drawAnimation(screenPixelFactor, shouldStop)(mainSegs ++ secondSegs,
@@ -108,7 +109,7 @@ class RenderingResultDisplay(result: RenderingResult, dotsPerUnit: Double,
     val g2d = buffer.getGraphics.asInstanceOf[Graphics2D]
     result.words.foreach {
       case (offset, RenderingWord(mainSegs, secondSegs, _)) =>
-        val painter = new LetterPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
+        val painter = new MuseCharPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
           imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
 
         painter.draw(mainSegs ++ secondSegs, offset, penColor)

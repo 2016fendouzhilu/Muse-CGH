@@ -2,12 +2,11 @@ package command_line
 
 import java.io.File
 import javax.imageio.ImageIO
-import javax.swing.JFrame
 
-import main.ProjectParameters
-import render._
+import gui.user.{RenderingResultDisplay, UIMain}
+import main.{DoubleFieldInfo, MuseCharRenderer, ParamsCore}
 import scopt.OptionParser
-import utilities.{Settable, RNG, LetterMapLoader}
+import utilities.{ProjectParameters, RNG}
 
 import scala.io.Source
 
@@ -65,7 +64,7 @@ object CommandLineMain {
     val text = core.textRendered.get
 
     val (result, _) = {
-      val renderer = new LetterRenderer(letterSpacing = core.letterSpacing.get,
+      val renderer = new MuseCharRenderer(letterSpacing = core.letterSpacing.get,
         spaceWidth = core.spaceWidth.get,
         symbolFrontSpace = core.symbolFrontSpace.get)
 

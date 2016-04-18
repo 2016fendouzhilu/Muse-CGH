@@ -1,16 +1,15 @@
-package render
+package main
 
-import main.{Letter, LetterSeg}
-import utilities.{PeriodicAngularFunctions, RNG, CubicCurve, Vec2}
+import utilities.RNG._
+import utilities.{CubicCurve, PeriodicAngularFunctions, RNG, Vec2}
 
 import scala.collection.mutable
-import utilities.RNG._
 
 
 /**
   * Render the letters
   */
-class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace: Double) {
+class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace: Double) {
 
   def connectionWidth(start: Double, end: Double)(t: Double) = {
     val tMin = 0.6
@@ -20,13 +19,13 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     else minWidth + f((t-tMin)/(1-tMin)) * (end-minWidth)
   }
 
-  def renderAWord(lean: Double, letters: IndexedSeq[Letter]): RenderingWord = {
+  def renderAWord(lean: Double, letters: IndexedSeq[MuseChar]): RenderingWord = {
 
     def transform(xOffset: Double)(v: Vec2) = Vec2(v.x-v.y*lean+xOffset, v.y)
 
     val letterNum = letters.length
 
-    def shouldConnect(l1: Letter, l2: Letter): Boolean = {
+    def shouldConnect(l1: MuseChar, l2: MuseChar): Boolean = {
       l1.isLowercase && l2.isLowercase
     }
 
@@ -39,7 +38,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
 
 
     var x = 0.0
-    var mainSegs, secondarySegs = IndexedSeq[RenderingSeg]()
+    var mainSegs, secondarySegs = IndexedSeq[WidthCurve]()
 
     (0 until letterNum).foreach{ i =>
       val frontSpacing = if(shouldPrependSpace(i)) symbolFrontSpace else 0.0
@@ -56,15 +55,15 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         val nextSeg = letters(i+1).mainSegs.head.pointsMap(transform(newX-nextBaseX))
         val newLast = mergeSegs(thisSeg, nextSeg)
 
-        ss.init.map{RenderingSeg.linearThickness} :+ newLast
+        ss.init.map{WidthCurve.linearThickness} :+ newLast
       } else {
-        ss.map{RenderingSeg.linearThickness}
+        ss.map{WidthCurve.linearThickness}
       })
 
       secondarySegs =
         secondarySegs ++ letters(i).secondarySegs.
           map{_.pointsMap(transform(x-baseX+frontSpacing))}.
-          map{ RenderingSeg.linearThickness}
+          map{ WidthCurve.linearThickness}
 
       x = newX
     }
@@ -72,7 +71,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     RenderingWord(mainSegs, secondarySegs, x)
   }
 
-  def mergeSegs(s1: LetterSeg, s2: LetterSeg): RenderingSeg = {
+  def mergeSegs(s1: LetterSeg, s2: LetterSeg): WidthCurve = {
     val thisCurve = s1.curve
     val nextCurve = s2.curve
     val startTangent = thisCurve.p1 - thisCurve.p0
@@ -83,10 +82,10 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     val p2 = nextCurve.endPoint + endTangent * scale
 
     val newCurve = CubicCurve(thisCurve.p0, p1, p2, nextCurve.p3)
-    RenderingSeg(newCurve, connectionWidth(s1.startWidth, s2.endWidth))
+    WidthCurve(newCurve, connectionWidth(s1.startWidth, s2.endWidth))
   }
 
-  def renderAWordPlainly(lean: Double, letters: IndexedSeq[Letter]): RenderingWord = {
+  def renderAWordPlainly(lean: Double, letters: IndexedSeq[MuseChar]): RenderingWord = {
     var x = 0.0
     var segs = IndexedSeq[LetterSeg]()
     letters.foreach{ l =>
@@ -95,11 +94,11 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
       x += l.width + letterSpacing
     }
 
-    val rSegs = segs.map{ RenderingSeg.linearThickness }
+    val rSegs = segs.map{ WidthCurve.linearThickness }
     RenderingWord(rSegs, IndexedSeq(), x)
   }
 
-  def renderTextInParallel(lMap: Map[Char, Letter], lean: Double, maxLineWidth: Double, breakWordThreshold: Double,
+  def renderTextInParallel(lMap: Map[Char, MuseChar], lean: Double, maxLineWidth: Double, breakWordThreshold: Double,
                            lineSpacing: Double, randomness: Double, lineRandomness: Double)(text: String): State[RNG,RenderingResult] = State((rng: RNG) => {
     require(maxLineWidth > 0 && breakWordThreshold<maxLineWidth)
     val infoBuffer = new mutable.ListBuffer[String]
@@ -170,7 +169,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
         else toNewLine()
       case TextNewline => toNewLine()
       case PreRenderingWord(word, letters) =>
-        def renderWord(word: RenderingWord, letters: IndexedSeq[Letter]): Boolean = {
+        def renderWord(word: RenderingWord, letters: IndexedSeq[MuseChar]): Boolean = {
           if (x + word.width < maxLineWidth) {
             // keep going
             words.append((Vec2(x, randomY()), word))
@@ -208,8 +207,8 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     (RenderingResult(words.toIndexedSeq, maxLineWidth, y, infoBuffer.mkString("\n")), RNG(rng.seed+wordCount))
   })
 
-  def convertLetters(s: String, lMap: Map[Char, Letter]): (IndexedSeq[Letter], IndexedSeq[Char]) = {
-    val ls = new mutable.ListBuffer[Letter]
+  def convertLetters(s: String, lMap: Map[Char, MuseChar]): (IndexedSeq[MuseChar], IndexedSeq[Char]) = {
+    val ls = new mutable.ListBuffer[MuseChar]
     val unConverted = new mutable.ListBuffer[Char]
 
     s.foreach{ c =>
@@ -222,7 +221,7 @@ class LetterRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpace
     (ls.toIndexedSeq, unConverted.toIndexedSeq)
   }
 
-  def tryBreakWord(lean: Double, hyphen: Letter)(letters: IndexedSeq[Letter], spaceLeft: Double): Option[(RenderingWord, PreRenderingWord)] = {
+  def tryBreakWord(lean: Double, hyphen: MuseChar)(letters: IndexedSeq[MuseChar], spaceLeft: Double): Option[(RenderingWord, PreRenderingWord)] = {
     var x = hyphen.width + symbolFrontSpace * 2
     val head = letters.takeWhile{l =>
       x += l.width
@@ -247,10 +246,10 @@ case object TextSpace extends TextElement with RenderingElement
 
 case object TextNewline extends TextElement with RenderingElement
 
-case class TextWord(word: IndexedSeq[Letter]) extends TextElement
+case class TextWord(word: IndexedSeq[MuseChar]) extends TextElement
 
-case class PreRenderingWord(rWord: RenderingWord, letters: IndexedSeq[Letter]) extends RenderingElement
+case class PreRenderingWord(rWord: RenderingWord, letters: IndexedSeq[MuseChar]) extends RenderingElement
 
-case class RenderingWord(mainSegs: IndexedSeq[RenderingSeg], secondarySegs: IndexedSeq[RenderingSeg], width: Double)
+case class RenderingWord(mainSegs: IndexedSeq[WidthCurve], secondarySegs: IndexedSeq[WidthCurve], width: Double)
 
 case class RenderingResult(words: IndexedSeq[(Vec2, RenderingWord)], lineWidth: Double, height: Double, info: String)

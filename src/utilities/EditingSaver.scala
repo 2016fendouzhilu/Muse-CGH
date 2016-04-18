@@ -2,7 +2,7 @@ package utilities
 
 import java.io._
 
-import editor.Editing
+import gui.font_editor.Editing
 
 /**
   * Created by weijiayi on 3/3/16.

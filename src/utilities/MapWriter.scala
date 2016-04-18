@@ -1,7 +1,7 @@
 package utilities
 
-import editor.Editing
-import main.{Letter, LetterSeg, LetterType}
+import gui.font_editor.Editing
+import main.{MuseChar, LetterSeg, MuseCharType}
 
 
 @SerialVersionUID(1L)
@@ -105,18 +105,18 @@ object MapWriter {
     )
   }
 
-  implicit val LetterWriter = new MapWriter[Letter] {
-    override def toMapData(v: Letter): IntMap = v match {
-      case Letter(segs, t) => IntMap(Map(
+  implicit val LetterWriter = new MapWriter[MuseChar] {
+    override def toMapData(v: MuseChar): IntMap = v match {
+      case MuseChar(segs, t) => IntMap(Map(
         Segs -> DataArray(segs.map(s => write(s))),
         LType -> DataInt(t.id)
       ))
     }
 
-    override def fromMapData(data: IntMap): Letter = {
+    override def fromMapData(data: IntMap): MuseChar = {
       val segs = data.getArray(Segs).map(d => read[LetterSeg](d.asInstanceOf[IntMap]))
-      val t = if (data.hasKey(LType)) LetterType(data.getInt(LType)) else LetterType.LowerCase
-      Letter(segs, t)
+      val t = if (data.hasKey(LType)) MuseCharType(data.getInt(LType)) else MuseCharType.LowerCase
+      MuseChar(segs, t)
     }
   }
 
@@ -129,7 +129,7 @@ object MapWriter {
     }
 
     override def fromMapData(data: IntMap): Editing = Editing(
-      read[Letter](data(EditingLetter)),
+      read[MuseChar](data(EditingLetter)),
       data.getArray(EditingSelects).map{ _.asInstanceOf[DataInt].i }
     )
   }

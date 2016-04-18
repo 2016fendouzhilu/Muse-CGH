@@ -1,15 +1,16 @@
-package editor
+package gui.font_editor
 
 import java.awt._
 import javax.swing.JPanel
 
+import gui.MouseManager
 import main.CurveDrawer
 import utilities.{ChangeListener, CubicCurve, MyMath, Vec2}
 
 /**
-  * Created by weijiayi on 2/29/16.
+  * Panel for displaying and modifying the Editor
   */
-class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelScale: Double = 4)
+class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var displayPixelScale: Double = 4)
   extends JPanel with ChangeListener {
 
   var imageOffset = Vec2.zero
@@ -134,15 +135,6 @@ class EditingPanel(editor: Editor, var pixelPerUnit: Int = 40, var displayPixelS
         editor.scaleTotalThickness(scaleRatio(Vec2.zero))
     }
   }
-
-//  def drawDragHint(target: Vec2, current: Vec2, color: Color): Unit ={
-//    import java.awt.geom._
-//    val g = this.getGraphics.asInstanceOf[Graphics2D]
-//    g.setColor(color)
-//    g.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, Array(8), 0))
-//    val line = new Line2D.Double(target, current)
-//    g.draw(line)
-//  }
 
   def dragFinishAction(): Unit = {
     editor.mode match{
