@@ -4,7 +4,8 @@ import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.JFrame
 
-import render.{UICore, UIMain, LetterRenderer, RenderingResultDisplay}
+import main.ProjectParameters
+import render._
 import scopt.OptionParser
 import utilities.{Settable, RNG, LetterMapLoader}
 
@@ -18,10 +19,10 @@ object CommandLineMain {
     if(args.isEmpty)
       UIMain.main(args)
     else{
-      val core = new UICore()
+      val core = new ParamsCore()
       var imgName = "muse_result.png"
       val parser = new OptionParser[Unit]("muse") {
-        head("muse", "1.2")
+        head("muse", ProjectParameters.versionNumber.toString)
         arg[String]("<input file>") foreach { ip =>
           try{
             core.textRendered.set(Source.fromFile(ip).mkString)
@@ -33,7 +34,15 @@ object CommandLineMain {
         opt[String]('o',"out") foreach {n => imgName = n} validate {
           n => if(n.isEmpty) failure("Option --out must not be empty") else success} text
           "the out image name (if no extension specified, use .png)"
-
+        
+        (core.layoutRow ++ core.fontRow ++ core.wordRow ++ core.randomRow).foreach{
+          case DoubleFieldInfo(settable, name, constraint, description) =>
+            val abbr = toAbbreviateString(name)
+            val requirements = s"$name --$abbr"+constraint.requirementString
+            opt[Double](abbr) foreach {settable.set} validate {d =>
+              if(constraint.f(d)) success else failure(requirements)
+            } text s"$name: $description, ${constraint.requirementString} (default: ${settable.get})"
+        }
       }
 
       if(parser.parse(args)){
@@ -46,7 +55,12 @@ object CommandLineMain {
     }
   }
 
-  def renderToImage(core: UICore,imgFileFullName: String): Unit = {
+  def toAbbreviateString(fullName: String): String = {
+    val words = fullName.split(' ')
+    words.map(w => w.head.toString.capitalize + w.tail).mkString
+  }
+
+  def renderToImage(core: ParamsCore,imgFileFullName: String): Unit = {
 
     val text = core.textRendered.get
 
@@ -73,7 +87,7 @@ object CommandLineMain {
       if (as > 0) Some(as) else None
     }
     val display = new RenderingResultDisplay(result, core.samplesPerUnit.get, core.pixelPerUnit.get,
-      thicknessScale = core.thicknessScale.get, screenPixelFactor = 2, useAspectRatio = useAspectRatio)
+      thicknessScale = core.thicknessScale.get, screenPixelFactor = 1, useAspectRatio = useAspectRatio)
     display.drawToBuffer()
 
     val (name, ext) = nameAndExtension(imgFileFullName, "png")

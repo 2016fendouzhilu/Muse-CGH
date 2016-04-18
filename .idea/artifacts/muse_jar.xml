@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="Handwriting:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/Handwriting_jar</output-path>
+  <artifact type="jar" name="muse:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/muse_jar</output-path>
     <root id="archive" name="Handwriting.jar">
       <element id="module-output" name="Handwriting" />
       <element id="extracted-dir" path="/Applications/scala-2.11.5/lib/scala-library.jar" path-in-jar="/" />

@@ -11,7 +11,7 @@ import utilities.LetterMapLoader
  */
 object UIMain {
   def main(args: Array[String]) {
-    val core = new UICore
+    val core = new ParamsCore
 
     val uiPanel = new UIControlPanel(core){
       core.addListener(this)

@@ -6,7 +6,6 @@ import javax.swing._
 import javax.swing.text.JTextComponent
 
 import editor.MyButton
-import render.UIControlPanel.DoubleFieldInfo
 import utilities.{ValueTextComponent, Settable, ChangeListener}
 
 import scala.collection.mutable.ListBuffer
@@ -14,7 +13,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * Control the parameters of UICore for rendering
  */
-class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
+class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
 
   def textToDouble(s: String) = {
     try{ Some(s.toDouble) }
@@ -23,9 +22,9 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
 
   private val updateList = new ListBuffer[ValueTextComponent[_,_]]()
 
-  private def makeDoubleFiled(settable: Settable[Double], constraint: Double => Boolean = _ => true):
+  private def makeDoubleFiled(settable: Settable[Double], constraint: Double => Boolean = _ => true, toolTip: String):
       ValueTextComponent[Double, JTextField] = {
-    val field = new JTextField()
+    val field = new JTextField() {setToolTipText(toolTip)}
 
     val vtc = new ValueTextComponent[Double, JTextField](s => textToDouble(s).filter(constraint), _.toString,
       getValue = () => settable.get,
@@ -39,40 +38,6 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
     vtc
   }
 
-  val noConstraint = (_: Double) => true
-
-  val positiveConstraint = (x: Double) => x > 0
-
-  val fontRow = List[DoubleFieldInfo] (
-    (core.pixelPerUnit, "Font size", positiveConstraint),
-    (core.samplesPerUnit, "Samples", positiveConstraint),
-    (core.lean, "Lean", noConstraint),
-    (core.thicknessScale, "Thickness", positiveConstraint)
-  ).map(makeLabeledDoubleField)
-
-  val randomRow = List[DoubleFieldInfo] (
-    (core.randomness, "Letter Random", noConstraint),
-    (core.lineRandomness, "Line Random", noConstraint),
-    (core.seed, "Seed", (s: Double) => s >= -1 && s <= 1.0)
-  ).map(makeLabeledDoubleField)
-
-  val layoutRow = List[DoubleFieldInfo] (
-    (core.maxLineWidth, "Line width", (w: Double) => w > 0 && w > core.breakWordThreshold.get),
-    (core.lineSpacing, "Line spacing", positiveConstraint),
-    (core.breakWordThreshold, "Break threshold", (b: Double) => b > 0 && b < core.maxLineWidth.get),
-    (core.aspectRatio, "Aspect Ratio", noConstraint)
-  ).map(makeLabeledDoubleField)
-
-  val wordRow = List[DoubleFieldInfo] (
-    (core.spaceWidth, "Space width", positiveConstraint),
-    (core.letterSpacing, "Letter spacing", noConstraint),
-    (core.symbolFrontSpace, "Mark spacing", noConstraint)
-  ).map(makeLabeledDoubleField)
-
-  val animationRow = List[DoubleFieldInfo] (
-    (core.penSpeed, "Animation Speed", positiveConstraint),
-    (core.frameRate, "Animation FPS", positiveConstraint)
-  ).map(makeLabeledDoubleField)
 
   val textArea = new JTextArea {
     setLineWrap(true)
@@ -103,8 +68,9 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
   })
 
   private def makeLabeledDoubleField(info: DoubleFieldInfo) = info match {
-    case (settable, label, cons) =>
-      (new JLabel(label), makeDoubleFiled(settable, cons))
+    case DoubleFieldInfo(settable, label, cons, desc) =>
+      (new JLabel(label){setToolTipText(desc)},
+        makeDoubleFiled(settable, cons.f, desc))
   }
 
   setupLayout()
@@ -123,11 +89,9 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
         })
       }
 
-      addARow(fontRow)
-      addARow(layoutRow)
-      addARow(wordRow)
-      addARow(randomRow)
-      addARow(animationRow)
+      List(core.fontRow, core.layoutRow, core.wordRow, core.randomRow, core.animationRow).foreach(row =>
+        addARow(row.map(makeLabeledDoubleField)))
+
     }
 
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))
@@ -148,6 +112,4 @@ class UIControlPanel(core: UICore) extends JPanel with ChangeListener {
 
 }
 
-object UIControlPanel {
-  type DoubleFieldInfo = (Settable[Double], String, Double => Boolean)
-}
+

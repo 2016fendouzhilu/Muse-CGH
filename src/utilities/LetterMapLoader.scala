@@ -53,7 +53,7 @@ object LetterMapLoader {
         loadLetter(s"letters/$name.muse") match{
           case Some(l) => list = (key -> l) :: list
           case None =>
-            print(s"$name")
+            print(s"$name ")
         }
     }
 

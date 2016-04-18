@@ -8,7 +8,7 @@ import utilities.{Settable, RNG, ChangeListener}
 /**
  * Use this class to display rendering results
  */
-class RenderResultFrames(core: UICore) extends ChangeListener{
+class RenderResultFrames(core: ParamsCore) extends ChangeListener{
 
   val renderingFrame = new JFrame(){
     setVisible(true)
