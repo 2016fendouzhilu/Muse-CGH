@@ -1,4 +1,5 @@
 # Muse-CGH
+[点击此处阅读中文版(Click here to read Chinese version)](README_CH.md)
 ### A program to convert text into human-style Computer Generated Handwriting.
 
 you can [download the compiled program (v1.3)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/v1.3/Muse1.3.zip) directly (.jar file)
