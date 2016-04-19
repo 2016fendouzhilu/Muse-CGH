@@ -1,7 +1,5 @@
 package ui.command_line
 
-import java.io.File
-import javax.imageio.ImageIO
 
 import ui.user.UIMain
 import main.{DoubleFieldInfo, ParamsCore}
@@ -40,7 +38,7 @@ object CommandLineMain {
             "the out image name (if no extension specified, use .png)"
 
           // Other settable parameters
-          (core.layoutRow ++ core.fontRow ++ core.wordRow ++ core.randomRow).foreach {
+          (core.layoutRow ++ core.edgeRow ++ core.fontRow ++ core.wordRow ++ core.randomRow).foreach {
             case DoubleFieldInfo(settable, name, constraint, description) =>
               val abbr = toAbbreviateString(name)
               val requirements = s"$name --$abbr" + constraint.requirementString

@@ -197,8 +197,10 @@ class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpa
           case "" => IndexedSeq(TextSpace)
           case w =>
             val (letters, unConverted) = convertLetters(w, lMap)
-            val unConvertedList = unConverted.map{c => s"'$c'"}.mkString(", ")
-            printInfoLine(s"Can't render $unConvertedList in word '$w'")
+            if(unConverted.nonEmpty){
+              val unConvertedList = unConverted.map{c => s"'$c'"}.mkString(", ")
+              printInfoLine(s"Can't render $unConvertedList in word '$w'")
+            }
             IndexedSeq(TextWord(letters), TextSpace)
         }.dropRight(1) :+ TextNewline
     }.dropRight(1)

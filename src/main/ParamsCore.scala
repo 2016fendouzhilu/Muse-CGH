@@ -39,7 +39,7 @@ class ParamsCore() extends ChangeSource {
     DoubleFieldInfo(breakWordThreshold, "Break threshold",
       NamedConstraint[Double](b => b > 0 && b < maxLineWidth.get, "must be smaller than Line width"),
       description = "maximum empty space allowed before breaking the last word in a line"),
-    DoubleFieldInfo(aspectRatio, "Aspect Ratio", noConstraint,
+    DoubleFieldInfo(aspectRatio, "Aspect ratio", noConstraint,
       description = "the ratio of image height and width, use automatic aspect ratio if specified as negative")
   )
 
@@ -63,8 +63,8 @@ class ParamsCore() extends ChangeSource {
   val seed = newSettable[Double](0.0)
 
   val randomRow = List[DoubleFieldInfo] (
-    DoubleFieldInfo(randomness, "Letter Random", noConstraint, description = "how much randomness is used for letters in words"),
-    DoubleFieldInfo(lineRandomness, "Line Random", noConstraint,
+    DoubleFieldInfo(randomness, "Letter random", noConstraint, description = "how much randomness is used for letters in words"),
+    DoubleFieldInfo(lineRandomness, "Line random", noConstraint,
       description = "how much randomness is used for height perturbation of words in a line"),
     DoubleFieldInfo(seed, "Seed", NamedConstraint[Double](s => s >= -1 && s <= 1.0, "must be within -1.0 and 1.0"),
       description = "seed value used to generate random numbers")
@@ -76,7 +76,7 @@ class ParamsCore() extends ChangeSource {
   val wordsRestDis= newSettable[Double](5)
 
   val animationRow = List[DoubleFieldInfo] (
-    DoubleFieldInfo(penSpeed, "Animation Speed", positiveConstraint,
+    DoubleFieldInfo(penSpeed, "Animation speed", positiveConstraint,
       description = "how fast the pen moves during animation"),
     DoubleFieldInfo(frameRate, "Animation FPS", positiveConstraint,
       description = "the updating frequency in animation"),
