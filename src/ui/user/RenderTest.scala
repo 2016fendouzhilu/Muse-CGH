@@ -17,7 +17,7 @@ object RenderTest {
 
     val screenFactor = 2
 
-    val parameters = new PaintableResult(result, dotsPerUnit, pixelPerUnit, screenPixelFactor = screenFactor, thicknessScale = 1.8)
+    val parameters = new PaintableResult(result, dotsPerUnit, pixelPerUnit, edgeSpace = EdgeSpace(2,2,4,2), screenPixelFactor = screenFactor, thicknessScale = 1.8)
     val p = parameters.showInAnimation(penSpeed = 40, frameRate = 60, shouldRun = true)
     //    val p = parameters.showInScrollPane()
 

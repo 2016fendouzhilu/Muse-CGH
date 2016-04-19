@@ -1,6 +1,6 @@
 package main
 
-import ui.user.PaintableResult
+import ui.user.{EdgeSpace, PaintableResult}
 import utilities.{ChangeSource, MuseCharMapLoader, RNG, Settable}
 import NamedConstraint.{positiveConstraint,noConstraint}
 
@@ -73,13 +73,24 @@ class ParamsCore() extends ChangeSource {
 
   val penSpeed = newSettable[Double](40)
   val frameRate = newSettable[Double](60)
+  val wordsRestDis= newSettable[Double](5)
 
   val animationRow = List[DoubleFieldInfo] (
     DoubleFieldInfo(penSpeed, "Animation Speed", positiveConstraint,
       description = "how fast the pen moves during animation"),
     DoubleFieldInfo(frameRate, "Animation FPS", positiveConstraint,
-      description = "the updating frequency in animation")
+      description = "the updating frequency in animation"),
+    DoubleFieldInfo(wordsRestDis, "Halt", positiveConstraint,
+      description = "How long should the pen wait before writing the next word")
   )
+
+
+  val leftEdge, rightEdge = newSettable[Double](2)
+  val topEdge, bottomEdge = newSettable[Double](4)
+
+  val edgeRow = (List(leftEdge, rightEdge, topEdge, bottomEdge) zip List("Left Edge", "Right Edge", "Top Edge", "Bottom Edge")).map{
+    case (settable, name) => DoubleFieldInfo(settable, name, noConstraint, description = "extra distance to the edge of a page")
+  }
 
   val interactiveMode = newSettable[Boolean](true)
   val letterMap = newSettable(MuseCharMapLoader.loadDefaultCharMap())
@@ -121,7 +132,11 @@ class ParamsCore() extends ChangeSource {
       if (as > 0) Some(as) else None
     }
     new PaintableResult(result, samplesPerUnit.get, pixelPerUnit.get,
-      thicknessScale = thicknessScale.get, screenPixelFactor = screenPixelFactor.get, useAspectRatio = aspectRatioOpt)
+      thicknessScale = thicknessScale.get,
+      edgeSpace = EdgeSpace(leftEdge.get, rightEdge.get, topEdge.get, bottomEdge.get),
+      wordsRestDis = wordsRestDis.get,
+      screenPixelFactor = screenPixelFactor.get,
+      useAspectRatio = aspectRatioOpt)
   }
 }
 

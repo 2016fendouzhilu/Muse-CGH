@@ -5,7 +5,6 @@ import utilities.{CubicCurve, PeriodicAngularFunctions, RNG, Vec2}
 
 import scala.collection.mutable
 
-
 /**
   * Render the letters
   */
@@ -107,42 +106,7 @@ class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpa
 //      Predef.println(s)
     }
 
-    val (renderingElements, wordCount) = {
-      val newline = '\n'
-      val whitespace = ' '
-
-      val textElements: IndexedSeq[TextElement] = text.split(newline).toIndexedSeq.flatMap {
-        case "" => IndexedSeq(TextNewline)
-        case p =>
-          p.split(whitespace).toIndexedSeq.flatMap {
-            case "" => IndexedSeq(TextSpace)
-            case w =>
-              val (letters, unConverted) = convertLetters(w, lMap)
-              unConverted.foreach(c => printInfoLine(s"Can't render '$c' in word '$w'"))
-              IndexedSeq(TextWord(letters), TextSpace)
-          }.dropRight(1) :+ TextNewline
-      }.dropRight(1)
-
-      val wordCount = textElements.length
-      val renderingElements = new Array[RenderingElement](wordCount)
-      // Parallel rendering
-      textElements.zipWithIndex.par.foreach { case (te, i) =>
-        renderingElements(i) = te match {
-          case TextWord(letters) =>
-            var r = RNG(rng.seed + i)
-            val randomLetters = letters.map { l =>
-              val (coes, newR) = RNG.nextDoubles(6)(r)
-              r = newR
-              val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
-              l.modifyByAngularFunc(angF)
-            }
-            val w = renderAWord(lean, randomLetters)
-            PreRenderingWord(w, randomLetters)
-          case other: RenderingElement => other
-        }
-      }
-      (renderingElements, wordCount)
-    }
+    val (renderingElements, wordCount) = convertToTextElements(text, lMap, rng.seed, randomness, lean, printInfoLine)
 
     val words = new mutable.ListBuffer[(Vec2, RenderingWord)]()
 
@@ -220,6 +184,46 @@ class MuseCharRenderer(letterSpacing: Double, spaceWidth: Double, symbolFrontSpa
 
     (ls.toIndexedSeq, unConverted.toIndexedSeq)
   }
+
+  def convertToTextElements(text: String, lMap: Map[Char,MuseChar], randomSeed: Long,
+                            randomness: Double, lean: Double, printInfoLine: String => Unit) = {
+    val newline = '\n'
+    val whitespace = ' '
+
+    val textElements: IndexedSeq[TextElement] = text.split(newline).toIndexedSeq.flatMap {
+      case "" => IndexedSeq(TextNewline)
+      case p =>
+        p.split(whitespace).toIndexedSeq.flatMap {
+          case "" => IndexedSeq(TextSpace)
+          case w =>
+            val (letters, unConverted) = convertLetters(w, lMap)
+            val unConvertedList = unConverted.map{c => s"'$c'"}.mkString(", ")
+            printInfoLine(s"Can't render $unConvertedList in word '$w'")
+            IndexedSeq(TextWord(letters), TextSpace)
+        }.dropRight(1) :+ TextNewline
+    }.dropRight(1)
+
+    val wordCount = textElements.length
+    val renderingElements = new Array[RenderingElement](wordCount)
+    // Parallel rendering
+    textElements.zipWithIndex.par.foreach { case (te, i) =>
+      renderingElements(i) = te match {
+        case TextWord(letters) =>
+          var r = RNG(randomSeed + i)
+          val randomLetters = letters.map { l =>
+            val (coes, newR) = RNG.nextDoubles(6)(r)
+            r = newR
+            val angF = PeriodicAngularFunctions.sineWave(3, coes, randomness)
+            l.modifyByAngularFunc(angF)
+          }
+          val w = renderAWord(lean, randomLetters)
+          PreRenderingWord(w, randomLetters)
+        case other: RenderingElement => other
+      }
+    }
+    (renderingElements, wordCount)
+  }
+
 
   def tryBreakWord(lean: Double, hyphen: MuseChar)(letters: IndexedSeq[MuseChar], spaceLeft: Double): Option[(RenderingWord, PreRenderingWord)] = {
     var x = hyphen.width + symbolFrontSpace * 2

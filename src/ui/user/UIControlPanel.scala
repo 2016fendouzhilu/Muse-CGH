@@ -90,7 +90,7 @@ class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
         })
       }
 
-      List(core.fontRow, core.layoutRow, core.wordRow, core.randomRow, core.animationRow).foreach(row =>
+      List(core.fontRow, core.layoutRow, core.edgeRow, core.wordRow, core.randomRow, core.animationRow).foreach(row =>
         addARow(row.map(makeLabeledDoubleField)))
 
     }

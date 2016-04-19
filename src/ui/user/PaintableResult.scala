@@ -12,26 +12,33 @@ import ui.MyButton
 import main.{MuseCharPainter, RenderingResult, RenderingWord}
 import utilities.{ImageSaver, Vec2}
 
+case class EdgeSpace(left: Double, right: Double, top: Double, bottom: Double)
+
 /**
   * paint RenderingResult to an image, a scroll panel or make some animation
   */
 class PaintableResult(result: RenderingResult, dotsPerUnit: Double,
-                          pixelPerUnit: Double, screenPixelFactor: Int,
-                          wordsRestDis: Double = 5, thicknessScale: Double,
+                          pixelPerUnit: Double, screenPixelFactor: Int, thicknessScale: Double,
+                          edgeSpace: EdgeSpace,
+                          wordsRestDis: Double = 5,
                           backgroundColor: Color = Color.white, penColor: Color = Color.black,
-                          useAspectRatio: Option[Double] = None){
-  val edge = (pixelPerUnit * 2).toInt
-  val topHeight = (3*pixelPerUnit).toInt
+                          useAspectRatio: Option[Double] = None
+                       ){
+  val List(leftEdge, rightEdge, topEdge, bottomEdge) =
+    List(edgeSpace.left, edgeSpace.right, edgeSpace.top, edgeSpace.bottom).map{x =>
+      (x * pixelPerUnit).toInt
+    }
+
   val (imgWidth, imgHeight) = (result.lineWidth * pixelPerUnit , result.height * pixelPerUnit)
 
-  val screenWidth = imgWidth.toInt + 2 * edge
+  val screenWidth = imgWidth.toInt + leftEdge + rightEdge
   val screenHeight = useAspectRatio match{
     case Some(r) => (screenWidth * r).toInt
-    case None => imgHeight.toInt + 2 * edge + topHeight
+    case None => imgHeight.toInt + topEdge + bottomEdge
   }
   val screenSize = new Dimension(screenWidth, screenHeight)
   val totalSize = new Dimension(screenSize.width * screenPixelFactor, screenSize.height * screenPixelFactor)
-  val imageOffset = Vec2(edge, edge + topHeight)
+  val imageOffset = Vec2(leftEdge, topEdge)
 
   val buffer = new BufferedImage(totalSize.width, totalSize.height, BufferedImage.TYPE_INT_ARGB)
 
