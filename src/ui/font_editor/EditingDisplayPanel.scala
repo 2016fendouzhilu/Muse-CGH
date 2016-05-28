@@ -32,9 +32,17 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
   setMinimumSize(new Dimension(windowWidthFromBoard, windowHeightFromBoard))
   setBackground(backgroundColor)
 
-  def pointTrans(p: Vec2): Vec2 = {
-    val s = pixelPerUnit*displayPixelScale
+  def editorToDisplayPointTrans(p: Vec2): Vec2 = {
+    val s = editorToDisplayLengthFactor
     Vec2(p.x*s, (p.y + letterMaxTall)*s) + imageOffset
+  }
+
+  def editorToDisplayLengthFactor = pixelPerUnit*displayPixelScale
+
+  def displayToEditorPointTrans(p: Vec2): Vec2 = {
+    val s = editorToDisplayLengthFactor
+    val p1 = (p - imageOffset) / s
+    Vec2(p1.x, p1.y - letterMaxTall)
   }
 
   def zoomCamera(scale: Double): Unit ={
@@ -50,7 +58,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
 
     val g2d = g.asInstanceOf[Graphics2D]
 
-    val drawer = new CurveDrawer(g2d, pointTrans, pixelPerUnit*displayPixelScale)
+    val drawer = new CurveDrawer(g2d, editorToDisplayPointTrans, pixelPerUnit*displayPixelScale)
 
     drawBoardLines(drawer,2,2)
 
@@ -105,20 +113,40 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
   }
 
   val moveSpeed = 1.0
+  var bendCurveBuffer: Option[BendCurveBuffer] = None
   def dragAction(drag: Vec2, init: Vec2, current: Vec2) = {
     def scaleRatio(p: Vec2) = {
-      val targetPoint = pointTrans(p)
+      val targetPoint = editorToDisplayPointTrans(p)
       val relative = current - targetPoint
       val dis = math.max((init-targetPoint).length, 0.1)
       (drag dot relative.normalized) / dis + 1
     }
-    val factor = pixelPerUnit*displayPixelScale
+
+    def bendCurve(): Unit = {
+      editor.currentEditing().selectedInkCurves.headOption.foreach { ink =>
+        bendCurveBuffer match {
+          case Some(buffer) =>
+            buffer.penMoveTo(displayToEditorPointTrans(current))
+            val c1 = buffer.curve
+            val c0 = ink.curve
+            val (d1, d2, d3) = (c1.p1 - c0.p1, c1.p2-c0.p2, c1.p3-c0.p3)
+            editor.dragControlPoint(1, d1)
+            editor.dragControlPoint(3, d3)
+            editor.dragControlPoint(2, d2-d3) // because drag p3 will move p2 as well
+          case None =>
+            val initCurve = ink.curve
+            val start = initCurve.p0
+            val penOffset = displayToEditorPointTrans(current) - start
+            bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.002))
+        }
+      }
+    }
 
     editor.mode match {
       case MoveCamera =>
         dragImage(drag)
       case EditControlPoint(id) =>
-        editor.dragControlPoint(id, drag/factor)
+        editor.dragControlPoint(id, drag/editorToDisplayLengthFactor)
       case edt@ EditThickness(isHead) =>
         editor.currentEditing().selectedInkCurves.headOption.foreach{ ink =>
           val targetPoint = ink.curve.getPoint(edt.pid)
@@ -130,15 +158,21 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
         val r = scaleRatio(Vec2.zero)
         editor.scaleLetter(r)
       case TranslateLetter =>
-        editor.translateLetter(drag/factor)
+        editor.translateLetter(drag/editorToDisplayLengthFactor)
       case ScaleTotalThickness =>
         editor.scaleTotalThickness(scaleRatio(Vec2.zero))
+      case BendCurve =>
+        bendCurve()
     }
   }
 
   def dragFinishAction(): Unit = {
     editor.mode match{
       case MoveCamera => ()
+      case BendCurve =>
+        bendCurveBuffer.foreach(_.report())
+        bendCurveBuffer = None
+        editor.recordNow()
       case _ => editor.recordNow()
     }
   }

@@ -9,6 +9,10 @@ object MyMath {
     x0 + t * (x1-x0)
   }
 
+  def linearInterpolate(x0: Vec2, x1: Vec2)(t: Double): Vec2 = {
+    x0 + (x1-x0) * t
+  }
+
   def ceil(x: Double) = x.ceil.toInt
 
   def wrap(i: Int, max: Int) = {
@@ -30,5 +34,35 @@ object MyMath {
       Some(ni)
     else
       None
+  }
+
+
+  case class MinimizationConfig(errorForStop: Double, maxIterations: Int, learningRate: Double = 0.1, gradientDelta: Double = 1e-2)
+
+  case class MinimizationReport(iterations: Int, error: Double, lastDeltaError: Double)
+
+  def minimize(f: IndexedSeq[Double] => Double, config: MinimizationConfig)(initParams: IndexedSeq[Double]): (MinimizationReport,IndexedSeq[Double]) = {
+    def partialDerivative(params: IndexedSeq[Double] ,paramIndex: Int): Double = {
+      val forward = f(params.updated(paramIndex, params(paramIndex)+ config.gradientDelta))
+      val backward = f(params.updated(paramIndex, params(paramIndex)- config.gradientDelta))
+      (forward - backward) / (2* config.gradientDelta)
+    }
+
+    var params = initParams
+    var oldError = f(initParams)
+    var deltaError = -1.0
+    for(i <- 0 until config.maxIterations){
+      params = params.indices.map{pIdx =>
+        params(pIdx) - partialDerivative(params, pIdx) * config.learningRate
+      }
+      val newError = f(params)
+      deltaError = newError - oldError
+      if(math.abs(deltaError) < config.errorForStop) {
+        val report = MinimizationReport(i, newError, lastDeltaError = deltaError)
+        return (report, params)
+      }
+      oldError = newError
+    }
+    (MinimizationReport(config.maxIterations, oldError, deltaError), params)
   }
 }

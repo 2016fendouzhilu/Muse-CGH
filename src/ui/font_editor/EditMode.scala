@@ -18,3 +18,5 @@ case object ScaleLetter extends EditMode
 case object TranslateLetter extends EditMode
 
 case object ScaleTotalThickness extends EditMode
+
+case object BendCurve extends EditMode

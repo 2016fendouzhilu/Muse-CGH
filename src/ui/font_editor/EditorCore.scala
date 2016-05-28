@@ -40,11 +40,11 @@ class EditorCore(private var buffer: Editing) extends ChangeSource {
 
   def setStrokeBreak(s: Boolean) = setInkCurveAttributes(isAlignTangent = false)(s)
 
-  def dragZero(): Unit = mode match {
-    case EditControlPoint(id) =>
-      dragControlPoint(id, Vec2.zero)
-    case _ => ()
-  }
+//  def dragZero(): Unit = mode match {
+//    case EditControlPoint(id) =>
+//      dragControlPoint(id, Vec2.zero)
+//    case _ => ()
+//  }
 
 
   def currentEditing() = buffer

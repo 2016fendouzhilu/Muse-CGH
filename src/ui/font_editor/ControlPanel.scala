@@ -17,7 +17,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
-    IndexedSeq(EditThickness(true), EditThickness(false), ScaleLetter, TranslateLetter, ScaleTotalThickness)
+    IndexedSeq(EditThickness(isHead = true), EditThickness(isHead = false), ScaleLetter, TranslateLetter, ScaleTotalThickness, BendCurve)
 
   val modeButtonPairs = modes.zipWithIndex.map{ case (m, id) =>
     val (name,explain) = m match {
@@ -27,6 +27,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
       case ScaleLetter => ("Scale", "Scale size of the whole glyph")
       case TranslateLetter => ("Translate", "Shift the position of all segments")
       case ScaleTotalThickness => ("Scale Thickness", "Scale the thickness of all segments")
+      case BendCurve => ("Bend Curve", "Drag mouse to bend the shape of currently selected segment")
     }
     val hotkey = if(id == 0) "`" else id.toString
     val b = new JRadioButton(name){
@@ -94,7 +95,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
       panel
     }
 
-    addRow(modeButtonPairs.map(_._2) :_*).setPreferredSize(new Dimension(400,100))
+    addRow(modeButtonPairs.map(_._2) :_*).setPreferredSize(new Dimension(400,130))
 
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 

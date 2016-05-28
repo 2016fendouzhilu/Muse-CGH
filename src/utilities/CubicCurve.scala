@@ -58,13 +58,17 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     (startPoint - endPoint).length
   }
 
-  def samples(dotsPerUnit: Double): IndexedSeq[Vec2] = {
-    val samples = (controlLineLength * dotsPerUnit).toInt + 1
-    val dt = 1.0/samples
-    (0 to samples).map { i =>
+  def samples(sampleNum: Int): IndexedSeq[Vec2] = {
+    val dt = 1.0/sampleNum
+    (0 to sampleNum).map { i =>
       val t = dt * i
       eval(t)
     }
+  }
+
+  def samples(dotsPerUnit: Double): IndexedSeq[Vec2] = {
+    val sampleNum = (controlLineLength * dotsPerUnit).toInt + 1
+    samples(sampleNum)
   }
 
   def sampleTangents(dotsPerUnit: Double): IndexedSeq[Vec2] = {
@@ -76,3 +80,36 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     }
   }
 }
+
+object CubicCurve{
+  /**
+    * O(n*n) running time, where n is the number of dots
+    */
+  def dotsToCurve(dots: IndexedSeq[Vec2], curveSampleNum: Int, config: MyMath.MinimizationConfig): (MyMath.MinimizationReport ,CubicCurve) = {
+    def curveError(curve: CubicCurve): Double = {
+      val curveSamples = curve.samples(curveSampleNum)
+      dots.map{ dot => curveSamples.map(s => (s-dot).lengthSquared).min }.sum
+    }
+
+    val p0 = dots.head
+    val p3 = dots.last
+
+    def parameterError(params: IndexedSeq[Double]) = params match{
+      case IndexedSeq(p1x,p1y,p2x,p2y) => curveError(CubicCurve(p0,Vec2(p1x,p1y), Vec2(p2x,p2y), p3))
+    }
+
+    val initParams = {
+      val p1 = MyMath.linearInterpolate(p0,p3)(0.25)
+      val p2 = MyMath.linearInterpolate(p0,p3)(0.75)
+      IndexedSeq(p1.x,p1.y,p2.x,p2.y)
+    }
+
+    val (report, optParams) = MyMath.minimize(parameterError, config)(initParams)
+    (report, CubicCurve(p0,Vec2(optParams(0),optParams(1)), Vec2(optParams(2), optParams(3)), p3))
+  }
+}
+
+
+
+
+
