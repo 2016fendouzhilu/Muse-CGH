@@ -5,7 +5,7 @@ import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.text.JTextComponent
 
-import ui.MyButton
+import ui.MySwing
 import main.{DoubleFieldInfo, ParamsCore}
 import utilities.{ChangeListener, Settable, ValueTextComponent}
 
@@ -57,13 +57,13 @@ class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
   }
 
   val renderButton = new JButton("Render Text")
-  MyButton.addAction(renderButton, () => core.textToRender.set(textArea.getText))
+  MySwing.addAction(renderButton, () => core.textToRender.set(textArea.getText))
   
   val interactiveCheckBox = new JCheckBox("Interactive")
-  MyButton.addAction(interactiveCheckBox, ()=> core.interactiveMode.set(interactiveCheckBox.isSelected))
+  MySwing.addAction(interactiveCheckBox, ()=> core.interactiveMode.set(interactiveCheckBox.isSelected))
 
   val animationCheckBox = new JCheckBox("Animation")
-  MyButton.addAction(animationCheckBox, () => {
+  MySwing.addAction(animationCheckBox, () => {
     core.isAnimationMode = animationCheckBox.isSelected
     core.textToRender.set(textArea.getText)
   })

@@ -5,8 +5,11 @@ import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import ui.MyButton
+import ui.MySwing
+import ui.MySwing._
 import main.MuseCharType
+import ui.font_editor.ControlPanel.ModeInfo
+import utilities.ValueTextComponent.KeyCode
 import utilities.{ChangeListener, EditingSaver}
 
 /**
@@ -19,37 +22,52 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
     IndexedSeq(EditThickness(isHead = true), EditThickness(isHead = false), ScaleLetter, TranslateLetter, ScaleTotalThickness, BendCurve)
 
-  val modeButtonPairs = modes.zipWithIndex.map{ case (m, id) =>
-    val (name,explain) = m match {
-      case MoveCamera => ("MoveCamera", "Move the camera to view different parts")
-      case EditControlPoint(i) => (s"Edit P$i", "Edit this control point's position of current selected segment")
-      case EditThickness(isHead) => (s"${if(isHead) "Head" else "Tail"} Thickness", "Scale the thickness of current selected segment")
-      case ScaleLetter => ("Scale", "Scale size of the whole glyph")
-      case TranslateLetter => ("Translate", "Shift the position of all segments")
-      case ScaleTotalThickness => ("Scale Thickness", "Scale the thickness of all segments")
-      case BendCurve => ("Bend Curve", "Drag mouse to bend the shape of currently selected segment")
+  val modeInfos: IndexedSeq[ModeInfo] = {
+    import KeyEvent._
+    modes.zipWithIndex.map{ case (m, id) =>
+      val (name,explain, hks: Set[Int], hkNames: Set[String]) = m match {
+        case MoveCamera => (
+          "MoveCamera", "Move the camera to view different parts",
+          Set(VK_BACK_QUOTE, VK_M),Set("`","m"))
+        case EditControlPoint(i) => (s"Edit P$i", "Edit this control point's position of current selected segment",
+          Set(),Set())
+        case EditThickness(isHead) => (s"${if(isHead) "Head" else "Tail"} Thickness", "Scale the thickness of current selected segment",
+          Set(if(isHead) VK_H else VK_T),Set(if(isHead) "H" else "T"))
+        case BendCurve => ("Bend Curve", "Drag mouse to bend the shape of currently selected segment",
+          Set(VK_B),Set("B"))
+        case ScaleLetter => ("Scale", "Scale size of the whole glyph",
+          Set(VK_S),Set("S"))
+        case TranslateLetter => ("Translate", "Shift the position of all segments",
+          Set(VK_G),Set("G"))
+        case ScaleTotalThickness => ("Scale Thickness", "Scale the thickness of all segments",
+          Set(),Set())
+      }
+
+      ModeInfo(id, m, name, explain, hotKeys = hks++Set(VK_0+id), hotKeyNames = hkNames ++ Set(s"$id"))
     }
-    val hotkey = if(id == 0) "`" else id.toString
-    val b = new JRadioButton(name){
-      setFocusable(false)
-      MyButton.addAction(this, ()=>changeMode(m))
-      setToolTipText(s"$name:\n$explain.\nHot key [$hotkey]")
-    }
-    (m,b)
+  }
+
+  def getModeInfo(mode: EditMode) = modeInfos(modes.indexOf(mode))
+
+  val modeSelector = new JComboBox[String](modeInfos.map(_.name).toArray)
+
+  MySwing.reactAction(modeSelector){
+    val i = modeSelector.getSelectedIndex
+    changeMode(modes(i))
   }
 
   val alignTangentsCheckbox = new JCheckBox("Align Tangents"){
-    MyButton.addAction(this, () => editor.setAlignTangent(this.isSelected))
+    MySwing.addAction(this, () => editor.setAlignTangent(this.isSelected))
     setFocusable(false)
   }
   val strokeBreakCheckbox = new JCheckBox("Stroke Break"){
-    MyButton.addAction(this, () => editor.setStrokeBreak(this.isSelected))
+    MySwing.addAction(this, () => editor.setStrokeBreak(this.isSelected))
     setFocusable(false)
   }
 
   def makeButton(name: String) (action: => Unit): JButton = {
     val b = new JButton(name){ setFocusable(false) }
-    MyButton.addAction(b, ()=>action)
+    MySwing.addAction(b, ()=>action)
     b
   }
 
@@ -95,7 +113,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
       panel
     }
 
-    addRow(modeButtonPairs.map(_._2) :_*).setPreferredSize(new Dimension(400,130))
+    addRow(modeSelector)
 
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 
@@ -132,9 +150,9 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
         }
         setLetterType(letter.letterType)
     }
-    modeButtonPairs.foreach{
-      case (m, b) => b.setSelected(m==editor.mode)
-    }
+    val modeInfo = getModeInfo(editor.mode)
+    modeSelector.setSelectedIndex(modeInfo.id)
+    modeSelector.setToolTipText(modeInfo.explain + s"\n (Hot Keys: ${modeInfo.hotKeyNames.map(n => s"[$n]").mkString(", ")})")
   }
 
   def cutSegment(): Unit ={
@@ -192,48 +210,37 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
     editor.changeMode(mode)
   }
 
-  def getButtonByMode(editMode: EditMode) = {
-    modeButtonPairs.collect{case (m, b) if m==editMode => b}.head
+  def keyActionMap: Map[KeyCode, KeyEvent =>Unit] = {
+    import KeyEvent._
+    var map = Map[KeyCode, KeyEvent =>Unit](
+      (VK_RIGHT, e => segmentsPanel.moveSelection(1) ),
+      (VK_LEFT, e => segmentsPanel.moveSelection(-1) ),
+      (VK_ESCAPE, e => editor.selectSegment(None) ),
+      (VK_Z, e => if(e.isControlDown || e.isAltDown) undoButton.doClick() ),
+      (VK_R, e => if(e.isControlDown || e.isAltDown) redoButton.doClick() ),
+      (VK_UP, e => zoomAction(1.25)),
+      (VK_DOWN, e => zoomAction(0.8)),
+      (VK_A, e => appendButton.doClick())
+    )
+
+    for {
+      info <- modeInfos
+      keyCode <- info.hotKeys
+    }{
+      if(map.contains(keyCode)) throw new Exception(s"key code $keyCode already used!")
+      map = map + (keyCode, e => changeMode(info.mode))
+    }
+    map
   }
 
   def makeKeyListener() = new KeyAdapter {
+    val keyMap = keyActionMap
     override def keyReleased(e: KeyEvent): Unit = {
-      import KeyEvent._
-      e.getKeyCode match {
-        case VK_BACK_QUOTE =>
-          modeButtonPairs.head._2.doClick()
-        case VK_RIGHT =>
-          segmentsPanel.moveSelection(1)
-        case VK_LEFT =>
-          segmentsPanel.moveSelection(-1)
-        case VK_ESCAPE =>
-          editor.selectSegment(None)
-        case VK_Z =>
-          if(e.isControlDown || e.isAltDown)
-            undoButton.doClick()
-        case VK_R =>
-          if(e.isControlDown || e.isAltDown)
-            redoButton.doClick()
-        case VK_UP =>
-          zoomAction(1.25)
-        case VK_DOWN =>
-          zoomAction(0.8)
-        case VK_G =>
-          getButtonByMode(TranslateLetter).doClick()
-        case VK_S =>
-          getButtonByMode(ScaleLetter).doClick()
-        case VK_H =>
-          getButtonByMode(EditThickness(isHead = true)).doClick()
-        case VK_T =>
-          getButtonByMode(EditThickness(isHead = false)).doClick()
-        case _ => ()
-      }
-      val keyId = e.getKeyCode - VK_1 + 1
-      if(keyId>=1 && keyId<=9)
-        modeButtonPairs(keyId)._2.doClick()
+      keyMap(e.getKeyCode)(e)
     }
   }
 }
 
-
-
+object ControlPanel{
+  case class ModeInfo(id: Int, mode: EditMode, name: String, explain: String, hotKeys: Set[Int], hotKeyNames: Set[String])
+}

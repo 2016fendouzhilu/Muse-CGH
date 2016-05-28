@@ -8,7 +8,7 @@ import javax.imageio.ImageIO
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import ui.MyButton
+import ui.MySwing
 import main.{MuseCharPainter, RenderingResult, RenderingWord}
 import utilities.{ImageSaver, Vec2}
 
@@ -92,7 +92,7 @@ class PaintableResult(result: RenderingResult, dotsPerUnit: Double,
     }
 
     val startButton = new JButton("Start")
-    MyButton.addAction(startButton, () => {
+    MySwing.addAction(startButton, () => {
       startButton.setEnabled(false)
       new Thread(new Runnable {
         override def run(): Unit = {
@@ -143,7 +143,7 @@ class PaintableResult(result: RenderingResult, dotsPerUnit: Double,
     }
 
     val saveButton = new JButton("Save Image")
-    MyButton.addAction(saveButton, openSaveImageDialog)
+    MySwing.addAction(saveButton, openSaveImageDialog)
 
     new JPanel() {
       setLayout(new BoxLayout(this, BoxLayout.Y_AXIS))

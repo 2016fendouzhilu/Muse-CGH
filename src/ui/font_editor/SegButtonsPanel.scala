@@ -3,7 +3,7 @@ package ui.font_editor
 import java.awt.{Dimension, FlowLayout}
 import javax.swing.{JPanel, JToggleButton}
 
-import ui.MyButton
+import ui.MySwing
 import utilities.MyMath
 
 import scala.collection.mutable
@@ -20,7 +20,7 @@ class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
 
   def makeButton(index: Int): JToggleButton ={
     val b = new JToggleButton(s"$index"){setFocusable(false)}
-    MyButton.addAction(b, ()=>selectAction(index))
+    MySwing.addAction(b, ()=>selectAction(index))
     buttons += b
     b
   }

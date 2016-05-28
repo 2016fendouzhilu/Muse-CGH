@@ -3,7 +3,7 @@ package ui.user
 import java.awt.{Dimension, FlowLayout}
 import javax.swing.{BoxLayout, JButton, JFrame, JPanel}
 
-import ui.MyButton
+import ui.MySwing
 import ui.font_editor.EditorMain
 import main.ParamsCore
 import utilities.MuseCharMapLoader
@@ -29,12 +29,12 @@ object UIMain {
     }
 
     val openEditorButton = new JButton("Font Editor")
-    MyButton.addAction(openEditorButton, () => {
+    MySwing.addAction(openEditorButton, () => {
       editor.setVisible(!editor.isVisible)
     })
 
     val reloadLetterMapButton = new JButton("Reload Letters")
-    MyButton.addAction(reloadLetterMapButton, ()=>{
+    MySwing.addAction(reloadLetterMapButton, ()=>{
       core.letterMap.set(MuseCharMapLoader.loadDefaultCharMap())
     })
 
