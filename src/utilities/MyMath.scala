@@ -36,8 +36,19 @@ object MyMath {
       None
   }
 
+  def totalLength(points: IndexedSeq[Vec2]): Double = {
+    var len = 0.0
+    var i = 0
+    while (i < points.length - 1) {
+      len += (points(i+1)-points(i)).length
+      i += 1
+    }
+    len
+  }
 
-  case class MinimizationConfig(errorForStop: Double, maxIterations: Int, learningRate: Double = 0.1, gradientDelta: Double = 1e-2)
+
+
+  case class MinimizationConfig(gradientForStop: Double, maxIterations: Int, learningRate: Double = 0.1, gradientDelta: Double = 1e-2)
 
   case class MinimizationReport(iterations: Int, error: Double, lastDeltaError: Double)
 
@@ -52,12 +63,16 @@ object MyMath {
     var oldError = f(initParams)
     var deltaError = -1.0
     for(i <- 0 until config.maxIterations){
+      var gradientSmall = true
       params = params.indices.map{pIdx =>
-        params(pIdx) - partialDerivative(params, pIdx) * config.learningRate
+        val der = partialDerivative(params, pIdx)
+        if(math.abs(der) >= config.gradientForStop)
+          gradientSmall = false
+        params(pIdx) - der * config.learningRate
       }
       val newError = f(params)
       deltaError = newError - oldError
-      if(math.abs(deltaError) < config.errorForStop) {
+      if(gradientSmall) {
         val report = MinimizationReport(i, newError, lastDeltaError = deltaError)
         return (report, params)
       }

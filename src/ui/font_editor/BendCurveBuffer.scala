@@ -47,9 +47,9 @@ class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsD
 
 object BendCurveBuffer{
   def defaultConfig = MinimizationConfig(
-    errorForStop = 0.01,
+    gradientForStop = 0.1,
     maxIterations = 50,
     learningRate = 0.1,
-    gradientDelta = 1e-4
+    gradientDelta = 1e-8
   )
 }

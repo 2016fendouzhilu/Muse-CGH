@@ -87,8 +87,9 @@ object CubicCurve{
     */
   def dotsToCurve(dots: IndexedSeq[Vec2], curveSampleNum: Int, config: MyMath.MinimizationConfig): (MyMath.MinimizationReport ,CubicCurve) = {
     def curveError(curve: CubicCurve): Double = {
-      val curveSamples = curve.samples(curveSampleNum)
-      dots.map{ dot => curveSamples.map(s => (s-dot).lengthSquared).min }.sum
+      val curveSamples = curve.samples(sampleNum = curveSampleNum)
+      val dotsErroSum = dots.map{ dot => curveSamples.map(s => (s-dot).lengthSquared).min }.sum
+      math.sqrt(dotsErroSum) / MyMath.totalLength(curveSamples)
     }
 
     val p0 = dots.head
