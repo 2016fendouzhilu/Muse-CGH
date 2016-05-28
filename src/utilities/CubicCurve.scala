@@ -11,7 +11,7 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     p0 * dCubic + p1 * (3*dSquare*t) + p2 * (3*delta*t*t) + p3 * (t*t*t)
   }
 
-  def evalTangent(t: Double): Vec2 = {
+  def evalTangentDirection(t: Double): Vec2 = {
     evalFirstDerivative(t).normalized
   }
 
@@ -80,7 +80,7 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     val dt = 1.0/samples
     (0 to samples).map { i =>
       val t = dt * i
-      evalTangent(t)
+      evalTangentDirection(t)
     }
   }
 }

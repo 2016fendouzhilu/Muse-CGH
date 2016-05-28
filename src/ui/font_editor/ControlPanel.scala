@@ -20,7 +20,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
   val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
-    IndexedSeq(EditThickness(isHead = true), EditThickness(isHead = false), ScaleLetter, TranslateLetter, ScaleTotalThickness, BendCurve)
+    IndexedSeq(BendCurve, EditThickness(isHead = true), EditThickness(isHead = false), ScaleLetter, TranslateLetter, ScaleTotalThickness)
 
   val modeInfos: IndexedSeq[ModeInfo] = {
     import KeyEvent._
@@ -43,7 +43,10 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
           Set(),Set())
       }
 
-      ModeInfo(id, m, name, explain, hotKeys = hks++Set(VK_0+id), hotKeyNames = hkNames ++ Set(s"$id"))
+      val (idKey, idName) = if(id<10) {
+        (Set(VK_0 + id) ,Set(s"$id"))
+      } else (Set(), Set())
+      ModeInfo(id, m, name, explain, hks ++ idKey, hkNames ++ idName )
     }
   }
 
@@ -55,6 +58,8 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
     val i = modeSelector.getSelectedIndex
     changeMode(modes(i))
   }
+
+  val modeDescription = new JTextArea("Mode description") { setEditable(false) }
 
   val alignTangentsCheckbox = new JCheckBox("Align Tangents"){
     MySwing.addAction(this, () => editor.setAlignTangent(this.isSelected))
@@ -115,6 +120,8 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
 
     addRow(modeSelector)
 
+    addRow(modeDescription)
+
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
 
     addRow(appendButton, cutSegmentButton, deleteButton)
@@ -152,7 +159,9 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
     }
     val modeInfo = getModeInfo(editor.mode)
     modeSelector.setSelectedIndex(modeInfo.id)
-    modeSelector.setToolTipText(modeInfo.explain + s"\n (Hot Keys: ${modeInfo.hotKeyNames.map(n => s"[$n]").mkString(", ")})")
+    val descriptionText = modeInfo.explain + s"\n (Hot Keys: ${modeInfo.hotKeyNames.map(n => s"[$n]").mkString(", ")})"
+    modeDescription.setText(descriptionText)
+    modeDescription.setToolTipText(descriptionText)
   }
 
   def cutSegment(): Unit ={
@@ -220,7 +229,8 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
       (VK_R, e => if(e.isControlDown || e.isAltDown) redoButton.doClick() ),
       (VK_UP, e => zoomAction(1.25)),
       (VK_DOWN, e => zoomAction(0.8)),
-      (VK_A, e => appendButton.doClick())
+      (VK_A, e => appendButton.doClick()),
+      (VK_C, e=> cutSegmentButton.doClick())
     )
 
     for {
@@ -236,7 +246,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
   def makeKeyListener() = new KeyAdapter {
     val keyMap = keyActionMap
     override def keyReleased(e: KeyEvent): Unit = {
-      keyMap(e.getKeyCode)(e)
+      keyMap.get(e.getKeyCode).foreach(_(e))
     }
   }
 }

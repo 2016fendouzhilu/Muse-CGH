@@ -1,7 +1,8 @@
 package ui.font_editor
 
 import main.{LetterSeg, MuseCharType}
-import utilities.{ChangeSource, CollectionOp, CubicCurve, Vec2}
+import utilities.MyMath.MinimizationConfig
+import utilities._
 
 /**
   * Model for font editor
@@ -77,15 +78,22 @@ class EditorCore(private var buffer: Editing) extends ChangeSource {
     editAndRecord(Editing.empty)
   }
 
-  def cutSegment(sIndex: Int): Unit ={
+  def cutSegment(sIndex: Int, samplePoints: Int = 20): Unit ={
     val letter = buffer.letter
     val segs = letter.segs
     val segsToInsert = {
       val old = segs(sIndex)
       val oldCurve = old.curve
-      val mid = oldCurve.eval(0.5)
-      val l = oldCurve.copy(p3 = mid, p2 = oldCurve.p1)
-      val r = oldCurve.copy(p0 = mid, p1 = oldCurve.p2)
+      val curveSamples = oldCurve.samples(samplePoints*2-1)
+      val firstHalf = curveSamples.take(samplePoints)
+      val secondHalf = curveSamples.drop(samplePoints-1)
+
+      val defaultConfig: MinimizationConfig = BendCurveBuffer.defaultConfig
+      val config: MinimizationConfig = defaultConfig.copy(errorForStop = defaultConfig.errorForStop / 4)
+      val (r1, l) = CubicCurve.dotsToCurve(curveSampleNum = samplePoints*2, config)(firstHalf)
+      val (r2, r) = CubicCurve.dotsToCurve(curveSampleNum = samplePoints*2, config)(secondHalf)
+      List(r1,r2).foreach(println)
+
       val midWidth = (old.startWidth + old.endWidth)/2
       IndexedSeq(
         old.copy(curve = l, endWidth = midWidth),
@@ -107,11 +115,11 @@ class EditorCore(private var buffer: Editing) extends ChangeSource {
     val newSeg = segs.lastOption match {
       case Some(last) =>
         val curve: CubicCurve = last.curve
-        val offset = curve.p3 - curve.p0
-        val delta = curve.p3-curve.p2
-        val tc = curve.translate(offset)
-        val newCurve = tc.copy(p1 = tc.p0 + delta)
-        last.copy(curve = newCurve, startWidth = last.endWidth, endWidth = last.startWidth)
+        val dir = curve.evalTangentDirection(1.0)
+        val newSegLen = 0.1
+        val interpolation = MyMath.linearInterpolate(curve.p3, curve.p3+dir*newSegLen)_
+        val newCurve = curve.copy(interpolation(0), interpolation(0.3), interpolation(0.7), interpolation(1))
+        last.copy(curve = newCurve, startWidth = last.endWidth, endWidth = last.endWidth)
       case None => LetterSeg.initCurve
     }
     editAndRecord(buffer.copy(letter = buffer.letter.copy(segs = segs :+ newSeg), selects = Seq(segs.length)))
