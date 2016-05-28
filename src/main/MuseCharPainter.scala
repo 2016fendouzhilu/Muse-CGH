@@ -11,7 +11,7 @@ import utilities.Vec2
 class MuseCharPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
                     dotsPerUnit:Double, thicknessScale: Double) {
 
-  def paintWordWithBuffering(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color, width: Double, height: Double): Unit ={
+  def paintWordWithBuffering(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color, width: Double, height: Double): Unit = {
     ???
   }
 
@@ -25,7 +25,7 @@ class MuseCharPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: 
 
     drawer.setColor(color)
     segs.foreach{ case WidthCurve(curve, wf) =>
-      drawer.drawCurveWithWF(curve, wf)
+      drawer.drawCurveWithTimeUsed(curve, wf)
     }
   }
 
@@ -46,7 +46,7 @@ class MuseCharPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: 
       lastPos = curve.p0
 
       if(timeUsed(dis) ||
-        drawer.drawCurveWithWF(curve, wf, timeUsed)) return true
+        drawer.drawCurveWithTimeUsed(curve, wf, timeUsed)) return true
     }
     false
   }

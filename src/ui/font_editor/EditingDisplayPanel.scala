@@ -21,8 +21,10 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
   val mainStrokeColor = Color.black
   val endpointColor = CurveDrawer.colorWithAlpha(Color.red, 0.75)
   val controlPointColor = CurveDrawer.colorWithAlpha(Color.orange, 0.75)
-  val curveHighlightColor = Color.cyan.darker()
+  val curveHighlightEnd = Color.orange
+  val curveHighlightStart = Color.red
   val editThicknessColor = Color.red
+  val controlLineColor = Color.cyan
 
   val letterMaxTall = 2.0
   val letterMaxDeep = 2.0
@@ -65,17 +67,24 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
     editor.currentEditing() match {
       case Editing(letter, selects) =>
         val selectedCurves = selects.map(letter.segs)
-        selectedCurves.foreach(c => drawer.drawCurveControlPoints(c, endpointColor, controlPointColor, controlLineThickness))
+        selectedCurves.foreach(c => drawer.drawCurveControlPoints(c, curveHighlightStart, curveHighlightEnd, controlLineColor, controlLineThickness))
 
         editor.mode match{
           case EditControlPoint(pid) =>
             drawEditingLines(drawer)(selectedCurves.map(_.curve), pid, controlPointColor)
           case edt@EditThickness(_) =>
             drawEditingLines(drawer)(selectedCurves.map(_.curve), edt.pid, editThicknessColor)
+          case BendCurve =>
+            bendCurveBuffer.foreach { b =>
+              b.dots.foreach { d =>
+                drawer.setColor(Color.gray)
+                drawer.drawDot(d, 0.02)
+              }
+            }
           case _ => ()
         }
 
-        drawer.drawLetter(letter, mainStrokeColor, curveHighlightColor, selects)
+        drawer.drawLetter(letter, mainStrokeColor, selects, curveHighlightStart, curveHighlightEnd )
     }
 
   }
@@ -137,7 +146,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
             val initCurve = ink.curve
             val start = initCurve.p0
             val penOffset = displayToEditorPointTrans(current) - start
-            bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.001, dataPointNum = 15))
+            bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.03, dataPointNum = 15))
         }
       }
     }
@@ -173,6 +182,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
         bendCurveBuffer.foreach(_.report())
         bendCurveBuffer = None
         editor.recordNow()
+        editor.notifyListeners()
       case _ => editor.recordNow()
     }
   }

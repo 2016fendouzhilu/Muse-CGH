@@ -89,9 +89,10 @@ class EditorCore(private var buffer: Editing) extends ChangeSource {
       val secondHalf = curveSamples.drop(samplePoints-1)
 
       val defaultConfig: MinimizationConfig = BendCurveBuffer.defaultConfig
-      val config: MinimizationConfig = defaultConfig.copy(errorForStop = defaultConfig.errorForStop / 4)
-      val (r1, l) = CubicCurve.dotsToCurve(curveSampleNum = samplePoints*2, config)(firstHalf)
-      val (r2, r) = CubicCurve.dotsToCurve(curveSampleNum = samplePoints*2, config)(secondHalf)
+      val lConfig = defaultConfig.copy(errorForStop = defaultConfig.errorForStop * MyMath.totalLength(firstHalf))
+      val rConfig = defaultConfig.copy(errorForStop = defaultConfig.errorForStop * MyMath.totalLength(secondHalf))
+      val (r1, l) = CubicCurve.dotsToCurve(curveSampleNum = samplePoints*2, lConfig)(firstHalf)
+      val (r2, r) = CubicCurve.dotsToCurve(curveSampleNum = samplePoints*2, rConfig)(secondHalf)
       List(r1,r2).foreach(println)
 
       val midWidth = (old.startWidth + old.endWidth)/2

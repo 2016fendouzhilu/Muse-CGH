@@ -19,7 +19,9 @@ class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsD
         MyMath.linearInterpolatePoints(dots)(t)
       }
 
-      val (r, c) = CubicCurve.dotsToCurve(curveSampleNum = 2*dataPointNum, config)(sampleDots)
+      val sampleLength = MyMath.totalLength(sampleDots)
+      val configToUse = config.copy(errorForStop = config.errorForStop * sampleLength * sampleLength)
+      val (r, c) = CubicCurve.dotsToCurve(curveSampleNum = 2*dataPointNum, configToUse)(sampleDots)
       curve = c
       minimizationReport = Some(r)
     }
@@ -46,7 +48,7 @@ class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsD
 
 object BendCurveBuffer{
   def defaultConfig = MinimizationConfig(
-    errorForStop = 0.01,
+    errorForStop = 0.0001,
     maxIterations = 50,
     learningRate = 0.1,
     gradientDelta = 1e-4

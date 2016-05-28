@@ -59,7 +59,10 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
     changeMode(modes(i))
   }
 
-  val modeDescription = new JTextArea("Mode description") { setEditable(false) }
+  val modeDescription = new JTextArea("Mode description") {
+    setEditable(false); setFocusable(false)
+    setLineWrap(true); setWrapStyleWord(true)
+  }
 
   val alignTangentsCheckbox = new JCheckBox("Align Tangents"){
     MySwing.addAction(this, () => editor.setAlignTangent(this.isSelected))
@@ -120,6 +123,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
 
     addRow(modeSelector)
 
+    modeDescription.setPreferredSize(new Dimension(300,60))
     addRow(modeDescription)
 
     addRow(alignTangentsCheckbox, strokeBreakCheckbox)
@@ -159,7 +163,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
     }
     val modeInfo = getModeInfo(editor.mode)
     modeSelector.setSelectedIndex(modeInfo.id)
-    val descriptionText = modeInfo.explain + s"\n (Hot Keys: ${modeInfo.hotKeyNames.map(n => s"[$n]").mkString(", ")})"
+    val descriptionText = modeInfo.explain + s"\nHot Keys: ${modeInfo.hotKeyNames.map(n => s"[$n]").mkString(", ")}"
     modeDescription.setText(descriptionText)
     modeDescription.setToolTipText(descriptionText)
   }

@@ -15,12 +15,24 @@ class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, widthScale: Dou
 
   def setColor(color: Color) = g2d.setColor(color)
 
-  def drawCurve(inkCurve: LetterSeg): Unit = inkCurve match{
-    case LetterSeg(curve, start, end, _, _) =>
-      drawCurveWithWF(curve, MyMath.linearInterpolate(start, end))
+  def drawColorfulCurve(curve: CubicCurve, wF: Double => Double, cF: Option[Double => Color]): Unit = {
+    val points = curve.samples(dotsPerUnit)
+    val tangents = curve.sampleTangents(dotsPerUnit)
+    val dots = points.length
+    val dt = 1.0/dots
+
+    for(i <- 0 until dots-1){
+      cF.foreach{f => setColor(f(i*dt)) }
+      val r0 = wF(i*dt)
+      val r1 = wF((i+1)*dt)
+      val p0 = points(i)
+      val p1 = points(i + 1)
+      val (t0,t1) = (tangents(i),tangents(i+1))
+      drawThicknessLine(p0, p1, t0, t1, r0*thicknessScale, r1*thicknessScale)
+    }
   }
 
-  def drawCurveWithWF(curve: CubicCurve, wF: Double => Double, timeUsed: Double => Boolean = (_) => false): Boolean = {
+  def drawCurveWithTimeUsed(curve: CubicCurve, wF: Double => Double, timeUsed: Double => Boolean = (_) => false): Boolean = {
     val points = curve.samples(dotsPerUnit)
     val tangents = curve.sampleTangents(dotsPerUnit)
     val dots = points.length
@@ -41,16 +53,20 @@ class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, widthScale: Dou
     false
   }
 
-  def drawCurveControlPoints(inkCurve: LetterSeg, endpointColor: Color, controlColor: Color, lineWidth: Double): Unit = inkCurve match{
-    case LetterSeg(curve, start, end, _, _) =>
-      setColor(endpointColor)
-      drawDot(curve.p0, start)
-      drawDot(curve.p3, end)
 
-      val controlR = (start+end)/2
-      setColor(controlColor)
-      drawDot(curve.p1, controlR)
-      drawDot(curve.p2, controlR)
+  def drawCurveControlPoints(inkCurve: LetterSeg, startColor: Color, endColor: Color, controlLineColor: Color, lineWidth: Double): Unit = inkCurve match{
+    case LetterSeg(curve, start, end, _, _) =>
+//      setColor(endpointColor)
+//      drawDot(curve.p0, start)
+//      drawDot(curve.p3, end)
+//      val controlR = (start+end)/2
+//      setColor(startColor)
+//      drawDot(curve.p1, controlR)
+//
+//      setColor(endColor)
+//      drawDot(curve.p2, controlR)
+
+      setColor(controlLineColor)
       drawLine(curve.p1,curve.p0,lineWidth, noWidthScale = true)
       drawLine(curve.p2,curve.p3,lineWidth, noWidthScale = true)
   }
@@ -92,17 +108,17 @@ class CurveDrawer(g2d: Graphics2D, pointTransform: Vec2 => Vec2, widthScale: Dou
     g2d.fill(dot)
   }
 
-  def drawLetter(letter: MuseChar, mainStrokeColor: Color, highlightColor: Color, highlights: Seq[Int]) = {
+  def drawLetter(letter: MuseChar, mainStrokeColor: Color, highlights: Seq[Int], highlightStart: Color, highlightEnd: Color) = {
     letter.segs.zipWithIndex.foreach{case (s, i) =>
       if(!(highlights contains i)){
         setColor(mainStrokeColor)
-        drawCurve(s)
+        drawColorfulCurve(s.curve, MyMath.linearInterpolate(s.startWidth, s.endWidth), cF = None)
       }
     }
     letter.segs.zipWithIndex.foreach{case (s, i) =>
       if(highlights contains i){
-        setColor(highlightColor)
-        drawCurve(s)
+        drawColorfulCurve(s.curve, MyMath.linearInterpolate(s.startWidth, s.endWidth),
+          cF = Some(MyMath.linearInterpolate(highlightStart, highlightEnd)))
       }
     }
   }

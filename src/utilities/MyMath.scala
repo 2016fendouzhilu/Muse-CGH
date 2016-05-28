@@ -1,5 +1,7 @@
 package utilities
 
+import java.awt.Color
+
 /**
   * Extra maths
   */
@@ -11,6 +13,17 @@ object MyMath {
 
   def linearInterpolate(x0: Vec2, x1: Vec2)(t: Double): Vec2 = {
     x0 + (x1-x0) * t
+  }
+
+  def linearInterpolate(c1: Color, c2: Color)(t: Double): Color = {
+    val r = t
+    val l = 1-r
+    new Color(
+      (c1.getRed * l + c2.getRed * r).toInt,
+      (c1.getGreen * l + c2.getGreen * r).toInt,
+      (c1.getBlue * l+ c2.getBlue * r).toInt,
+      (c1.getAlpha * l + c2.getAlpha * r).toInt
+    )
   }
 
   def linearInterpolatePoints(points: IndexedSeq[Vec2])(t: Double): Vec2 = {
