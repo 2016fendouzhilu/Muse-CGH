@@ -24,7 +24,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
   val curveHighlightEnd = Color.orange
   val curveHighlightStart = Color.red
   val editThicknessColor = Color.red
-  val controlLineColor = Color.cyan
+  val controlLineColor = new Color(0.6f,0f,0.6f)
 
   val letterMaxTall = 2.0
   val letterMaxDeep = 2.0
