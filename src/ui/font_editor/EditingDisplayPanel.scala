@@ -137,7 +137,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
             val initCurve = ink.curve
             val start = initCurve.p0
             val penOffset = displayToEditorPointTrans(current) - start
-            bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.002))
+            bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.001, dataPointNum = 15))
         }
       }
     }

@@ -42,6 +42,10 @@ case class CubicCurve(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2) {
     case 3 => copy(p3 = p)
   }
 
+  def dragPoint(id: Int, delta: Vec2): CubicCurve = {
+    setPoint(id, getPoint(id) + delta)
+  }
+
   def pointsMap(f: Vec2 => Vec2) = CubicCurve(f(p0), f(p1), f(p2), f(p3))
 
   def translate(offset: Vec2) = this.pointsMap(_ + offset)
@@ -85,9 +89,9 @@ object CubicCurve{
   /**
     * O(n*n) running time, where n is the number of dots
     */
-  def dotsToCurve(dots: IndexedSeq[Vec2], curveSampleNum: Int, config: MyMath.MinimizationConfig): (MyMath.MinimizationReport ,CubicCurve) = {
+  def dotsToCurve(curveSampleNum: Int, config: MyMath.MinimizationConfig)(dots: IndexedSeq[Vec2]): (MyMath.MinimizationReport ,CubicCurve) = {
     def curveError(curve: CubicCurve): Double = {
-      val curveSamples = curve.samples(curveSampleNum)
+      val curveSamples = curve.samples(sampleNum = curveSampleNum)
       dots.map{ dot => curveSamples.map(s => (s-dot).lengthSquared).min }.sum
     }
 

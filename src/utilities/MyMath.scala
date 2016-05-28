@@ -13,6 +13,18 @@ object MyMath {
     x0 + (x1-x0) * t
   }
 
+  def linearInterpolatePoints(points: IndexedSeq[Vec2])(t: Double): Vec2 = {
+    val segmentNum = points.length - 1
+    require(segmentNum > 0)
+    val doubleIndex = t*segmentNum
+    val intIndex = doubleIndex.toInt
+    if(intIndex >= segmentNum) points(segmentNum)
+    else {
+      val tInSegment = doubleIndex - intIndex
+      linearInterpolate(points(intIndex), points(intIndex+1))(tInSegment)
+    }
+  }
+
   def ceil(x: Double) = x.ceil.toInt
 
   def wrap(i: Int, max: Int) = {
@@ -36,6 +48,15 @@ object MyMath {
       None
   }
 
+  def totalLength(points: IndexedSeq[Vec2]): Double = {
+    var len = 0.0
+    var i = 0
+    while (i < points.length - 1) {
+      len += (points(i+1)-points(i)).length
+      i += 1
+    }
+    len
+  }
 
   case class MinimizationConfig(errorForStop: Double, maxIterations: Int, learningRate: Double = 0.1, gradientDelta: Double = 1e-2)
 

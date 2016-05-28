@@ -123,77 +123,52 @@ class EditorCore(private var buffer: Editing) extends ChangeSource {
       editAndRecord(buffer.copy(letter = l.copy(letterType = t)))
   }
 
-  def dragControlPoint(pid: Int, drag: Vec2): Unit = {
-    val Editing(letter, selects) = currentEditing()
-    selects.headOption.foreach { segIndex =>
-      val segArray = letter.segs.toArray
+  def dragEndOrTangentPoint(segs: IndexedSeq[LetterSeg], selectedId: Int, dragEnd: Boolean, dragHead: Boolean, drag: Vec2): IndexedSeq[LetterSeg] = {
+    val endPointId = if (dragHead) 0 else 3
+    val tanPointId = if (dragHead) 1 else 2
+    val endIndex = segs.length
 
-      def setPoint(segIndex: Int, pid: Int, newP: Vec2) = {
-        segArray(segIndex) = segArray(segIndex).setPoint(pid, newP)
-      }
+    val candidate = if (dragHead) selectedId - 1 else selectedId + 1
 
-      def movePoint(segIndex: Int, pid: Int, offset: Vec2): Vec2 = {
-        val selectedInk = segArray(segIndex)
-        val newP = selectedInk.curve.getPoint(pid) + offset
-        setPoint(segIndex, pid, newP)
-        newP
-      }
+    val newSelectedSeg =
+      if (dragEnd)
+        segs(selectedId).dragPoint(endPointId, drag).dragPoint(tanPointId, drag)
+      else
+        segs(selectedId).dragPoint(tanPointId, drag)
 
-      val newEndpoint = movePoint(segIndex, pid, drag)
+    val update1 = segs.updated(selectedId, newSelectedSeg)
 
-      val tControlOpt = pid match {
-        case 0 => Some(1)
-        case 3 => Some(2)
-        case _ => None
-      }
-      tControlOpt.foreach { tid =>
-        movePoint(segIndex, tid, drag)
-      }
-
-      val endIndex: Int = segArray.length // stroke end
-
-      pid match {
-        case 0 =>
-          val nearby = segIndex - 1
-          if (nearby >= 0 && segArray(nearby).connectNext) {
-            setPoint(nearby, 3, newEndpoint)
-          }
-        case 3 =>
-          val nearby = segIndex + 1
-          if (nearby < endIndex && segArray(segIndex).connectNext) {
-            setPoint(nearby, 0, newEndpoint)
-          }
-        case _ => ()
-      }
-
-    {
-      // Align Tangents
-      val c = segArray(segIndex).curve
-      if (pid < 2) {
-        val nearby = segIndex - 1
-        if (nearby >= 0) {
-          val nearbySeg = segArray(nearby)
-          if (nearbySeg.alignTangent) {
-            val tangent = (c.p0 - c.p1).normalized
-            val nearLen = (nearbySeg.curve.p3 - nearbySeg.curve.p2).length
-            setPoint(nearby, 2, nearbySeg.curve.p3 + tangent * nearLen)
-          }
+    if (candidate >= 0 && candidate < endIndex) {
+      val nearSeg = segs(candidate)
+      if (dragEnd) {
+        if (dragHead && nearSeg.connectNext || (!dragHead && newSelectedSeg.connectNext)) {
+          val newSeg = segs(candidate).dragPoint(3 - endPointId, drag).dragPoint(3 - tanPointId, drag)
+          return update1.updated(candidate, newSeg)
         }
       } else {
-        val nearby = segIndex + 1
-        if (nearby < endIndex) {
-          val nearbyC = segArray(nearby).curve
-          if (segArray(segIndex).alignTangent) {
-            val tangent = (c.p3 - c.p2).normalized
-            val nearLen = (nearbyC.p0 - nearbyC.p1).length
-            setPoint(nearby, 1, nearbyC.p0 + tangent * nearLen)
-          }
+        if (dragHead && nearSeg.alignTangent || (!dragHead && newSelectedSeg.alignTangent)) {
+          val dir = (newSelectedSeg.curve.getPoint(endPointId) - newSelectedSeg.curve.getPoint(tanPointId)).normalized
+          val nearCurve = segs(candidate).curve
+          val oldTangentLen = (nearCurve.getPoint(3 - tanPointId) - nearCurve.getPoint(3 - endPointId)).length
+          val newSeg = segs(candidate).setPoint(3 - tanPointId, nearCurve.getPoint(3 - endPointId) + dir * oldTangentLen)
+          return update1.updated(candidate, newSeg)
         }
       }
     }
 
-      val newLetter = letter.copy(segs = segArray.toIndexedSeq)
-      editWithoutRecord(buffer.copy(letter = newLetter))
+    update1
+  }
+
+
+  def dragControlPoint(pid: Int, drag: Vec2): Unit = {
+    val Editing(letter, selects) = currentEditing()
+    selects.headOption.foreach { segIndex =>
+      val newSegs = if (pid == 0 || pid == 3) {
+        dragEndOrTangentPoint(letter.segs, segIndex, dragEnd = true, dragHead = pid == 0, drag)
+      } else {
+        dragEndOrTangentPoint(letter.segs, segIndex, dragEnd = false, dragHead = pid == 1, drag)
+      }
+      editWithoutRecord(buffer.copy(letter = letter.copy(segs = newSegs)))
     }
   }
 

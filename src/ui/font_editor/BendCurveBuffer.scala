@@ -1,12 +1,12 @@
 package ui.font_editor
 
 import utilities.MyMath.{MinimizationReport, MinimizationConfig}
-import utilities.{CubicCurve, Vec2}
+import utilities.{MyMath, CubicCurve, Vec2}
 
 /**
   * Created by weijiayi on 5/28/16.
   */
-class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsDistance: Double, config: MinimizationConfig = BendCurveBuffer.defaultConfig) {
+class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsDistance: Double, dataPointNum: Int, config: MinimizationConfig = BendCurveBuffer.defaultConfig) {
   var dots = IndexedSeq[Vec2](start)
 
   var curve = initCurve
@@ -14,13 +14,12 @@ class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsD
 
   private def updateCurve() = {
     if(dots.length>=2){
-      val sampleDots =
-        if(dots.length < 20) dots
-        else {
-          val step = dots.length / 10
-          (dots.indices by step).map(dots(_))
-        }
-      val (r, c) = CubicCurve.dotsToCurve(sampleDots, curveSampleNum = 2 * sampleDots.length, config)
+      val sampleDots = (0 to dataPointNum).map{i =>
+        val t = i.toDouble/dataPointNum
+        MyMath.linearInterpolatePoints(dots)(t)
+      }
+
+      val (r, c) = CubicCurve.dotsToCurve(curveSampleNum = 2*dataPointNum, config)(sampleDots)
       curve = c
       minimizationReport = Some(r)
     }

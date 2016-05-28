@@ -12,6 +12,11 @@ case class LetterSeg(curve: CubicCurve, startWidth: Double, endWidth: Double,
     this.copy(curve = nc)
   }
 
+  def dragPoint(id: Int, delta: Vec2) = {
+    val c = curve.dragPoint(id, delta)
+    this.copy(curve = c)
+  }
+
   def connectNext = !isStrokeBreak
 
   def pointsMap(f: Vec2 => Vec2) = copy(curve = curve.pointsMap(f))
