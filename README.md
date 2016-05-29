@@ -33,9 +33,9 @@ you can [download the compiled program (v1.3)](https://github.com/MrVPlussOne/Mu
 
  - As you can see, there're quite many parameters you can change. Help texts will show up if you hover mouse cursor on them.
 
-##### The font editor is still very simple and crude. It was written at the very early stage of this project for fast prototyping. So the experience may not be that satisfactory (make sure you know the keyboard shortcuts if you do use it). Future improvements're needed.
+##### With Muse's newly updated *Font Editor*, you can design your own fonts without too much efforts.
 
-![alt tag](Editor_Screenshot.png)
+![alt tag](NewEditor.gif)
 
 #### Command-line mode introduction
 
