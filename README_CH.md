@@ -2,7 +2,7 @@
 [Click here to read in English(点击此处阅读英文版)](README.md)
 ### 一个由文本生成手写圆体英文的程序
 
-你可以直接[下载编译好的程序 (v1.3)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/v1.3/Muse1.3.zip) (.jar 文件)
+你可以直接[下载编译好的程序 (v1.4)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/1.4/Muse1.4.zip) (.jar 文件)
 
 ### 简介
 
