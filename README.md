@@ -1,22 +1,24 @@
 # Muse-CGH
-[点击此处阅读中文版(Click here to read Chinese version)](README_CH.md)
+[点击此处阅读中文版(Click here to read the Chinese version)](README_CH.md)
 ### A program to convert text into stylish Computer Generated Handwriting.
 
 you can [download the compiled program (v1.4)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/1.4/Muse1.4.zip) directly (.jar file)
 
 ### Overview
 
-##### Muse can synthesis stylish English handwriting from text. Its algorithm carefully connects strokes of adjacent characters to produce cursive words, and uses randomness to ensure that every character is unique in the rendering results.
+##### Muse can synthesize stylish English handwriting from texts. Its algorithm carefully connects strokes of adjacent characters to produce cursive words and uses randomness to ensure that every character is unique in the rendering results.
 
 ##### The following photo shows some rendered text printed on papers:
 
 ![alt tag](Printed.jpg)
 
 
+#### You can learn more about Muse's features by watching videos on my [homepage](https://mrvplusone.github.io/) in the 'Project Gallery' tab. (Sinece I can't use videos here.)
+
 ### Usage
 
 ##### Muse can work in two modes: GUI mode and Command-line mode. 
- - The GUI mode is the most easy way to use Muse, as it provides interactive editing experience. Just enter the text, click the 'render' button, and you will see the rendered result immediately. If you are not satisfied with the result, just adjust parameters on the control panel, the result then updates accordingly.
+ - The GUI mode is the easiest way to use Muse, as it provides interactive editing experience. Just enter the text, click the 'render' button, and you will see the rendered result immediately. If you are not satisfied with the result, just adjust parameters on the control panel, the result then updates accordingly.
  - The Command-line mode can be very helpful if you plan to use Muse in non-Scala projects.
 
 #### GUI mode introduction
@@ -27,13 +29,13 @@ you can [download the compiled program (v1.4)](https://github.com/MrVPlussOne/Mu
 
 ##### In the image shown above, the upper right panel is Muse's Result Panel, where the rendered image or animation is presented; the upper left panel is Muse's Control Panel, a place you enter text or adjust parameters; the button left panel is the Console Output Panel, it tells you information about Muse's state.
 
- - At the bottom of Control Panel, there're two checkboxes. If you check the 'Interactive' box, every time you change the text content, without clicking 'Render' button, the Result Panel will update automatically. If you check the 'Animation' box, Result Panel will change into animation mode, then you can watch Muse writing in action!
+ - At the bottom of Control Panel, there are two checkboxes. If you check the 'Interactive' box, every time you change the text content, without clicking 'Render' button, the Result Panel will update automatically. If you check the 'Animation' box, Result Panel will change into animation mode, then you can watch Muse writing in action!
  
- - At the top of Control Panel, there're two buttons. Click the 'Font Editor' button to bring up the font editor. You can create new Muse Characters or modify the existent ones as you wish. After saving your changes in the font editor, click the 'Reload Letters' button in the Control Panel to let Muse reload character map from disk. (Muse load its characters from a folder named 'letters' in its current directory)
+ - At the top of Control Panel, there are two buttons. Click the 'Font Editor' button to bring up the font editor. You can create new Muse Characters or modify the existent ones as you wish. After saving your changes in the font editor, click the 'Reload Letters' button in the Control Panel to let Muse reload character map from disk. (Muse load its characters from a folder named 'letters' in its current directory)
 
- - As you can see, there're quite many parameters you can change. Help texts will show up if you hover mouse cursor on them.
+ - As you can see, there're quite many parameters you can change. Help texts will show up if you hover your mouse cursor over them.
 
-##### With Muse's newly updated *Font Editor*, you can design your own fonts without too much efforts.
+##### With Muse's newly updated *Font Editor*, you can design your own fonts without too much effort.
 
 ![alt tag](NewEditor.gif)
 
@@ -61,9 +63,9 @@ results saved to /Users/weijiayi/Desktop/Muse1.3/myPngResult.png
 $ 
 ```
 
-In the example above, you use `java -jar Muse.jar` to invoke Muse in command-line, then you provide the name or path of a text file (SampleText.txt in this case) as argument. And you use options to override the default rendering parameters.
+In the example above, you use `java -jar Muse.jar` to invoke Muse in command-line, then you provide the name or path of a text file (SampleText.txt in this case) as an argument. And you use options to override the default rendering parameters.
 
-##### If something goes wrong, you will see usage text, all settable parameters with their descriptions, constraints and default values are given.
+##### If something goes wrong, you will see the usage text, in which all settable parameters along with their descriptions, constraints and default values are given.
 
 ```
 $ java -jar Muse.jar --WrongArg
@@ -89,7 +91,7 @@ Usage: muse [options] <input file>
   --Samples <value>
         Samples: how many quadrilaterals are used per unit length, must be positive (default: 50.0)
   --Lean <value>
-        Lean: tan value of slopping angle, must be float number (default: 0.3)
+        Lean: tan value of the sloping angle, must be float number (default: 0.3)
   --Thickness <value>
         Thickness: the thickness of strokes, must be positive (default: 2.8)
   --SpaceWidth <value>
