@@ -1,6 +1,6 @@
 # Muse-CGH
 [点击此处阅读中文版(Click here to read the Chinese version)](README_CH.md)
-### A program to convert text into stylish Computer Generated Handwriting.
+### A program to convert plain text into stylish Computer Generated Handwriting.
 
 you can [download the compiled program (v1.4)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/1.4/Muse1.4.zip) directly (.jar file)
 
@@ -13,21 +13,21 @@ you can [download the compiled program (v1.4)](https://github.com/MrVPlussOne/Mu
 ![alt tag](Printed.jpg)
 
 
-#### You can learn more about Muse's features by watching videos on my [homepage](https://mrvplusone.github.io/) in the 'Project Gallery' tab. (Sinece I can't use videos here.)
+#### You can learn more about Muse's features by watching videos on my [homepage](https://mrvplusone.github.io/gallery-muse.html). (Sinece I can't put videos here.)
 
 ### Usage
 
-##### Muse can work in two modes: GUI mode and Command-line mode. 
+##### Muse works in two modes: GUI mode and Command-line mode. 
  - The GUI mode is the easiest way to use Muse, as it provides interactive editing experience. Just enter the text, click the 'render' button, and you will see the rendered result immediately. If you are not satisfied with the result, just adjust parameters on the control panel, the result then updates accordingly.
  - The Command-line mode can be very helpful if you plan to use Muse in non-Scala projects.
 
-#### GUI mode introduction
+#### GUI mode
 
 ##### If you run Muse directly (by double click on the .jar file or by providing no command-line arguments), the program will start in GUI mode.
 
 ![alt tag](Sample.png)
 
-##### In the image shown above, the upper right panel is Muse's Result Panel, where the rendered image or animation is presented; the upper left panel is Muse's Control Panel, a place you enter text or adjust parameters; the button left panel is the Console Output Panel, it tells you information about Muse's state.
+##### In the image shown above, the upper right panel is Muse's Result Panel, where the rendered image or animation is presented; the upper left panel is Control Panel, a place you enter text or adjust parameters; the button left panel is the Console Output Panel, it tells you information about Muse's state.
 
  - At the bottom of Control Panel, there are two checkboxes. If you check the 'Interactive' box, every time you change the text content, without clicking 'Render' button, the Result Panel will update automatically. If you check the 'Animation' box, Result Panel will change into animation mode, then you can watch Muse writing in action!
  
@@ -35,11 +35,11 @@ you can [download the compiled program (v1.4)](https://github.com/MrVPlussOne/Mu
 
  - As you can see, there're quite many parameters you can change. Help texts will show up if you hover your mouse cursor over them.
 
-##### With Muse's newly updated *Font Editor*, you can design your own fonts without too much effort.
+##### With Muse's newly updated *Font Editor*, you can design your own fonts with ease.
 
 ![alt tag](NewEditor.gif)
 
-#### Command-line mode introduction
+#### Command-line mode
 
 ##### Muse use [scopt](https://github.com/scopt/scopt) to parse Command-line arguments.
 
@@ -65,7 +65,7 @@ $
 
 In the example above, you use `java -jar Muse.jar` to invoke Muse in command-line, then you provide the name or path of a text file (SampleText.txt in this case) as an argument. And you use options to override the default rendering parameters.
 
-##### If something goes wrong, you will see the usage text, in which all settable parameters along with their descriptions, constraints and default values are given.
+##### If wrong command-line arguments are provided, Muse will print out the usage text, in which all settable parameters along with their descriptions, constraints and default values are given.
 
 ```
 $ java -jar Muse.jar --WrongArg
