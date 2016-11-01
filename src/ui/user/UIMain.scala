@@ -6,7 +6,7 @@ import javax.swing.{BoxLayout, JButton, JFrame, JPanel}
 import ui.MySwing
 import ui.font_editor.EditorMain
 import main.ParamsCore
-import utilities.MuseCharMapLoader
+import utilities.{ProjectParameters, MuseCharMapLoader}
 
 /**
  * Run Muse in GUI mode.
@@ -38,7 +38,7 @@ object UIMain {
       core.letterMap.set(MuseCharMapLoader.loadDefaultCharMap())
     })
 
-    val controlFrame = new JFrame("Control Panel"){
+    val controlFrame = new JFrame(s"Muse (version ${ProjectParameters.versionNumber})"){
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
       setContentPane(new JPanel(){

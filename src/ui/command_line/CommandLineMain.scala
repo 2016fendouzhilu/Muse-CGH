@@ -4,7 +4,7 @@ package ui.command_line
 import ui.user.UIMain
 import main.{DoubleFieldInfo, ParamsCore}
 import scopt.OptionParser
-import utilities.{ImageSaver, ProjectParameters}
+import utilities.{ParallelOp, ImageSaver, ProjectParameters}
 
 import scala.io.Source
 
@@ -70,7 +70,15 @@ object CommandLineMain {
 
     val paintable = core.getPaintableResult(println)
     println("start to paint text...")
-    paintable.drawToBuffer()
+    paintable.drawToBufferInParallel(8)
+
+//    paintable.drawToBuffer()
+//    (0 until 20).foreach { _ =>
+//      paintable.drawToBufferInParallel(8)
+//    }
+//    (0 until 20).foreach { _ =>
+//      paintable.drawToBuffer()
+//    }
     println("painting finished.")
 
     println("saving results...")

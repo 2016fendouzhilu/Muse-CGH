@@ -4,6 +4,5 @@ package utilities
  * Created by weijiayi on 4/17/16.
  */
 object ProjectParameters {
-  val versionNumber: Double = 1.3
-
+  val versionNumber: Double = 1.4
 }

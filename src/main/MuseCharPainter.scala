@@ -11,8 +11,29 @@ import utilities.Vec2
 class MuseCharPainter(g2d: Graphics2D, pixelPerUnit: Double, displayPixelScale: Double, imageOffset: Vec2,
                     dotsPerUnit:Double, thicknessScale: Double) {
 
+  def bufferOffset = Vec2(2,2)
   def paintWordWithBuffering(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color, width: Double, height: Double): Unit = {
-    ???
+    val s = pixelPerUnit*displayPixelScale
+
+    def pointTrans(p: Vec2) = p*s
+
+    val bufferWidth = (width+2*bufferOffset.x)*s
+    val bufferHeight = (height+2*bufferOffset.y)*s
+
+    val buffer = new BufferedImage(bufferWidth.toInt, bufferHeight.toInt, BufferedImage.TYPE_INT_ARGB)
+    val bufferG = buffer.getGraphics.asInstanceOf[Graphics2D]
+
+    val drawer = new CurveDrawer(bufferG, pointTrans, pixelPerUnit*displayPixelScale, dotsPerUnit, thicknessScale)
+
+    drawer.setColor(color)
+    segs.foreach{ case WidthCurve(curve, wf) =>
+      drawer.drawColorfulCurve(curve, wf, None)
+    }
+
+
+    val dest = (offset-bufferOffset)*s
+
+    g2d.drawImage(buffer, dest.x.toInt, dest.y.toInt, null)
   }
 
   def draw(segs: IndexedSeq[WidthCurve], offset: Vec2, color: Color): Unit = {

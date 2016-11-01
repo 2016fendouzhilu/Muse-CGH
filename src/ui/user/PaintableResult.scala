@@ -4,13 +4,17 @@ import java.awt.image.BufferedImage
 import java.awt.{Color, Dimension, Graphics, Graphics2D}
 import java.io.File
 import java.nio.file.Paths
+import java.util.concurrent.Executors
 import javax.imageio.ImageIO
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import ui.MySwing
 import main.{MuseCharPainter, RenderingResult, RenderingWord}
-import utilities.{ImageSaver, Vec2}
+import utilities.{ParallelOp, ImageSaver, Vec2}
+
+import scala.collection.parallel.ForkJoinTaskSupport
+import scala.concurrent.forkjoin.ForkJoinPool
 
 case class EdgeSpace(left: Double, right: Double, top: Double, bottom: Double)
 
@@ -124,6 +128,24 @@ class PaintableResult(result: RenderingResult, dotsPerUnit: Double,
     }
     val timeUse = System.currentTimeMillis() - start
     println(s"painting time use $timeUse ms.")
+  }
+
+  def drawToBufferInParallel(threadNum: Int = 10): Unit ={
+    val start = System.currentTimeMillis()
+    val g2d = buffer.getGraphics.asInstanceOf[Graphics2D]
+
+    val painter = new MuseCharPainter(g2d, pixelPerUnit = pixelPerUnit, displayPixelScale = screenPixelFactor,
+      imageOffset = imageOffset, dotsPerUnit = dotsPerUnit, thicknessScale = thicknessScale)
+
+    val wordsPar = result.words.par
+    wordsPar.tasksupport = new ForkJoinTaskSupport(new ForkJoinPool(threadNum))
+    wordsPar.foreach {
+      case (offset, RenderingWord(mainSegs, secondSegs, width)) =>
+        painter.paintWordWithBuffering(mainSegs ++ secondSegs, offset, penColor, width, height = 4)
+    }
+
+    val timeUse = System.currentTimeMillis() - start
+    println(s"painting time use $timeUse ms. ($threadNum threads)")
   }
 
   def showInScrollPane(): JPanel = {
