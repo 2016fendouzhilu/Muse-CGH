@@ -93,14 +93,15 @@ class ParamsCore() extends ChangeSource {
   }
 
   val interactiveMode = newSettable[Boolean](true)
+  var animationMode = newSettable[Boolean](false)
+
+
   val letterMap = newSettable(MuseCharMapLoader.loadDefaultCharMap())
 
   /**
    * Set to 2 for Retina display, 1 for normal
    */
   val screenPixelFactor = newSettable[Int](2)
-
-  var isAnimationMode = false
 
   var animationFinished = true
 

@@ -42,7 +42,7 @@ class RenderResultJFrames(core: ParamsCore) extends ChangeListener{
     val resultDisplay = core.getPaintableResult(infoArea.setText)
 
     val sPane ={
-      if (core.isAnimationMode) {
+      if (core.animationMode.get) {
         val handle = new Settable[Boolean](true, ()=>Unit)
         currentAnimationHandle = Some(handle)
         resultDisplay.showInAnimation(penSpeed = core.penSpeed.get, frameRate = core.frameRate.get, shouldRun = handle.get)

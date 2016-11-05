@@ -64,7 +64,7 @@ class UIControlPanel(core: ParamsCore) extends JPanel with ChangeListener {
 
   val animationCheckBox = new JCheckBox("Animation")
   MySwing.addAction(animationCheckBox, () => {
-    core.isAnimationMode = animationCheckBox.isSelected
+    core.animationMode.set(animationCheckBox.isSelected)
     core.textToRender.set(textArea.getText)
   })
 
