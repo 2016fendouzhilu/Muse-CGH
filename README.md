@@ -2,7 +2,7 @@
 [点击此处阅读中文版(Click here to read the Chinese version)](README_CH.md)
 ### A program to convert plain text into stylish Computer Generated Handwriting.
 
-you can [download the compiled program (v1.4)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/1.4/Muse1.4.zip) directly (.jar file)
+you can [download the compiled program (v1.4.1)](https://github.com/MrVPlussOne/Muse-CGH/releases/download/v1.4.1/Muse.1.4.1.zip) directly (.jar file)
 
 ### Overview
 
