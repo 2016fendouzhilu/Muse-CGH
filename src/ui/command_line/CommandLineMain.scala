@@ -9,7 +9,7 @@ import utilities.{ParallelOp, ImageSaver, ProjectParameters}
 import scala.io.Source
 
 /**
- * The entrance of the program.
+ * The entrance of the program. This is the MainClass for creating artifacts
  * If no command-line arguments are given, the program will enter interactive GUI mode.
  * If at least one argument is given, the program will enter command-line mode.
  */
