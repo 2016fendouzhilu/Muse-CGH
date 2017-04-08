@@ -8,9 +8,9 @@ import utilities.MyMath
 
 import scala.collection.mutable
 
-class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
+class SegButtonsPanel(selectAction: Seq[Int]=>Unit) extends JPanel {
   private val buttons: mutable.ArrayBuffer[JToggleButton] = mutable.ArrayBuffer()
-  private var selected: Option[Int] = None
+  private var selected: Seq[Int] = IndexedSeq()
   def buttonCount = buttons.length
 
   setLayout(new FlowLayout())
@@ -20,9 +20,22 @@ class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
 
   def makeButton(index: Int): JToggleButton ={
     val b = new JToggleButton(s"$index"){setFocusable(false)}
-    MySwing.addAction(b, ()=>selectAction(index))
+    MySwing.addAction(b, ()=> {
+      selectAction(IndexedSeq(index))
+    })
     buttons += b
     b
+  }
+
+  def selectMore(): Unit = {
+    val i0 = currentSelected.last
+    val i1 = i0 + 1
+    if(i1<buttonCount)
+      selectAction(currentSelected :+ i1)
+  }
+
+  def selectLess(): Unit = {
+    selectAction(currentSelected.drop(1))
   }
 
 
@@ -47,18 +60,24 @@ class SegButtonsPanel(selectAction: Int=>Unit) extends JPanel {
   }
 
   def setSelected(ss: Seq[Int]): Unit ={
-    selected = ss.headOption
+    selected = ss
     buttons.indices.foreach(i => buttons(i).setSelected(selected.contains(i)))
   }
 
   def moveSelection(delta: Int): Unit = {
-    currentSelected match {
-      case None => buttons.headOption.foreach {
-        _.doClick()
-      }
-      case Some(s) =>
-        val index = MyMath.wrap(s + delta, buttonCount)
-        buttons(index).doClick()
+    if(currentSelected.isEmpty)
+      buttons.headOption.foreach(_.doClick())
+    else if(currentSelected.length == 1){
+      currentSelected.foreach(i => {
+        val i1 = MyMath.wrap(i + delta, buttonCount)
+        buttons(i1).doClick()
+      })
+    } else {
+      val selects = currentSelected.filter(i => {
+        val i1 = i + delta
+        0 <= i1 && i1 < buttonCount
+      }).map(_ + delta)
+      selectAction(selects)
     }
   }
 }

@@ -4,23 +4,27 @@ import java.awt.event.{ItemEvent, ItemListener, KeyAdapter, KeyEvent}
 import java.awt.{Dimension, FlowLayout}
 import javax.swing._
 import javax.swing.filechooser.FileNameExtensionFilter
-
 import ui.MySwing
 import ui.MySwing._
 import main.MuseCharType
 import ui.font_editor.ControlPanel.ModeInfo
 import utilities.ValueTextComponent.KeyCode
 import utilities.{ChangeListener, EditingSaver}
+import rx._
 
 /**
   * Control Panel for font editor
   */
-
 class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPanel with ChangeListener{
-  val segmentsPanel = new SegButtonsPanel(i => editor.selectSegment(Some(i)))
+  val segmentsPanel = new SegButtonsPanel(editor.selectSegments)
 
   val modes = IndexedSeq(MoveCamera) ++ (0 to 3).map(EditControlPoint) ++
     IndexedSeq(BendCurve, EditThickness(isHead = true), EditThickness(isHead = false), ScaleLetter, TranslateLetter, ScaleTotalThickness)
+
+  // modes available when multiple segments are selected
+  val multipleModes = IndexedSeq(MoveCamera) ++
+    IndexedSeq(BendCurve, TranslateLetter, ScaleTotalThickness)
+
 
   val modeInfos: IndexedSeq[ModeInfo] = {
     import KeyEvent._
@@ -95,6 +99,10 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
 
   val newEditingButton = makeButton("New") { editor.newEditing() }
 
+  val selectMoreSegButton = makeButton("Select More") { segmentsPanel.selectMore() }
+
+  val selectLessSegButton = makeButton("Select Less") { segmentsPanel.selectLess() }
+
   val letterTypeBox = new JComboBox[MuseCharType.Value](MuseCharType.values.toArray) { setFocusable(false) }
   letterTypeBox.addItemListener(new ItemListener {
     override def itemStateChanged(e: ItemEvent): Unit = {
@@ -132,11 +140,14 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
 
     addRow(undoButton, redoButton)
 
+    addRow(selectMoreSegButton, selectLessSegButton)
+
+    contentPanel.add(segmentsPanel)
+
     addRow(newEditingButton, saveButton, loadButton)
 
     addRow(letterTypeBox)
 
-    contentPanel.add(segmentsPanel)
   }
 
   def setLetterType(t: MuseCharType.Value): Unit = {
@@ -228,7 +239,7 @@ class ControlPanel(editor: EditorCore, zoomAction: Double => Unit) extends JPane
     var map = Map[KeyCode, KeyEvent =>Unit](
       (VK_RIGHT, e => segmentsPanel.moveSelection(1) ),
       (VK_LEFT, e => segmentsPanel.moveSelection(-1) ),
-      (VK_ESCAPE, e => editor.selectSegment(None) ),
+      (VK_ESCAPE, e => editor.selectSegments(List()) ),
       (VK_Z, e => if(e.isControlDown || e.isAltDown) undoButton.doClick() ),
       (VK_R, e => if(e.isControlDown || e.isAltDown) redoButton.doClick() ),
       (VK_UP, e => zoomAction(1.25)),

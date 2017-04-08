@@ -14,7 +14,7 @@ class ParamsCore() extends ChangeSource {
   val samplesPerUnit = newSettable[Double](50.0)
   val pixelPerUnit = newSettable[Double](10.0)
   val lean = newSettable[Double](0.3)
-  val thicknessScale = newSettable[Double](2.8)
+  val thicknessScale = newSettable[Double](2.3)
 
   val fontRow = List[DoubleFieldInfo] (
     DoubleFieldInfo(pixelPerUnit, "Pixel density", positiveConstraint,

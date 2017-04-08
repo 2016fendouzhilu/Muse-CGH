@@ -180,10 +180,12 @@ class PaintableResult(result: RenderingResult, dotsPerUnit: Double,
       setFileFilter(new FileNameExtensionFilter("PNG Files", "png"))
       setMultiSelectionEnabled(false)
     }
+
     fc.showSaveDialog(null) match {
       case JFileChooser.APPROVE_OPTION =>
         val path = fc.getSelectedFile.getAbsolutePath
         ImageSaver.saveImage(buffer, path)
+      case _ =>
     }
   }
 

@@ -6,7 +6,9 @@ import utilities.{MyMath, CubicCurve, Vec2}
 /**
   * Created by weijiayi on 5/28/16.
   */
-class BendCurveBuffer(start: Vec2, penOffset: Vec2, initCurve: CubicCurve, dotsDistance: Double, dataPointNum: Int, config: MinimizationConfig = BendCurveBuffer.defaultConfig) {
+class BendCurveBuffer(
+                      start: Vec2, penOffset: Vec2, initCurve: CubicCurve,
+                      dotsDistance: Double, dataPointNum: Int, config: MinimizationConfig = BendCurveBuffer.defaultConfig) {
   var dots = IndexedSeq[Vec2](start)
 
   var curve = initCurve

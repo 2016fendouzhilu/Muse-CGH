@@ -21,7 +21,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
   val mainStrokeColor = Color.black
   val endpointColor = CurveDrawer.colorWithAlpha(Color.red, 0.75)
   val controlPointColor = CurveDrawer.colorWithAlpha(Color.orange, 0.75)
-  val curveHighlightEnd = Color.orange
+  val curveHighlightEnd = Color.orange.brighter()
   val curveHighlightStart = Color.red
   val editThicknessColor = Color.red
   val controlLineColor = new Color(0.6f,0f,0.6f)
@@ -122,6 +122,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
   }
 
   val moveSpeed = 1.0
+  var isSampling = false
   var bendCurveBuffer: Option[BendCurveBuffer] = None
   def dragAction(drag: Vec2, init: Vec2, current: Vec2) = {
     def scaleRatio(p: Vec2) = {
@@ -133,20 +134,29 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
 
     def bendCurve(): Unit = {
       editor.currentEditing().selectedInkCurves.headOption.foreach { ink =>
-        bendCurveBuffer match {
-          case Some(buffer) =>
-            buffer.penMoveTo(displayToEditorPointTrans(current))
-            val c1 = buffer.curve
-            val c0 = ink.curve
-            val (d1, d2, d3) = (c1.p1 - c0.p1, c1.p2-c0.p2, c1.p3-c0.p3)
-            editor.dragControlPoint(1, d1)
-            editor.dragControlPoint(3, d3)
-            editor.dragControlPoint(2, d2-d3) // because drag p3 will move p2 as well
-          case None =>
-            val initCurve = ink.curve
-            val start = initCurve.p0
-            val penOffset = displayToEditorPointTrans(current) - start
-            bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.03, dataPointNum = 15))
+        def startNewBuffer() = {
+          val initCurve = ink.curve
+          val start = initCurve.p0
+          val penOffset = displayToEditorPointTrans(current) - start
+          bendCurveBuffer = Some(new BendCurveBuffer(start, penOffset, initCurve, dotsDistance = 0.03, dataPointNum = 15))
+        }
+
+        if(isSampling)
+          bendCurveBuffer match {
+            case Some(buffer) =>
+              buffer.penMoveTo(displayToEditorPointTrans(current))
+              val c1 = buffer.curve
+              val c0 = ink.curve
+              val (d1, d2, d3) = (c1.p1 - c0.p1, c1.p2-c0.p2, c1.p3-c0.p3)
+              editor.dragControlPoint(1, d1)
+              editor.dragControlPoint(3, d3)
+              editor.dragControlPoint(2, d2-d3) // because drag p3 will move p2 as well
+            case None =>
+              startNewBuffer()
+          }
+        else {
+          startNewBuffer()
+          isSampling = true
         }
       }
     }
@@ -180,7 +190,7 @@ class EditingDisplayPanel(editor: EditorCore, var pixelPerUnit: Int = 40, var di
       case MoveCamera => ()
       case BendCurve =>
         bendCurveBuffer.foreach(_.report())
-        bendCurveBuffer = None
+        isSampling = false
         editor.recordNow()
         editor.notifyListeners()
       case _ => editor.recordNow()

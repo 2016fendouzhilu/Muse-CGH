@@ -1,13 +1,14 @@
 name := "Muse-CGH"
 
-version := "1.4.1"
+version := "1.4.2"
 
 scalaVersion := "2.11.7"
 
 scalaSource in Compile := baseDirectory.value / "src"
 
 libraryDependencies ++= Seq(
-  "org.scalacheck" %% "scalacheck" % "1.13.2" % "test"
+  "org.scalacheck" %% "scalacheck" % "1.13.2" % "test",
+  "com.lihaoyi" %% "scalarx" % "0.3.1"
 )
 
 fork in run := true

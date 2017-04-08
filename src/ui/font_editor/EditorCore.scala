@@ -65,8 +65,8 @@ class EditorCore(private var buffer: Editing) extends ChangeSource {
     notifyListeners()
   }
 
-  def selectSegment(indexOp: Option[Int]): Unit = {
-    editAndRecord(buffer.copy(selects = indexOp.toList))
+  def selectSegments(indices: Seq[Int]): Unit = {
+    editAndRecord(buffer.copy(selects = indices.toList))
   }
 
   def changeMode(m: EditMode): Unit ={

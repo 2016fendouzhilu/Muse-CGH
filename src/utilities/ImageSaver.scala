@@ -9,9 +9,9 @@ import javax.imageio.ImageIO
  */
 object ImageSaver {
   def saveImage(image: RenderedImage, path: String): Option[String] ={
-    val (name, ext) = nameAndExtension(path, "png")
-    val file = new File(name+s".$ext")
     try {
+      val (name, ext) = nameAndExtension(path, "png")
+      val file = new File(name+s".$ext")
       ImageIO.write(image, ext, file)
       Some(file.getAbsolutePath)
     }catch {
@@ -22,7 +22,11 @@ object ImageSaver {
   }
 
   def nameAndExtension(s: String, defaultExt:String) = {
-    val (n,ext) = s.splitAt(s.lastIndexOf('.'))
-    (n, if(ext.isEmpty || ext == ".") defaultExt else ext.tail)
+    val names = s.split("\\.")
+    if(names.length == 1){
+      (names.head, defaultExt)
+    }else{
+      (names(names.length-2), names.last)
+    }
   }
 }
