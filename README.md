@@ -1,19 +1,19 @@
 # Muse-CGH
 [点击此处阅读中文版(Click here to read the Chinese version)](README_CH.md)
-### A program to convert plain text into stylish Computer Generated Handwriting.
+### A program to synthesis stylish Computer Generated Handwriting.
 
 you can [download the compiled program (v1.4.2)](https://github.com/MrVPlusOne/Muse-CGH/releases/download/v1.4.2/Muse_1.4.2.zip) directly (.jar file)
 
 ### Overview
 
-##### Muse can synthesize stylish English handwriting from texts. Its algorithm carefully connects strokes of adjacent characters to produce cursive words and uses randomness to ensure that every character is unique in the rendering results.
+##### Muse can synthesize stylish English handwriting from plain texts. Its algorithm carefully connects strokes of adjacent characters to create cursive words and uses random perturbations to ensure that every character is unique in the rendering results.
 
-##### The following photo shows some rendered text printed on papers:
+##### The following photo shows some rendered text printed on paper:
 
 ![alt tag](Printed.jpg)
 
 
-#### You can learn more about Muse's features by watching videos on my [homepage](https://mrvplusone.github.io/gallery-muse.html). (Sinece I can't put videos here.)
+#### You can learn more about Muse's features by watching videos on my [homepage](https://mrvplusone.github.io/gallery-muse.html).
 
 ### Usage
 
@@ -33,7 +33,7 @@ you can [download the compiled program (v1.4.2)](https://github.com/MrVPlusOne/M
 
  - At the top of Control Panel, there are two buttons. Click the 'Font Editor' button to bring up the font editor. You can create new Muse Characters or modify the existent ones as you wish. After saving your changes in the font editor, click the 'Reload Letters' button in the Control Panel to let Muse reload character map from disk. (Muse load its characters from a folder named 'letters' in its current directory)
 
- - As you can see, there're quite many parameters you can change. Help texts will show up if you hover your mouse cursor over them.
+ - As you can see, there're quite many parameters you can change. Help texts will show up if you hover the mouse cursor over them.
 
 ##### With Muse's newly updated *Font Editor*, you can design your own fonts with ease.
 
@@ -63,7 +63,7 @@ results saved to /Users/weijiayi/Desktop/Muse1.3/myPngResult.png
 $
 ```
 
-In the example above, you use `java -jar Muse.jar` to invoke Muse in command-line, then you provide the name or path of a text file (SampleText.txt in this case) as an argument. And you use options to override the default rendering parameters.
+In the example above, you use `java -jar Muse.jar` to run Muse in command-line, then you provide the name or path of a text file (SampleText.txt in this case) as an argument. You can also use options to override the default rendering parameters.
 
 ##### If wrong command-line arguments are provided, Muse will print out the usage text, in which all settable parameters along with their descriptions, constraints and default values are given.
 
@@ -110,9 +110,7 @@ Usage: muse [options] <input file>
 
 ### How to use the source code
 
-This project is developed using Intellij IDEA and the .idea file is provided, so it can be run as a standard Scala project in IDEA.
-
-You can also run the source code as a sbt project. A [build.sbt](build.sbt) file has been added to this project recently.
+You can run the source code as an sbt project. A [build.sbt](build.sbt) file has been added to this project recently.
 
 
 ### License
