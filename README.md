@@ -1,6 +1,6 @@
 # Muse-CGH
 [点击此处阅读中文版(Click here to read the Chinese version)](README_CH.md)
-### A program to synthesis stylish Computer Generated Handwriting.
+### A program to synthesize stylish Computer Generated Handwriting.
 
 you can [download the compiled program (v1.4.2)](https://github.com/MrVPlusOne/Muse-CGH/releases/download/v1.4.2/Muse_1.4.2.zip) directly (.jar file)
 
@@ -27,7 +27,7 @@ you can [download the compiled program (v1.4.2)](https://github.com/MrVPlusOne/M
 
 ![alt tag](Sample.png)
 
-##### In the image shown above, the upper right panel is Muse's Result Panel, where the rendered image or animation is presented; the upper left panel is Control Panel, a place you enter text or adjust parameters; the button left panel is the Console Output Panel, it tells you information about Muse's state.
+##### In the image shown above, the upper right panel is Muse's Rendering Result Panel, where the rendered image or animation is presented; the upper left panel is Control Panel, a place you enter text or adjust parameters; the button left panel is the Console Output Panel, it tells you information about Muse's state.
 
  - At the bottom of Control Panel, there are two checkboxes. If you check the 'Interactive' box, every time you change the text content, without clicking 'Render' button, the Result Panel will update automatically. If you check the 'Animation' box, Result Panel will change into animation mode, then you can watch Muse writing in action!
 
