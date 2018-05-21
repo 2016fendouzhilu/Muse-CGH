@@ -13,7 +13,7 @@ you can [download the compiled program (v1.4.2)](https://github.com/MrVPlusOne/M
 ![alt tag](Printed.jpg)
 
 
-#### You can learn more about Muse's features by watching videos on my [homepage](https://mrvplusone-old.github.io/gallery-muse.html).
+#### You can learn more about Muse's features through videos on my [homepage](https://mrvplusone.github.io/old-homepage/gallery-muse).
 
 ### Usage
 
